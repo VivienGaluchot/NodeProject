@@ -10,11 +10,11 @@ var error404 =require('./pages/error404');
 module.exports = {
 	process : function(request, response, url){
 		if(url == null || url.length == 0 || url == '/' || url == '/index'){
-			response.writeHead(200, {'Content-Type': 'text/html'});
+			response.writeHead(200, {'Content-Type': 'text/html\; charset=UTF-8',});
 			response.write(index.out());
 		}
 		else{
-			response.writeHead(404, {'Content-Type': 'text/html'});
+			response.writeHead(404, {'Content-Type': 'text/html\; charset=UTF-8'});
 			response.write(error404.out());
 		}
 		response.end();

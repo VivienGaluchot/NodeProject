@@ -6,15 +6,13 @@
 
 module.exports = {
 	title: 'Titre de page',
+	content: 'Page',
 
-	content: function(){
-		return 'Page';
-	},
-
-	out: function(){
-		var response = '<html>';
-		response += '<head><title>' + this.title + '</title></head>';
-		response += '<body>' + this.content() + '</body>';
+	out: function(url){
+		var response = '<html><head>';		
+		response += '<meta charset=UTF-8>';
+		response += '<title>' + this.title.toString(url) + '</title>';
+		response += '</head><body>' + this.content.toString(url) + '</body>';
 		response += '</html>';
 		return response;
 	}
