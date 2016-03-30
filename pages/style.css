@@ -1,4 +1,29 @@
 body {
-	background-color: black;
+	background-color: #2a6b95;
 	color: white;
+	width: 900px;
+	padding: 0;
+	margin: 0 auto;
+	text-align: center;
+}
+
+header, section, footer{
+	width: 900px;
+	display: inline-block;
+	box-sizing: border-box;
+}
+
+header{
+	background-color: rgb(27, 61, 84);
+	border-bottom: 1px solid white;
+}
+
+section{
+	background-color: rgb(39, 90, 125);
+}
+
+footer{
+	background-color: rgb(27, 61, 84);
+	border-top: 1px solid white;
+	padding: 15px;
 }

@@ -15,12 +15,14 @@ module.exports = {
 };
 
 // Code spécifique
-p.title = '404';
+p.title = 'Erreur 404';
 
-p.content = {
-	toString: function(){
-		var response = encap.h1('404');
-		response += encap.p('La page n\'existe pas :(');
-		return response;
-	}
-};
+p.header = { toString: function(){
+	var response = encap.h1('Erreur 404');
+	return response;
+}};
+
+p.section = { toString: function(){
+	var response = encap.p('La page demandée n\'existe pas :(');
+	return response;
+}};

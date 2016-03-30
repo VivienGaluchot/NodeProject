@@ -2,19 +2,42 @@
 	By Pellgrain - 29/03/2016
 
 	Modele de page
+
+	Par défaut les pages sont construites une seule
+	fois pour éconnomiser le CPU.
+	Si le flag 'needToRefresh' est à true lors de la
+	requette, la page sera reconstruite.
 --------------------------------------------------- */
 
 module.exports = {
+	// Données
 	title: 'Titre de page',
-	content: 'Page',
+	header: 'Header',
+	section: 'Page',
+	footer: 'Footer',
 
-	out: function(url){
+	// System
+	needToRefresh: true,
+	current:'',
+
+	refresh: function(){
 		var response = '<html><head>';		
 		response += '<meta charset=UTF-8>';
-		response += '<title>' + this.title.toString(url) + '</title>';
+		response += '<title>' + this.title.toString() + '</title>';
 		response += '<link rel="stylesheet" type="text/css" href="style.css">';
-		response += '</head><body>' + this.content.toString(url) + '</body>';
-		response += '</html>';
-		return response;
+		response += '</head><body>';
+		response += '<header>' + this.header.toString() + '</header>';
+		response += '<section>' + this.section.toString() + '</section>';
+		response += '<footer>' + this.footer.toString() + '</footer>';
+		response += '</body></html>';
+		this.current = response;
+	},
+	out: function(){
+		if(!this.needToRefresh)
+			return this.current;
+		else {
+			this.refresh();
+			return this.current;
+		}
 	}
 };

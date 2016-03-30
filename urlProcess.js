@@ -52,7 +52,7 @@ module.exports = {
 		}
 		else{
 			response.writeHead(404, {'Content-Type': 'text/html\; charset=UTF-8'});
-			response.write(elementsJS['error404'].content.call());
+			response.write(elementsJS['/error404'].content.call());
 		}
 		response.end();
 	}

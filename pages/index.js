@@ -17,12 +17,15 @@ module.exports = {
 // Code spécifique
 p.title = 'Accueil';
 
-p.content = {
-	toString: function(){
-		var date = new Date();
-		var response = encap.h1('Accueil');
-		response += encap.p('Bienvenue');
-		response += encap.p('Time : '+date.getHours()+'h'+date.getSeconds());
-		return response;
-	}
-};
+p.header = { toString: function(){
+	var response = encap.h1('Accueil');
+	return response;
+}};
+
+p.section = { toString: function(){
+	var date = new Date();
+	var response = encap.p('Bienvenue');
+	response += encap.p('Time : '+date.getHours()+'h'+date.getMinutes()+'m'+date.getSeconds()+'s');
+	p.needToRefresh = true;
+	return response;
+}};
