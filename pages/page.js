@@ -12,6 +12,7 @@ module.exports = {
 		var response = '<html><head>';		
 		response += '<meta charset=UTF-8>';
 		response += '<title>' + this.title.toString(url) + '</title>';
+		response += '<link rel="stylesheet" type="text/css" href="style.css">';
 		response += '</head><body>' + this.content.toString(url) + '</body>';
 		response += '</html>';
 		return response;

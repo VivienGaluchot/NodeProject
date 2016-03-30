@@ -29,7 +29,7 @@ server.on('request',function (request, response) {
 });
 
 // TimeOut de 20s
-server.setTimeout(20000,log.conLog('Timeout'));
+server.setTimeout(20000);
 
 // Mise en écoute
 server.listen(8080);

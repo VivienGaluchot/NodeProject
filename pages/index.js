@@ -19,8 +19,10 @@ p.title = 'Accueil';
 
 p.content = {
 	toString: function(){
+		var date = new Date();
 		var response = encap.h1('Accueil');
 		response += encap.p('Bienvenue');
+		response += encap.p('Time : '+date.getHours()+'h'+date.getSeconds());
 		return response;
 	}
 };
