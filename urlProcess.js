@@ -32,6 +32,7 @@ addElementJS('text/html\; charset=UTF-8', '/error404');
 
 // Elements Statiques
 addElement('text/css\; charset=UTF-8', '/style.css');
+addElement('image/png','/map.png');
 
 // Traitement
 module.exports = {

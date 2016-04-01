@@ -26,6 +26,7 @@ p.section = { toString: function(){
 	var date = new Date();
 	var response = encap.p('Bienvenue');
 	response += encap.p('Time : '+date.getHours()+'h'+date.getMinutes()+'m'+date.getSeconds()+'s');
+	response += '<img src="map.png" alt="Map">';
 	p.needToRefresh = true;
 	return response;
 }};
