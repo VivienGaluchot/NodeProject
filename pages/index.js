@@ -24,9 +24,13 @@ p.header = { toString: function(){
 
 p.section = { toString: function(){
 	var date = new Date();
-	var response = encap.p('Bienvenue');
+	var response = encap.h2('Bienvenue');
 	response += encap.p('Time : '+date.getHours()+'h'+date.getMinutes()+'m'+date.getSeconds()+'s');
-	response += '<img src="map.png" alt="Map">';
+	response += encap.p('Serveur de développement');
+	response += encap.p('<img src="map.png" alt="Map">');
+	response += encap.h2('Develommement');
+	response += encap.p('Y\'a pas grand chose !');
+	response += encap.p('<img src="mindmap.png" alt="Map">');
 	p.needToRefresh = true;
 	return response;
 }};
