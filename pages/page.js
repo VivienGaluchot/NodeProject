@@ -24,6 +24,7 @@ module.exports = {
 		var response = '<html><head>';		
 		response += '<meta charset=UTF-8>';
 		response += '<title>' + this.title.toString() + '</title>';
+		response += '<link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet" type="text/css">';
 		response += '<link rel="stylesheet" type="text/css" href="style.css">';
 		response += '</head><body>';
 		response += '<header>' + this.header.toString() + '</header>';

@@ -34,6 +34,7 @@ addElementJS('text/html\; charset=UTF-8', '/error404');
 addElement('text/css\; charset=UTF-8', '/style.css');
 addElement('image/png','/map.png');
 addElement('image/png','/mindmap.png');
+addElement('image/png','/patternBody.png');
 
 // Traitement
 module.exports = {

@@ -1,10 +1,17 @@
 body {
-	background-color: #2a6b95;
+	background-color: #92b7cf;
 	color: white;
 	width: 900px;
-	padding: 0;
+	padding: 20px 0px;
 	margin: 0 auto;
 	text-align: center;
+	font-family: 'Share Tech Mono', sans-serif;
+	background-image: url('patternBody.png');
+	background-size: 128px 128px;
+	background-repeat: repeat;
+	background-position: center center;
+	image-rendering: pixelated;
+	image-rendering: -moz-crisp-edges;
 }
 
 header, section, footer{
@@ -15,22 +22,36 @@ header, section, footer{
 
 header{
 	background-color: rgb(27, 61, 84);
-	border-bottom: 1px solid white;
+	border-bottom: 5px solid rgb(4, 24, 38);
 }
 
 section{
-	background-color: rgb(39, 90, 125);
+	color: rgb(39, 90, 125);
+	background-color: white;
 	text-align: left;
-	padding: 20px;
+	padding: 50px;
 }
 
-section>p>img{
+section>h2{
+	margin: 0;
+	margin-bottom: 22px;
+	padding-top: 22px;
+}
+
+section>img{
 	display: block;
 	margin: 0 auto;
+	max-width: 800px;
+}
+
+section>.legend{
+	text-align: center;
+	font-style: italic;
+	text-decoration: underline;
 }
 
 footer{
 	background-color: rgb(27, 61, 84);
-	border-top: 1px solid white;
+	border-top: 5px solid rgb(4, 24, 38);
 	padding: 15px;
 }

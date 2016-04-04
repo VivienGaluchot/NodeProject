@@ -25,5 +25,8 @@ module.exports = {
 	},
 	p: function(text){
 		return '<p>'+text+'</p>';
+	},
+	legend: function(text){
+		return '<div class="legend">'+text+'</div>';
 	}
 };
