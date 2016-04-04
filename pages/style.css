@@ -20,9 +20,28 @@ header, section, footer{
 	box-sizing: border-box;
 }
 
-header{
+header, footer{
 	background-color: rgb(27, 61, 84);
+	background-image: url('patternHeader.png');
+	background-size: 128px 128px;
+	background-repeat: repeat;
+	background-position: center center;
+}
+
+header{
 	border-bottom: 5px solid rgb(4, 24, 38);
+}
+
+
+header .icon{
+	background-image: url('header.png');
+	background-size: contain;
+	background-position: center center;
+	background-repeat: no-repeat;
+	height: 140px;
+	margin-top: 20px;
+	width: 100%;
+	box-sizing: border-box;
 }
 
 section{
@@ -32,26 +51,36 @@ section{
 	padding: 50px;
 }
 
-section>h2{
+section h2{
 	margin: 0;
 	margin-bottom: 22px;
 	padding-top: 22px;
 }
 
-section>img{
+section img{
 	display: block;
 	margin: 0 auto;
 	max-width: 800px;
 }
 
-section>.legend{
+section .legend{
 	text-align: center;
 	font-style: italic;
+	text-decoration: underline;
+	padding: 10px 0 15px 0;
+}
+
+section a{
+	text-decoration: none;
+	font-weight: 700;
+	color: rgb(4, 24, 38);
+}
+
+section a:hover{
 	text-decoration: underline;
 }
 
 footer{
-	background-color: rgb(27, 61, 84);
 	border-top: 5px solid rgb(4, 24, 38);
 	padding: 15px;
 }

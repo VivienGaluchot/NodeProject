@@ -5,28 +5,41 @@
 --------------------------------------------------- */
 
 module.exports = {
-	get: function(balise, text){
-		return '<'+balise+'>'+text+'</'+balise+'>';
+	content: '',
+	raw: function(text){
+		this.content += text;
+		return this;
 	},
-	getWithArg: function(balise, arguments, text){
-		return '<'+balise+' '+arguments+'>'+text+'</'+balise+'>';
+	balise: function(balise, text){
+		this.content += '<'+balise+'>'+text+'</'+balise+'>';
+		return this;
+	},
+	baliseWithArg: function(balise, arguments, text){
+		this.content += '<'+balise+' '+arguments+'>'+text+'</'+balise+'>';
+		return this;
 	},
 	h1: function(text){
-		return '<h1>'+text+'</h1>';
+		this.content += '<h1>'+text+'</h1>';
+		return this;
 	},
 	h2: function(text){
-		return '<h2>'+text+'</h2>';
+		this.content += '<h2>'+text+'</h2>';
+		return this;
 	},
 	h3: function(text){
-		return '<h3>'+text+'</h3>';
+		this.content += '<h3>'+text+'</h3>';
+		return this;
 	},
 	a: function(url,text){
-		return '<a href=\"'+url+'\"">'+text+'</a>';
+		this.content += '<a href=\"'+url+'\"">'+text+'</a>';
+		return this;
 	},
 	p: function(text){
-		return '<p>'+text+'</p>';
+		this.content += '<p>'+text+'</p>';
+		return this;
 	},
 	legend: function(text){
-		return '<div class="legend">'+text+'</div>';
+		this.content += '<div class="legend">'+text+'</div>'
+		return this;;
 	}
 };

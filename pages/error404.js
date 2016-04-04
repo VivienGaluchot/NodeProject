@@ -18,11 +18,13 @@ module.exports = {
 p.title = 'Erreur 404';
 
 p.header = { toString: function(){
-	var response = encap.h1('Erreur 404');
-	return response;
+	var response = Object.create(encap).
+	h1('Erreur 404');
+	return response.content;
 }};
 
 p.section = { toString: function(){
-	var response = encap.p('La page demandée n\'existe pas :(');
-	return response;
+	var response = Object.create(encap).
+	p('La page demandée n\'existe pas :(');
+	return response.content;
 }};

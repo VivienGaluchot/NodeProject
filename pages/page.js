@@ -27,7 +27,7 @@ module.exports = {
 		response += '<link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet" type="text/css">';
 		response += '<link rel="stylesheet" type="text/css" href="style.css">';
 		response += '</head><body>';
-		response += '<header>' + this.header.toString() + '</header>';
+		response += '<header>' + '<div class="icon"></div>' + this.header.toString() + '</header>';
 		response += '<section>' + this.section.toString() + '</section>';
 		response += '<footer>' + this.footer.toString() + '</footer>';
 		response += '</body></html>';
