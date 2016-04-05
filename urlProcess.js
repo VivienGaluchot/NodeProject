@@ -29,14 +29,17 @@ var addElement = function(contentType, url){
 // Elements JS
 addElementJS('text/html\; charset=UTF-8', '/index');
 addElementJS('text/html\; charset=UTF-8', '/error404');
+addElementJS('text/html\; charset=UTF-8', '/game');
 
 // Elements Statiques
+// Style
 addElement('text/css\; charset=UTF-8', '/style.css');
-addElement('image/png','/map.png');
-addElement('image/png','/mindmap.png');
-addElement('image/png','/patternBody.png');
-addElement('image/png','/patternHeader.png');
-addElement('image/png','/header.png');
+// Images
+addElement('image/png','/img/map.png');
+addElement('image/png','/img/mindmap.png');
+addElement('image/png','/img/patternBody.png');
+addElement('image/png','/img/patternHeader.png');
+addElement('image/png','/img/header.png');
 
 // Traitement
 module.exports = {

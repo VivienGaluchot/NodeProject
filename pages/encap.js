@@ -31,7 +31,7 @@ module.exports = {
 		return this;
 	},
 	a: function(url,text){
-		this.content += '<a href=\"'+url+'\"">'+text+'</a>';
+		this.content += '<a href=\"'+url+'\">'+text+'</a>';
 		return this;
 	},
 	p: function(text){

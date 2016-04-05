@@ -9,10 +9,18 @@
 	requette, la page sera reconstruite.
 --------------------------------------------------- */
 
+var encap = require('./encap');
+
 module.exports = {
 	// Données
 	title: 'Titre de page',
 	header: 'Header',
+	nav : { toString: function(){
+		var response = Object.create(encap).
+		a('/index','Accueil').
+		a('/game','Jeux');
+		return response.content;
+	}},
 	section: 'Page',
 	footer: 'Footer',
 
@@ -28,6 +36,7 @@ module.exports = {
 		response += '<link rel="stylesheet" type="text/css" href="style.css">';
 		response += '</head><body>';
 		response += '<header>' + '<div class="icon"></div>' + this.header.toString() + '</header>';
+		response += '<nav>' + this.nav.toString() + '</nav>';
 		response += '<section>' + this.section.toString() + '</section>';
 		response += '<footer>' + this.footer.toString() + '</footer>';
 		response += '</body></html>';

@@ -1,7 +1,7 @@
 /* ---------------------------------------------------
-	By Pellgrain - 29/03/2016
+	By Pellgrain - 05/04/2016
 
-	Page d'accueil
+	Page du jeu
 --------------------------------------------------- */
 
 // Hérite de l'objet page
@@ -15,23 +15,18 @@ module.exports = {
 };
 
 // Code spécifique
-p.title = 'Accueil';
+p.title = 'Jouer';
 
 p.header = { toString: function(){
 	var response = Object.create(encap).
-	h1('-- Polydle Project --');
+	h1('Jouer au jeu des familles');
 	return response.content;
 }};
 
 p.section = { toString: function(){
 	var response = Object.create(encap).
-	h2('Bienvenue').
-	raw('<p>Te voila dans ta chambre, provenant d\'un serveur de développement ').a('http://nodejs.org/','NodeJs').raw('</p>').
-	h2('Informations').
-	p('Y\'a pas grand chose !').
-	raw('<img src="img/mindmap.png" alt="Map">').
-	legend('MindMap').
-	p('Alors ca c\'est la MindMap du projet. Une Mind Map se construit comme suit : au centre le thème ou sujet de la Mind Map en image et en mots. Depuis ce centre, des branches en couleur irradient dans toutes les directions en portant les idées principales sous forme de dessins et de mots-clés. Ces branches irradient à leur tour vers des idées secondaires, en image et mot-clé, etc.');
+	h2('En construction').
+	p('Y\'a pas grand chose ici ...');
 	return response.content;
 }};
 

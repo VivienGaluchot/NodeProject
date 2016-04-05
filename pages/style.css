@@ -6,7 +6,7 @@ body {
 	margin: 0 auto;
 	text-align: center;
 	font-family: 'Share Tech Mono', sans-serif;
-	background-image: url('patternBody.png');
+	background-image: url('img/patternBody.png');
 	background-size: 128px 128px;
 	background-repeat: repeat;
 	background-position: center center;
@@ -14,7 +14,7 @@ body {
 	image-rendering: -moz-crisp-edges;
 }
 
-header, section, footer{
+header, nav, section, footer{
 	width: 900px;
 	display: inline-block;
 	box-sizing: border-box;
@@ -22,26 +22,40 @@ header, section, footer{
 
 header, footer{
 	background-color: rgb(27, 61, 84);
-	background-image: url('patternHeader.png');
+	background-image: url('img/patternHeader.png');
 	background-size: 128px 128px;
 	background-repeat: repeat;
 	background-position: center center;
 }
 
-header{
-	border-bottom: 5px solid rgb(4, 24, 38);
-}
-
-
 header .icon{
-	background-image: url('header.png');
+	background-image: url('img/header.png');
 	background-size: contain;
 	background-position: center center;
 	background-repeat: no-repeat;
 	height: 140px;
-	margin-top: 20px;
+	margin-top: 50px;
 	width: 100%;
 	box-sizing: border-box;
+}
+
+nav{
+	background-color: rgb(4, 24, 38);
+}
+
+nav a{
+	display: inline-block;
+	margin: 0 1px;
+	padding: 5px;
+	text-decoration: none;
+	font-weight: 700;
+	font-size: 20px;
+	color: white;
+	width: 130px;
+}
+
+nav a:hover{
+	background-color: rgb(11, 41, 62);
 }
 
 section{
