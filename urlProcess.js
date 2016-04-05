@@ -32,7 +32,7 @@ addElementJS('text/html\; charset=UTF-8', '/error404');
 addElementJS('text/html\; charset=UTF-8', '/game');
 addElementJS('text/html\; charset=UTF-8', '/credit');
 
-// Elements Statiques
+// Elements Statiques, chargés en mémoire
 // Style
 addElement('text/css\; charset=UTF-8', '/style.css');
 // Images
@@ -51,16 +51,16 @@ module.exports = {
 		var el;
 		// Elements statiques
 		if(typeof (el = elements[url]) !== 'undefined'){
-			response.writeHead(200, {'Content-Type': el.type,});
+			response.writeHead(200, {'Content-Type': el.type});
 			response.write(el.content);
 		}
 		// Elements JS
 		else if(typeof (el = elementsJS[url]) !== 'undefined'){
-			response.writeHead(200, {'Content-Type': el.type,});
+			response.writeHead(200, {'Content-Type': el.type});
 			response.write(el.content.call());
 		}
 		else{
-			response.writeHead(404, {'Content-Type': 'text/html\; charset=UTF-8'});
+			response.writeHead(404, {'Content-Type': elementsJS['/error404'].type});
 			response.write(elementsJS['/error404'].content.call());
 		}
 		response.end();
