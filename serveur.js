@@ -5,34 +5,46 @@
 --------------------------------------------------- */
 
 // Dependances
-var http = require('http');
-var url = require('url');
-var queryString = require('querystring');
-var log = require('./log');
-var urlProcess = require('./urlProcess');
+const http = require('http');
+const https = require('https');
+const fs = require('fs');
+
+const url = require('url');
+const queryString = require('querystring');
+const log = require('./log');
+const urlProcess = require('./urlProcess');
+
+const options = {
+  key: fs.readFileSync('./keys/key.pem'),
+  cert: fs.readFileSync('./keys/cert.pem')
+};
 
 /*
 	Serveur
 */
-var server = http.createServer();
+const server = http.createServer();
+const serverS = https.createServer(options);
 
 // Event request
-server.on('request',function (request, response) {
+const event = function(request, response){
 	// Informations
 	var parametres = queryString.parse(url.parse(request.url).query);
 	var pageUrl = url.parse(request.url).pathname;
 
-    log.conLog('pageUrl : ' + pageUrl);
+    log.conLog(request.headers['x-forwarded-for'] || request.connection.remoteAddress || request.socket.remoteAddress || request.connection.socket.remoteAddress);
+    log.conLogSuite('pageUrl : ' + pageUrl);
 
     // Process
 	urlProcess.process(request, response, pageUrl);
-});
+};
 
-// TimeOut de 20s
-server.setTimeout(20000);
+server.on('request',event);
+serverS.on('request',event);
+
 
 // Mise en écoute
 server.listen(8080);
+serverS.listen(8081);
 log.conLog('Serveur en écoute');
 
 // Arret du serveur

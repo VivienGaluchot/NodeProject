@@ -38,6 +38,14 @@ module.exports = {
 		this.content += '<p>'+text+'</p>';
 		return this;
 	},
+	p_: function(text){
+		this.content += '<p>'+text;
+		return this;
+	},
+	_p: function(text){
+		this.content += text+'</p>';
+		return this;
+	},
 	legend: function(text){
 		this.content += '<div class="legend">'+text+'</div>'
 		return this;;
