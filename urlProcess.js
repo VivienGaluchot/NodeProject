@@ -30,6 +30,7 @@ var addElement = function(contentType, url){
 addElementJS('text/html\; charset=UTF-8', '/index');
 addElementJS('text/html\; charset=UTF-8', '/error404');
 addElementJS('text/html\; charset=UTF-8', '/game');
+addElementJS('text/html\; charset=UTF-8', '/credit');
 
 // Elements Statiques
 // Style

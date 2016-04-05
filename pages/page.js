@@ -18,7 +18,8 @@ module.exports = {
 	nav : { toString: function(){
 		var response = Object.create(encap).
 		a('/index','Accueil').
-		a('/game','Jeux');
+		a('/game','Jeu').
+		a('/credit','Credit');
 		return response.content;
 	}},
 	section: 'Page',
