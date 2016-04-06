@@ -15,8 +15,8 @@ const log = require('./log');
 const urlProcess = require('./urlProcess');
 
 const options = {
-  key: fs.readFileSync('./keys/key.pem'),
-  cert: fs.readFileSync('./keys/cert.pem')
+  key: fs.readFileSync('./keys/serv.key'),
+  cert: fs.readFileSync('./keys/serv.crt')
 };
 
 /*

@@ -4,34 +4,35 @@
 	Module de Log
 --------------------------------------------------- */
 
-var lastDate = new Date();
+var lastDate = new Date(0);
+
 var strDate = function(){
 	var date = new Date();
-	if(date.getHours()==lastDate.getHours() && date.getMinutes()==lastDate.getMinutes() && date.getSeconds()==lastDate.getSeconds())
+	if(date.getSeconds()==lastDate.getSeconds() && date.getMinutes()==lastDate.getMinutes() && date.getHours()==lastDate.getHours() && date.getDate()==lastDate.getDate())
 		return '';
 	else{
 		lastDate = date;
-		return date.getHours()+':'+date.getMinutes()+':'+date.getSeconds() + '\n    ';
+		return ' --- '+date.getMonth()+'/'+date.getDate()+'/'+date.getFullYear()+' - '+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds()+' --- \n';
 	}
 }
 
 module.exports = {
 	conLog : function(out){
 		var date = new Date();
-		console.log('LOG ' + strDate() + ' . ' + out);
+		console.log(strDate() + 'LOG. ' + out);
 	},
 
 	conLogWarning : function(out){
 		var date = new Date();
-		console.log('WARNING ' + strDate() + ' -> ' + out);
+		console.log(strDate() + 'WRN. ' + out);
 	},
 
 	conLogError : function(out){
 		var date = new Date();
-		console.log('ERROR ' + strDate() + ' -> ' + out);
+		console.log(strDate() + 'ERR. ' + out);
 	},
 
 	conLogSuite : function(out){
-		console.log('     . ' + out);
+		console.log('     ' + out);
 	}
 };
