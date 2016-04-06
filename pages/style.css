@@ -10,8 +10,10 @@ body {
 	background-size: 128px 128px;
 	background-repeat: repeat;
 	background-position: center center;
-	image-rendering: pixelated;
+	image-rendering: pixelated;	
+	image-rendering: crisp-edge;
 	image-rendering: -moz-crisp-edges;
+	image-rendering: -o-crisp-edges;
 }
 
 header, nav, section, footer{

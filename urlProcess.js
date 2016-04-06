@@ -51,7 +51,8 @@ module.exports = {
 		var el;
 		// Elements statiques
 		if(typeof (el = elements[url]) !== 'undefined'){
-			response.writeHead(200, {'Content-Type': el.type});
+			// Cache-Control : le navigeur garde en cache les elements 10 minutes (600s)
+			response.writeHead(200, {'Content-Type': el.type, 'Cache-Control': 'max-age=600'});
 			response.write(el.content);
 		}
 		// Elements JS
