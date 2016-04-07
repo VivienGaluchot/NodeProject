@@ -15,6 +15,8 @@ module.exports = {
 };
 
 // Code spécifique
+// Pour que la page se reconstruise a chaque chargement
+p.needToRefresh = false;
 p.title = 'Credit';
 
 p.header = { toString: function(){
@@ -27,14 +29,5 @@ p.section = { toString: function(){
 	var response = Object.create(encap).
 	h2('Fait par des gens').
 	p("C'est nous qu'on l'a fait oui !");
-	return response.content;
-}};
-
-p.footer = { toString: function(){
-	var date = new Date();
-	var response = Object.create(encap).
-	p(date.toString());
-	// Pour que la page se reconstruise a chaque chargement
-	p.needToRefresh = true;
 	return response.content;
 }};

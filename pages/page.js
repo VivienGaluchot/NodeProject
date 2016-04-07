@@ -26,8 +26,8 @@ module.exports = {
 	footer: 'Footer',
 
 	// System
-	needToRefresh: true,
-	current:'',
+	needToRefresh: false,
+	current: null,
 
 	refresh: function(){
 		var response = '<html><head>';		
@@ -44,11 +44,11 @@ module.exports = {
 		this.current = response;
 	},
 	out: function(){
-		if(!this.needToRefresh)
-			return this.current;
-		else {
+		if(this.needToRefresh || this.current==null){
 			this.refresh();
 			return this.current;
 		}
+		else
+			return this.current;
 	}
 };

@@ -4,6 +4,13 @@
 	Page du jeu
 --------------------------------------------------- */
 
+var fs = require('fs');
+var clientScript;
+fs.readFile('./pages/clientScript/client.js', function(err, data) {
+	if (err) throw err;
+	clientScript = data;
+});
+
 // Hérite de l'objet page
 var page = require('./page');
 var encap = require('./encap');
@@ -26,15 +33,12 @@ p.header = { toString: function(){
 p.section = { toString: function(){
 	var response = Object.create(encap).
 	h2('En construction').
-	p('Y\'a pas grand chose ici ...');
-	return response.content;
-}};
-
-p.footer = { toString: function(){
-	var date = new Date();
-	var response = Object.create(encap).
-	p(date.toString());
-	// Pour que la page se reconstruise a chaque chargement
-	p.needToRefresh = true;
+	p('Y\'a pas grand chose ici ...').
+	p('... à part un script de requette.').
+	raw('<button onclick="send()">Lancer</button>').
+	raw('<button onclick="clearTimeout(timer)">Stopper</button>').
+	p('Résultat :').
+	raw('<p id="ajaxResult"></p>').
+	script(clientScript);
 	return response.content;
 }};

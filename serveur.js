@@ -44,7 +44,7 @@ serverS.on('request',event);
 
 // Mise en écoute
 server.listen(8080);
-serverS.listen(8081);
+//serverS.listen(8081);
 log.conLog('Serveur en écoute');
 
 // Arret du serveur

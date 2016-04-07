@@ -49,5 +49,9 @@ module.exports = {
 	legend: function(text){
 		this.content += '<div class="legend">'+text+'</div>'
 		return this;;
+	},
+	script: function(text){
+		this.content += '<script>'+text+'</script>';
+		return this;
 	}
 };

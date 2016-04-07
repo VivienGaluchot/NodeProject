@@ -31,6 +31,7 @@ addElementJS('text/html\; charset=UTF-8', '/index');
 addElementJS('text/html\; charset=UTF-8', '/error404');
 addElementJS('text/html\; charset=UTF-8', '/game');
 addElementJS('text/html\; charset=UTF-8', '/credit');
+addElementJS('text/html\; charset=UTF-8', '/ajax/test');
 
 // Elements Statiques, chargés en mémoire
 // Style
@@ -58,11 +59,11 @@ module.exports = {
 		// Elements JS
 		else if(typeof (el = elementsJS[url]) !== 'undefined'){
 			response.writeHead(200, {'Content-Type': el.type});
-			response.write(el.content.call());
+			response.write(el.content.call(request));
 		}
 		else{
 			response.writeHead(404, {'Content-Type': elementsJS['/error404'].type});
-			response.write(elementsJS['/error404'].content.call());
+			response.write(elementsJS['/error404'].content.call(request));
 		}
 		response.end();
 	}

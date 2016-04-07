@@ -15,6 +15,9 @@ module.exports = {
 };
 
 // Code spécifique
+// La page doit se reconstruire
+p.needToRefresh = true;
+
 p.title = 'Accueil';
 
 p.header = { toString: function(){
@@ -40,7 +43,5 @@ p.footer = { toString: function(){
 	var date = new Date();
 	var response = Object.create(encap).
 	p(date.toString());
-	// Pour que la page se reconstruise a chaque chargement
-	p.needToRefresh = true;
 	return response.content;
 }};

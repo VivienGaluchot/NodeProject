@@ -12,7 +12,7 @@ var strDate = function(){
 		return '';
 	else{
 		lastDate = date;
-		return ' --- '+date.getMonth()+'/'+date.getDate()+'/'+date.getFullYear()+' - '+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds()+' --- \n';
+		return '---- '+date.getMonth()+'/'+date.getDate()+'/'+date.getFullYear()+' '+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds()+' ----\n';
 	}
 }
 
