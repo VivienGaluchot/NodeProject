@@ -1,4 +1,3 @@
-// Ajax Requette
 function getXMLHttpRequest() {
 	var xhr = null;
 	

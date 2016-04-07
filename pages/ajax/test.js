@@ -1,7 +1,7 @@
 /* ---------------------------------------------------
 	By Pellgrain - 29/03/201
 
-	Réponse ajax de test
+	Réponse à une requette Ajax
 --------------------------------------------------- */
 
 module.exports = {

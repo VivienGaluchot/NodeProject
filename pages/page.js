@@ -12,7 +12,8 @@
 var encap = require('./encap');
 
 module.exports = {
-	// Données
+	script: '',
+
 	title: 'Titre de page',
 	header: 'Header',
 	nav : { toString: function(){
@@ -35,6 +36,7 @@ module.exports = {
 		response += '<title>' + this.title.toString() + '</title>';
 		response += '<link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet" type="text/css">';
 		response += '<link rel="stylesheet" type="text/css" href="style.css">';
+		response += '<script>'+this.script.toString()+'</script>';
 		response += '</head><body>';
 		response += '<header>' + '<div class="icon"></div>' + this.header.toString() + '</header>';
 		response += '<nav>' + this.nav.toString() + '</nav>';

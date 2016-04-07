@@ -5,11 +5,6 @@
 --------------------------------------------------- */
 
 var fs = require('fs');
-var clientScript;
-fs.readFile('./pages/clientScript/client.js', function(err, data) {
-	if (err) throw err;
-	clientScript = data;
-});
 
 // Hérite de l'objet page
 var page = require('./page');
@@ -22,6 +17,11 @@ module.exports = {
 };
 
 // Code spécifique
+fs.readFile('./pages/clientScript/client.js', function(err, data) {
+	if (err) throw err;
+	p.script = data;
+});
+
 p.title = 'Jouer';
 
 p.header = { toString: function(){
@@ -34,11 +34,10 @@ p.section = { toString: function(){
 	var response = Object.create(encap).
 	h2('En construction').
 	p('Y\'a pas grand chose ici ...').
-	p('... à part un script de requette.').
+	p('... à part un script !').
 	raw('<button onclick="send()">Lancer</button>').
 	raw('<button onclick="clearTimeout(timer)">Stopper</button>').
 	p('Résultat :').
-	raw('<p id="ajaxResult"></p>').
-	script(clientScript);
+	raw('<p id="ajaxResult"></p>');
 	return response.content;
 }};

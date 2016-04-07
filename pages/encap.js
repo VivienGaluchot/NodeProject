@@ -10,14 +10,6 @@ module.exports = {
 		this.content += text;
 		return this;
 	},
-	balise: function(balise, text){
-		this.content += '<'+balise+'>'+text+'</'+balise+'>';
-		return this;
-	},
-	baliseWithArg: function(balise, arguments, text){
-		this.content += '<'+balise+' '+arguments+'>'+text+'</'+balise+'>';
-		return this;
-	},
 	h1: function(text){
 		this.content += '<h1>'+text+'</h1>';
 		return this;
