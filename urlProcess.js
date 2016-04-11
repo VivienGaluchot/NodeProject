@@ -38,7 +38,7 @@ addElementJS('text/html\; charset=UTF-8', '/ajax/test');
 // Scripts
 addElement('text/js\; charset=UTF-8','/clientScript/testPing.js');
 // Style
-addElement('text/css\; charset=UTF-8', '/style.css');
+addElement('text/css\; charset=UTF-8', '/style/style.css');
 // Images
 addElement('image/png','/img/map.png');
 addElement('image/png','/img/mindmap.png');

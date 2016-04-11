@@ -6,7 +6,7 @@ body {
 	margin: 0 auto;
 	text-align: center;
 	font-family: 'Share Tech Mono', sans-serif;
-	background-image: url('img/patternBody.png');
+	background-image: url('../img/patternBody.png');
 	background-size: 128px 128px;
 	background-repeat: repeat;
 	background-position: center center;
@@ -24,14 +24,14 @@ header, nav, section, footer{
 
 header, footer{
 	background-color: rgb(27, 61, 84);
-	background-image: url('img/patternHeader.png');
+	background-image: url('../img/patternHeader.png');
 	background-size: 128px 128px;
 	background-repeat: repeat;
 	background-position: center center;
 }
 
 header .icon{
-	background-image: url('img/header.png');
+	background-image: url('../img/header.png');
 	background-size: contain;
 	background-position: center center;
 	background-repeat: no-repeat;

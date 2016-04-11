@@ -5,29 +5,26 @@
 --------------------------------------------------- */
 
 
+var encap = require('./util/encap');
+
 // Hérite de l'objet page
-var page = require('./page');
-var encap = require('./encap');
+var page = require('./util/page');
+var p = new page();
 
-var p = Object.create(page);
-
-module.exports = {
-	out : function(){ return p.out(); }
-};
-
+module.exports.out = function(){return p.out();};
 // Code spécifique
-p.scriptFile = '/clientScript/client.js';
+// p.scriptFile = '/clientScript/client.js';
 
 p.title = 'Chater';
 
 p.header = { toString: function(){
-	var response = Object.create(encap).
+	var response = new encap().
 	h1('Chater avec des gens');
 	return response.content;
 }};
 
 p.section = { toString: function(){
-	var response = Object.create(encap).
+	var response = new encap().
 	h2('Raconte des trucs !').
 	p('Ceci est un chat en direct avec des gens.').
 	p('Attention, aucune vérification n\'est faite sur l\'authenticité des utilisateurs.').

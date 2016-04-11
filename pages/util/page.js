@@ -11,51 +11,60 @@
 
 var encap = require('./encap');
 
-module.exports = {
-	script: null,
-	scriptFile: null,
+var page = function () {
+	this.script = null;
+	this.scriptFile = null;
 
-	title: 'Titre de page',
-	header: 'Header',
-	nav : { toString: function(){
-		var response = Object.create(encap).
+	this.title = 'Titre de page';
+	this.header = 'Header';
+	this.nav = { toString: function(){
+		var response = new encap().
 		a('/index','Accueil').
 		a('/game','Jeu').
 		a('/chat','Chat').
 		a('/credit','Credit');
 		return response.content;
-	}},
-	section: 'Page',
-	footer: 'Footer',
+	}};
+	this.section = 'Page';
+	this.footer = 'Footer';
 
 	// System
-	needToRefresh: false,
-	current: null,
+	this.needToRefresh = false;
+	this.current = null;
 
-	refresh: function(){
-		var response = '<html><head>';
+	this.refresh = function(){
+		var response = '<html>';
+		// Debut HEAD
+		response += '<head>';
 		response += '<title>' + this.title.toString() + '</title>';
 		response += '<link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet" type="text/css">';
-		response += '<link rel="stylesheet" type="text/css" href="style.css">';
+		response += '<link rel="stylesheet" type="text/css" href="style/style.css">';
 		if(this.script !== null)
 			response += '<script>'+this.script.toString()+'</script>';
-		response += '</head><body>';
 		if(this.scriptFile !== null)
 			response += ' <script src="'+this.scriptFile.toString()+'"></script>';
+		response += '</head>';
+		// Fin HEAD
+		// BODY
+		response += '<body>';
 		response += '<header>' + '<div class="icon"></div>' + this.header.toString() + '</header>';
 		response += '<nav>' + this.nav.toString() + '</nav>';
 		response += '<section>' + this.section.toString() + '</section>';
 		response += '<footer>' + this.footer.toString() + '</footer>';
-		response += '</body></html>';
+		response += '</body>';
+		// Fin BODY
+		response += '</html>';
 		this.current = response;
-	},
-	
-	out: function(){
+	};
+
+	this.out = function(){
 		if(this.needToRefresh || this.current===null){
 			this.refresh();
 			return this.current;
 		}
 		else
 			return this.current;
-	}
+	};
 };
+
+module.exports = page;
