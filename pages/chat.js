@@ -1,7 +1,7 @@
 /* ---------------------------------------------------
 	By Pellgrain - 05/04/2016
 
-	Page du jeu
+	Page de chat
 --------------------------------------------------- */
 
 
@@ -16,24 +16,21 @@ module.exports = {
 };
 
 // Code spécifique
-p.scriptFile = '/clientScript/testPing.js';
+p.scriptFile = '/clientScript/client.js';
 
-p.title = 'Jouer';
+p.title = 'Chater';
 
 p.header = { toString: function(){
 	var response = Object.create(encap).
-	h1('Jouer au jeu des familles');
+	h1('Chater avec des gens');
 	return response.content;
 }};
 
 p.section = { toString: function(){
 	var response = Object.create(encap).
-	h2('En construction').
-	p('Y\'a pas grand chose ici ...').
-	p('... à part un script !').
-	raw('<button onclick="start()">Lancer</button>').
-	raw('<button onclick="clearTimeout(timer)">Stopper</button>').
-	p('Résultat :').
-	raw('<p id="ajaxResult"></p>');
+	h2('Raconte des trucs !').
+	p('Ceci est un chat en direct avec des gens.').
+	p('Attention, aucune vérification n\'est faite sur l\'authenticité des utilisateurs.').
+	raw('<textarea id="chatArea" cols="50" rows="5"></textarea>');
 	return response.content;
 }};

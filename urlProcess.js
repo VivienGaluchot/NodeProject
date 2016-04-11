@@ -16,7 +16,7 @@ var elementsJS = {};
 var addElementJS = function(contentType, url){
 	var object = require('./pages'+url);
 	elementsJS[url] = {type: contentType, content: object.out};
-}
+};
 
 var fs = require('fs');
 var addElement = function(contentType, url){
@@ -24,16 +24,19 @@ var addElement = function(contentType, url){
 		if (err) throw err;
 		elements[url] = {type: contentType, content: data};
 	});
-}
+};
 
 // Elements JS
 addElementJS('text/html\; charset=UTF-8', '/index');
 addElementJS('text/html\; charset=UTF-8', '/error404');
 addElementJS('text/html\; charset=UTF-8', '/game');
+addElementJS('text/html\; charset=UTF-8', '/chat');
 addElementJS('text/html\; charset=UTF-8', '/credit');
 addElementJS('text/html\; charset=UTF-8', '/ajax/test');
 
 // Elements Statiques, chargés en mémoire
+// Scripts
+addElement('text/js\; charset=UTF-8','/clientScript/testPing.js');
 // Style
 addElement('text/css\; charset=UTF-8', '/style.css');
 // Images
@@ -46,7 +49,7 @@ addElement('image/png','/img/header.png');
 // Traitement
 module.exports = {
 	process : function(request, response, url){
-		if(url == null || url.length == 0 || url == '/')
+		if(url === null || url.length === 0 || url === '/')
 			url = '/index';
 
 		var el;

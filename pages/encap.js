@@ -39,8 +39,8 @@ module.exports = {
 		return this;
 	},
 	legend: function(text){
-		this.content += '<div class="legend">'+text+'</div>'
-		return this;;
+		this.content += '<div class="legend">'+text+'</div>';
+		return this;
 	},
 	script: function(text){
 		this.content += '<script>'+text+'</script>';

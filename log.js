@@ -14,7 +14,7 @@ var strDate = function(){
 		lastDate = date;
 		return '---- '+date.getMonth()+'/'+date.getDate()+'/'+date.getFullYear()+' '+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds()+' ----\n';
 	}
-}
+};
 
 module.exports = {
 	conLog : function(out){

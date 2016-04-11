@@ -12,7 +12,8 @@
 var encap = require('./encap');
 
 module.exports = {
-	script: '',
+	script: null,
+	scriptFile: null,
 
 	title: 'Titre de page',
 	header: 'Header',
@@ -20,6 +21,7 @@ module.exports = {
 		var response = Object.create(encap).
 		a('/index','Accueil').
 		a('/game','Jeu').
+		a('/chat','Chat').
 		a('/credit','Credit');
 		return response.content;
 	}},
@@ -31,13 +33,15 @@ module.exports = {
 	current: null,
 
 	refresh: function(){
-		var response = '<html><head>';		
-		response += '<meta charset=UTF-8>';
+		var response = '<html><head>';
 		response += '<title>' + this.title.toString() + '</title>';
 		response += '<link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet" type="text/css">';
 		response += '<link rel="stylesheet" type="text/css" href="style.css">';
-		response += '<script>'+this.script.toString()+'</script>';
+		if(this.script !== null)
+			response += '<script>'+this.script.toString()+'</script>';
 		response += '</head><body>';
+		if(this.scriptFile !== null)
+			response += ' <script src="'+this.scriptFile.toString()+'"></script>';
 		response += '<header>' + '<div class="icon"></div>' + this.header.toString() + '</header>';
 		response += '<nav>' + this.nav.toString() + '</nav>';
 		response += '<section>' + this.section.toString() + '</section>';
@@ -45,8 +49,9 @@ module.exports = {
 		response += '</body></html>';
 		this.current = response;
 	},
+	
 	out: function(){
-		if(this.needToRefresh || this.current==null){
+		if(this.needToRefresh || this.current===null){
 			this.refresh();
 			return this.current;
 		}

@@ -5,16 +5,16 @@
 --------------------------------------------------- */
 
 // Dependances
-const http = require('http');
-const https = require('https');
-const fs = require('fs');
+var http = require('http');
+var https = require('https');
+var fs = require('fs');
 
-const url = require('url');
-const queryString = require('querystring');
-const log = require('./log');
-const urlProcess = require('./urlProcess');
+var url = require('url');
+var queryString = require('querystring');
+var log = require('./log');
+var urlProcess = require('./urlProcess');
 
-const options = {
+var options = {
   key: fs.readFileSync('./keys/serv.key'),
   cert: fs.readFileSync('./keys/serv.crt')
 };
@@ -22,11 +22,11 @@ const options = {
 /*
 	Serveur
 */
-const server = http.createServer();
-const serverS = https.createServer(options);
+var server = http.createServer();
+var serverS = https.createServer(options);
 
-// Event request
-const event = function(request, response){
+// Event handler
+var handler = function(request, response){
 	// Informations
 	var parametres = queryString.parse(url.parse(request.url).query);
 	var pageUrl = url.parse(request.url).pathname;
@@ -38,8 +38,8 @@ const event = function(request, response){
 	urlProcess.process(request, response, pageUrl);
 };
 
-server.on('request',event);
-serverS.on('request',event);
+server.on('request',handler);
+serverS.on('request',handler);
 
 
 // Mise en écoute
@@ -49,5 +49,5 @@ log.conLog('Serveur en écoute');
 
 // Arret du serveur
 server.on('close', function() {
-	log.conLog('Arret du serveur')
-})
+	log.conLog('Arret du serveur');
+});
