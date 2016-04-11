@@ -37,6 +37,7 @@ addElementJS('text/html\; charset=UTF-8', '/ajax/test');
 // Elements Statiques, chargés en mémoire
 // Scripts
 addElement('text/js\; charset=UTF-8','/clientScript/testPing.js');
+addElement('text/js\; charset=UTF-8','/clientScript/socketIo.js');
 // Style
 addElement('text/css\; charset=UTF-8', '/style/style.css');
 // Images
@@ -49,6 +50,10 @@ addElement('image/png','/img/header.png');
 // Traitement
 module.exports = {
 	process : function(request, response, url){
+		// lib socket.io, gérée par le module
+		if(url.startsWith('/socket.io'))
+			return;
+
 		if(url === null || url.length === 0 || url === '/')
 			url = '/index';
 

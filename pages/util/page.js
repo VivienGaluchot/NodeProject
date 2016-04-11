@@ -14,6 +14,7 @@ var encap = require('./encap');
 var page = function () {
 	this.script = null;
 	this.scriptFile = null;
+	this.scriptOnload = null;
 
 	this.title = 'Titre de page';
 	this.header = 'Header';
@@ -38,6 +39,7 @@ var page = function () {
 		response += '<head>';
 		response += '<title>' + this.title.toString() + '</title>';
 		response += '<link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet" type="text/css">';
+		response += '<script src="/socket.io/socket.io.js"></script>';
 		response += '<link rel="stylesheet" type="text/css" href="style/style.css">';
 		if(this.script !== null)
 			response += '<script>'+this.script.toString()+'</script>';
@@ -46,7 +48,10 @@ var page = function () {
 		response += '</head>';
 		// Fin HEAD
 		// BODY
-		response += '<body>';
+		if(this.scriptOnload !== null)
+			response += '<body onload="'+this.scriptOnload.toString()+'">';
+		else
+			response += '<body>';
 		response += '<header>' + '<div class="icon"></div>' + this.header.toString() + '</header>';
 		response += '<nav>' + this.nav.toString() + '</nav>';
 		response += '<section>' + this.section.toString() + '</section>';

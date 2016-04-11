@@ -4,29 +4,28 @@
 	Programme principal du Serveur NodeJs
 --------------------------------------------------- */
 
-// Dependances
-var http = require('http');
-var https = require('https');
-var fs = require('fs');
 
+var http = require('http');
+var server = http.createServer();
+var io = require('socket.io')(server);
+var fs = require('fs');
 var url = require('url');
 var queryString = require('querystring');
+var ent = require('ent');
+
+/*var https = require('https');
+var options = {
+	key: fs.readFileSync('./keys/serv.key'),
+	cert: fs.readFileSync('./keys/serv.crt')
+};
+var serverS = https.createServer(options);
+serverS.listen(8081);*/
+
 var log = require('./log');
 var urlProcess = require('./urlProcess');
 
-var options = {
-  key: fs.readFileSync('./keys/serv.key'),
-  cert: fs.readFileSync('./keys/serv.crt')
-};
-
-/*
-	Serveur
-*/
-var server = http.createServer();
-var serverS = https.createServer(options);
-
 // Event handler
-var handler = function(request, response){
+var servHandler = function(request, response){
 	// Informations
 	var parametres = queryString.parse(url.parse(request.url).query);
 	var pageUrl = url.parse(request.url).pathname;
@@ -38,16 +37,29 @@ var handler = function(request, response){
 	urlProcess.process(request, response, pageUrl);
 };
 
-server.on('request',handler);
-serverS.on('request',handler);
+// SOCKET.IO, utilisation des WebSockets
+io.sockets.on('connection', function (socket, pseudo) {
+	socket.on('chatNew', function(pseudo) {
+		pseudo = ent.encode(pseudo);
+		socket.pseudo = pseudo;
+		socket.broadcast.emit('chatNew', pseudo);
+		log.conLog('chatNew : '+pseudo);
+	});
 
+	socket.on('chatMessage', function (msg) {
+		msg = ent.encode(msg);
+		socket.broadcast.emit('chatMessage', {pseudo: socket.pseudo, message: msg});
+		socket.emit('chatMessage', {pseudo: socket.pseudo, message: msg});
+		log.conLog('chatMessage - '+socket.pseudo+' : '+msg);
+	}); 
 
-// Mise en écoute
-server.listen(8080);
-//serverS.listen(8081);
-log.conLog('Serveur en écoute');
-
-// Arret du serveur
-server.on('close', function() {
-	log.conLog('Arret du serveur');
+	socket.on('disconnect', function(){
+		socket.broadcast.emit('chatDisconnect', pseudo);
+		log.conLog('chatDisconnect : '+pseudo);
+	})
 });
+
+// Démarrage du serveur
+server.on('request',servHandler);
+server.listen(8080);
+log.conLog('Serveur en écoute');

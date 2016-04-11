@@ -46,18 +46,29 @@ nav{
 }
 
 nav a{
+	vertical-align: top;
 	display: inline-block;
-	margin: 0;
-	padding: 5px;
 	text-decoration: none;
 	font-weight: 700;
 	font-size: 20px;
 	color: white;
-	width: 130px;
+	width: 130px;	
+	background-color: rgb(234, 234, 234);
+	border: 1px solid rgb(11, 41, 62);
+	border-bottom: 3px solid rgb(11, 41, 62);
+	color: rgb(11, 41, 62);
+	padding: 5px;
+	margin: 0px 0px 0px 0px;
 }
 
 nav a:hover{
-	background-color: rgb(11, 41, 62);
+	background-color: rgb(243, 243, 243);
+}
+
+nav a:active{
+	background-color: white;
+	border: 1px solid rgb(11, 41, 62);
+	margin: 2px 0px 0px 0px;
 }
 
 section{
@@ -110,7 +121,7 @@ button{
 	color: rgb(11, 41, 62);
 	font-family: 'Share Tech Mono', sans-serif;
 	padding: 5px;
-	margin: 0px 5px 3px 5px;
+	margin: 0px 0px 0px 0px;
 	font-size: 16px;
 }
 
@@ -121,5 +132,31 @@ button:hover{
 button:active{
 	background-color: white;
 	border: 1px solid rgb(11, 41, 62);
-	margin: 3px 5px 0px 5px;
+	margin: 2px 0px 0px 0px;
+}
+
+.textInput, .cadreText{
+	background-color: rgb(234, 234, 234);
+	border: 1px solid rgb(11, 41, 62);
+	font-family: 'Share Tech Mono', sans-serif;
+	font-size: 16px;	
+	color: rgb(11, 41, 62);
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.cadreText{
+	resize: vertical;
+	min-height: 100px;
+	max-height: 500px;
+	overflow: auto;
+}
+
+.cadreTextLine{
+
+}
+
+.textInput{
+	height: 33px;
+	vertical-align: bottom;
 }
