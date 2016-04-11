@@ -31,7 +31,6 @@ var display = function(text){
 }
 
 var touche = function(event){
-	var intKeyCode = event.keyCode;
-	if(intKeyCode === 13)
+	if(event.keyCode === 13)
 		envoyerMessage();
 }
