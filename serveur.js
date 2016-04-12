@@ -27,39 +27,45 @@ var urlProcess = require('./urlProcess');
 // Event handler
 var servHandler = function(request, response){
 	// Informations
-	var parametres = queryString.parse(url.parse(request.url).query);
+	// var parametres = queryString.parse(url.parse(request.url).query);
 	var pageUrl = url.parse(request.url).pathname;
-
-    log.conLog(request.headers['x-forwarded-for'] || request.connection.remoteAddress || request.socket.remoteAddress || request.connection.socket.remoteAddress);
-    log.conLogSuite('pageUrl : ' + pageUrl);
 
     // Process
 	urlProcess.process(request, response, pageUrl);
 };
 
 // SOCKET.IO, utilisation des WebSockets
-io.sockets.on('connection', function (socket, pseudo) {
-	socket.on('chatNew', function(pseudo) {
-		pseudo = ent.encode(pseudo);
-		socket.pseudo = pseudo;
-		socket.broadcast.emit('chatNew', pseudo);
-		log.conLog('chatNew : '+pseudo);
+io.sockets.on('connection', function (socket, userPseudo) {
+	socket.on('chatNew', function(userPseudo) {
+		userPseudo = ent.encode(userPseudo);
+		socket.pseudo = userPseudo;		
+		var date = timeToStr(new Date());
+		socket.broadcast.emit('chatNew', {timeStamp: date, pseudo: userPseudo});
+		socket.emit('chatNew', {timeStamp: date, pseudo: userPseudo});
+		log.conLog('chatNew : '+userPseudo);
 	});
 
 	socket.on('chatMessage', function (msg) {
 		msg = ent.encode(msg);
-		socket.broadcast.emit('chatMessage', {pseudo: socket.pseudo, message: msg});
-		socket.emit('chatMessage', {pseudo: socket.pseudo, message: msg});
+		var date = timeToStr(new Date());
+		socket.broadcast.emit('chatMessage', {timeStamp: date, pseudo: socket.pseudo, message: msg});
+		socket.emit('chatMessage', {timeStamp: date, pseudo: socket.pseudo, message: msg});
 		log.conLog('chatMessage - '+socket.pseudo+' : '+msg);
 	}); 
 
 	socket.on('disconnect', function(){
-		socket.broadcast.emit('chatDisconnect', pseudo);
-		log.conLog('chatDisconnect : '+pseudo);
-	})
+		socket.broadcast.emit('chatDisconnect', {timeStamp: timeToStr(new Date()), pseudo: socket.pseudo});
+		log.conLog('chatDisconnect : '+socket.pseudo);
+	});
 });
 
 // Démarrage du serveur
 server.on('request',servHandler);
 server.listen(8080);
 log.conLog('Serveur en écoute');
+
+
+// TEMP
+var timeToStr = function(date){
+	return date.getHours()+':'+date.getMinutes()+':'+date.getSeconds();
+};

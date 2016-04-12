@@ -54,6 +54,9 @@ module.exports = {
 		if(url.startsWith('/socket.io'))
 			return;
 
+		log.conLog((request.headers['x-forwarded-for'] || request.connection.remoteAddress || request.socket.remoteAddress || request.connection.socket.remoteAddress) +
+			' - url : ' + url);
+
 		if(url === null || url.length === 0 || url === '/')
 			url = '/index';
 
