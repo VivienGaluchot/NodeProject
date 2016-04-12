@@ -37,7 +37,7 @@ addElementJS('text/html\; charset=UTF-8', '/ajax/test');
 // Elements Statiques, chargés en mémoire
 // Scripts
 addElement('text/js\; charset=UTF-8','/clientScript/testPing.js');
-addElement('text/js\; charset=UTF-8','/clientScript/socketIo.js');
+addElement('text/js\; charset=UTF-8','/clientScript/chatClient.js');
 // Style
 addElement('text/css\; charset=UTF-8', '/style/style.css');
 // Images
@@ -48,8 +48,7 @@ addElement('image/png','/img/patternHeader.png');
 addElement('image/png','/img/header.png');
 
 // Traitement
-module.exports = {
-	process : function(request, response, url){
+module.exports = function(request, response, url){
 		// lib socket.io, gérée par le module
 		if(url.startsWith('/socket.io'))
 			return;
@@ -77,5 +76,4 @@ module.exports = {
 			response.write(elementsJS['/error404'].content.call(request));
 		}
 		response.end();
-	}
 };

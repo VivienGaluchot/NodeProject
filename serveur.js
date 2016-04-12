@@ -4,68 +4,92 @@
 	Programme principal du Serveur NodeJs
 --------------------------------------------------- */
 
+// ---- Includes ---- //
 
-var http = require('http');
-var server = http.createServer();
-var io = require('socket.io')(server);
-var fs = require('fs');
-var url = require('url');
-var queryString = require('querystring');
-var ent = require('ent');
+// Utilitaires
+const fs = require('fs');
+const url = require('url');
+const queryString = require('querystring');
+const readline = require('readline');
+const log = require('./log');
 
-/*var https = require('https');
-var options = {
+// HTTP, socket.io
+const http = require('http');
+const server = http.createServer();
+const io = require('socket.io')(server);
+
+// HTTPS (TODO : socket.io)
+const https = require('https');
+const options = {
 	key: fs.readFileSync('./keys/serv.key'),
 	cert: fs.readFileSync('./keys/serv.crt')
 };
-var serverS = https.createServer(options);
-serverS.listen(8081);*/
+const serverS = https.createServer(options);
 
-var log = require('./log');
-var urlProcess = require('./urlProcess');
+// Gestion
+const urlProcess = require('./urlProcess');
+const socketProcess = require('./socketProcess');
 
-// Event handler
-var servHandler = function(request, response){
+
+// ---- event Handler HTML ---- //
+
+const servHandler = function(request, response){
 	// Informations
 	// var parametres = queryString.parse(url.parse(request.url).query);
 	var pageUrl = url.parse(request.url).pathname;
 
     // Process
-	urlProcess.process(request, response, pageUrl);
+	urlProcess(request, response, pageUrl);
 };
 
-// SOCKET.IO, utilisation des WebSockets
-io.sockets.on('connection', function (socket, userPseudo) {
-	socket.on('chatNew', function(userPseudo) {
-		userPseudo = ent.encode(userPseudo);
-		socket.pseudo = userPseudo;		
-		var date = timeToStr(new Date());
-		socket.broadcast.emit('chatNew', {timeStamp: date, pseudo: userPseudo});
-		socket.emit('chatNew', {timeStamp: date, pseudo: userPseudo});
-		log.conLog('chatNew : '+userPseudo);
-	});
 
-	socket.on('chatMessage', function (msg) {
-		msg = ent.encode(msg);
-		var date = timeToStr(new Date());
-		socket.broadcast.emit('chatMessage', {timeStamp: date, pseudo: socket.pseudo, message: msg});
-		socket.emit('chatMessage', {timeStamp: date, pseudo: socket.pseudo, message: msg});
-		log.conLog('chatMessage - '+socket.pseudo+' : '+msg);
-	}); 
+// ---- Gestion des sockets ---- //
 
-	socket.on('disconnect', function(){
-		socket.broadcast.emit('chatDisconnect', {timeStamp: timeToStr(new Date()), pseudo: socket.pseudo});
-		log.conLog('chatDisconnect : '+socket.pseudo);
-	});
-});
+io.sockets.on('connection', socketProcess);
 
-// Démarrage du serveur
+
+// ---- Démarage, arret du service ---- //
+
+// Démarrage du serveur HTTP
 server.on('request',servHandler);
 server.listen(8080);
-log.conLog('Serveur en écoute');
+log.conLog('Serveur HTTP en écoute');
 
+// Démarrage du serveur HTTPS
+serverS.on('request',servHandler);
+serverS.listen(8081);
+log.conLog('Serveur HTTPS en écoute');
 
-// TEMP
-var timeToStr = function(date){
-	return date.getHours()+':'+date.getMinutes()+':'+date.getSeconds();
+// Fermeture de nodeJs
+const quit = function(){
+	// HTTP
+	log.conLog('Fermeture du serveur  HTTP');
+	io.close();
+	server.close();
+	// HTTPS
+	log.conLog('Fermeture du serveur  HTTS');
+	serverS.close();
+	log.conLog('FIN');
+	process.exit(1);
 };
+
+
+// ---- Interface console ---- //
+
+const rl = readline.createInterface({
+	input: process.stdin,
+	output: process.stdout
+});
+
+const askStdin = function(){
+	rl.question('', function(answer){
+		if(answer == 'quit'){
+			rl.close();
+			quit();
+		}
+		else
+			askStdin();
+	});
+};
+
+askStdin();
