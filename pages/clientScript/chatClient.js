@@ -1,6 +1,43 @@
-var socket = io();
+var socket = null;
 var element = null;
 var pseudo = null;
+
+window.onload = function(){
+	// ---- SOCKET ---- //
+	socket = io('/chat');
+
+	socket.on('connect',function(){		
+		display('<i>Connecté au serveur</i>');
+		if(pseudo === null)
+			setPseudo('Entrez votre pseudo');
+		else
+			socket.emit('chatNew', pseudo);
+	});
+
+	socket.on('pseudoPris', function(){
+		setPseudo('Ce pseudo est déja pris');
+	});
+
+	socket.on('chatNew', function(data) {
+		updateNbUser(data.nbUser);
+		display(data.timeStamp + ' - <b>'+data.pseudo+'</b> a rejoint le Chat');
+	});
+
+	socket.on('chatMessage', function(data) {
+		display(data.timeStamp + ' - <b>'+data.pseudo+'</b> : '+data.message);
+	});
+
+	socket.on('chatDisconnect', function(data) {	
+		updateNbUser(data.nbUser);
+		display(data.timeStamp + ' - <b>'+data.pseudo+'</b> a quitté le Chat');
+	});
+
+	socket.on('disconnect',function(){
+		display('<i>Perte de la connexion</i>');
+	});
+
+	element = document.getElementById('chatArea');
+};
 
 var setPseudo = function(str){
 	var elementPseudo = document.getElementById('pseudoIHM');
@@ -17,24 +54,6 @@ var updateNbUser = function(n){
 		elementNbUser.innerHTML = n + ' utilisateurs';
 };
 
-socket.on('pseudoPris', function(){
-	setPseudo('Ce pseudo est déja pris');
-});
-
-socket.on('chatNew', function(data) {
-	updateNbUser(data.nbUser);
-	display(data.timeStamp + ' - <b>'+data.pseudo+'</b> a rejoint le Chat');
-});
-
-socket.on('chatMessage', function(data) {
-	display(data.timeStamp + ' - <b>'+data.pseudo+'</b> : '+data.message);
-});
-
-socket.on('chatDisconnect', function(data) {	
-	updateNbUser(data.nbUser);
-	display(data.timeStamp + ' - <b>'+data.pseudo+'</b> a quitté le Chat');
-});
-
 var envoyerMessage = function(){
 	var message = messageField.value;
 	messageField.value = '';
@@ -49,9 +68,4 @@ var display = function(text){
 var touche = function(event){
 	if(event.keyCode === 13)
 		envoyerMessage();
-};
-
-window.onload = function(){
-	element = document.getElementById('chatArea');
-	setPseudo('Entrez votre pseudo');
 };

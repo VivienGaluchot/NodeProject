@@ -32,11 +32,10 @@ addElementJS('text/html\; charset=UTF-8', '/error404');
 addElementJS('text/html\; charset=UTF-8', '/game');
 addElementJS('text/html\; charset=UTF-8', '/chat');
 addElementJS('text/html\; charset=UTF-8', '/credit');
-addElementJS('text/html\; charset=UTF-8', '/ajax/test');
 
 // Elements Statiques, chargés en mémoire
 // Scripts
-addElement('text/js\; charset=UTF-8','/clientScript/testPing.js');
+addElement('text/js\; charset=UTF-8','/clientScript/pingClient.js');
 addElement('text/js\; charset=UTF-8','/clientScript/chatClient.js');
 // Style
 addElement('text/css\; charset=UTF-8', '/style/style.css');

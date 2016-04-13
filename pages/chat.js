@@ -30,6 +30,6 @@ p.section = { toString: function(){
 	p('Ton pseudo : <b><span id="pseudoIHM"></span></b>.').
 	p('<span id="nbUserIHM"></span> connecté.').
 	raw('<div id="chatArea" class="cadreText"></div>').
-	raw('<p><input type="text" id="messageField" class="textInput" onkeypress="touche(event)"></input></p>');
+	raw('<input type="text" id="messageField" class="textInput" onkeypress="touche(event)"></input>');
 	return response.content;
 }};

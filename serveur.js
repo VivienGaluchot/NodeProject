@@ -45,7 +45,7 @@ const servHandler = function(request, response){
 
 // ---- Gestion des sockets ---- //
 
-io.sockets.on('connection', socketProcess);
+socketProcess(io);
 
 
 // ---- Démarage, arret du service ---- //

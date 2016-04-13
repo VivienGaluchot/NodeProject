@@ -127,7 +127,7 @@ footer{
 }
 
 button{
-	vertical-align: top;
+	vertical-align: middle;
 	background-color: rgb(234, 234, 234);
 	border: 1px solid rgb(11, 41, 62);
 	border-bottom: 3px solid rgb(11, 41, 62);
@@ -161,6 +161,7 @@ button:active{
 	color: rgb(11, 41, 62);
 	width: 100%;
 	box-sizing: border-box;
+	padding: 5px;
 }
 
 .cadreText{
@@ -171,14 +172,20 @@ button:active{
 }
 
 .cadreTextLine{
-
 }
 
 .textInput{
 	height: 33px;
 	vertical-align: bottom;
+	border-top-width: 0px;
 }
 
+.graph{
+	background-color: rgb(245, 245, 245);
+	border: 1px solid rgb(11, 41, 62);
+	display: inline-block;
+	vertical-align: middle;
+}
 
 /* Version mobile */
 

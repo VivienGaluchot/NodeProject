@@ -13,7 +13,7 @@ var p = new page();
 module.exports.out = function(){return p.out();};
 
 // Code spécifique
-p.scriptFile = '/clientScript/testPing.js';
+p.scriptFile = '/clientScript/pingClient.js';
 
 p.title = 'Jouer';
 
@@ -26,11 +26,8 @@ p.header = { toString: function(){
 p.section = { toString: function(){
 	var response = new encap().
 	h2('En construction').
-	p('Y\'a pas grand chose ici ...').
-	p('... à part un script !').
-	raw('<button onclick="start()">Lancer</button> ').
-	raw('<button onclick="clearTimeout(timer);started = false;">Stopper</button>').
-	p('Résultat :').
-	raw('<p id="ajaxResult"></p>');
+	p('Y\'a pas grand chose ici ...').	
+	p('<canvas id="pingGraph" class="graph" width="400px" height="100px"></canvas>').
+	raw('<button id="startButton" onclick="start()">Ping</button> Résultat : <span id="pingResult">-</span> ms.');
 	return response.content;
 }};
