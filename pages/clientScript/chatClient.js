@@ -1,4 +1,4 @@
-var socket = io('http://localhost:8080');
+var socket = io();
 var element = null;
 var pseudo = null;
 
@@ -11,7 +11,7 @@ var setPseudo = function(str){
 
 var updateNbUser = function(n){
 	var elementNbUser = document.getElementById('nbUserIHM');
-	if(n>2)
+	if(n<2)
 		elementNbUser.innerHTML = n + ' utilisateur';
 	else
 		elementNbUser.innerHTML = n + ' utilisateurs';

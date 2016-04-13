@@ -10,10 +10,11 @@ body {
 	background-size: 128px 128px;
 	background-repeat: repeat;
 	background-position: center center;
-	image-rendering: pixelated;	
-	image-rendering: crisp-edge;
 	image-rendering: -moz-crisp-edges;
 	image-rendering: -o-crisp-edges;
+	image-rendering: -webkit-crisp-edges;
+	image-rendering: pixelated;
+	-ms-interpolation-mode: nearest-neighbor;
 }
 
 header, nav, section, footer{
@@ -28,6 +29,7 @@ header, footer{
 	background-size: 128px 128px;
 	background-repeat: repeat;
 	background-position: center center;
+	padding: 0px 20px;
 }
 
 header .icon{
@@ -45,50 +47,61 @@ nav{
 	background-color: rgb(4, 24, 38);
 }
 
-nav a{
+nav ul, nav li{
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+}
+
+nav li a{
 	vertical-align: top;
 	display: inline-block;
 	text-decoration: none;
 	font-weight: 700;
 	font-size: 20px;
-	color: white;
-	width: 130px;	
-	background-color: rgb(234, 234, 234);
-	border: 1px solid rgb(11, 41, 62);
-	border-bottom: 3px solid rgb(11, 41, 62);
-	color: rgb(11, 41, 62);
-	padding: 5px;
-	margin: 0px 0px 0px 0px;
+	background-color: rgb(11, 42, 62);
+	border: 1px solid rgb(241, 230, 169);
+	border-bottom: 3px solid rgb(241, 230, 169);
+	color: rgb(241, 230, 169);
+	padding: 5px 10px;
+	margin: 5px 2px;
 }
 
-nav a:hover{
-	background-color: rgb(243, 243, 243);
+nav li a:hover{
+	background-color: rgb(11, 42, 62);
+	border-bottom: 2px solid rgb(241, 230, 169);
+	margin-top: 6px;
 }
 
-nav a:active{
-	background-color: white;
-	border: 1px solid rgb(11, 41, 62);
-	margin: 2px 0px 0px 0px;
+nav li a:active{
+	background-color: rgb(11, 42, 62);
+	border: 1px solid rgb(241, 230, 169);
+	margin-top: 7px;
 }
 
 section{
 	color: rgb(39, 90, 125);
 	background-color: white;
 	text-align: left;
-	padding: 50px;
+	padding: 30px;
 }
 
 section h2{
 	margin: 0;
+	margin-left: 20px;
 	margin-bottom: 22px;
 	padding-top: 22px;
 	border-bottom: 1px solid rgba(230, 209, 96, 0.54);
 }
 
+img{
+	image-rendering: auto;
+}
+
 section img{
 	display: block;
 	margin: 0 auto;
-	max-width: 800px;
+	max-width: 100%;
 }
 
 section .legend{
@@ -127,7 +140,7 @@ button{
 }
 
 button:hover{
-	background-color: rgb(243, 243, 243);	
+	background-color: rgb(243, 243, 243);
 	border-bottom: 2px solid rgb(11, 41, 62);
 	margin: 0px;
 	margin-top: 1px;
@@ -153,7 +166,7 @@ button:active{
 .cadreText{
 	resize: vertical;
 	min-height: 100px;
-	max-height: 500px;
+	max-height: 300px;
 	overflow: auto;
 }
 
@@ -164,4 +177,87 @@ button:active{
 .textInput{
 	height: 33px;
 	vertical-align: bottom;
+}
+
+
+/* Version mobile */
+
+@media (max-width: 900px) {
+	* {
+		box-sizing: border-box;
+	}
+	
+	/* passer body (et tous les éléments de largeur fixe) en largeur automatique */
+	body, header, nav, section, footer{
+		width: 100%;
+	}
+
+	section{
+		padding: 10px;
+	}
+	
+	/* fixer une largeur maximale de 100% aux éléments potentiellement problématiques */
+
+	img,
+	table,
+	td,
+	blockquote,
+	code,
+	pre,
+	textarea,
+	input,
+	iframe,
+	object,
+	embed,
+	video {
+		max-width: 100%;
+	}
+	
+	/* conserver le ratio des images */
+
+	img {
+		height: auto;
+	}
+	
+	/* gestion des mots longs */
+
+	textarea,
+	table,
+	td,
+	th,
+	code,
+	pre,
+	samp {
+		-webkit-hyphens: auto; /* césure propre */
+		-moz-hyphens: auto;
+		hyphens: auto;
+		word-wrap: break-word; /* passage à la ligne forcé */
+	}
+	
+	code,
+	pre,
+	samp {
+		white-space: pre-wrap; /* passage à la ligne spécifique pour les éléments à châsse fixe */
+	}
+	
+	/* Passer à une seule colonne (à appliquer aux éléments multi-colonnes) */
+
+	.element1,
+	.element2 {
+		float: none;
+		width: auto;
+	}
+	
+	/* masquer les éléments superflus */
+
+	.hide_mobile {
+		display: none !important;
+	}
+}
+
+@media (max-device-width:900px) and (orientation: landscape) {
+	html {
+		-webkit-text-size-adjust: 100%;
+		-ms-text-size-adjust: 100%;
+	}
 }

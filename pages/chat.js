@@ -28,7 +28,7 @@ p.section = { toString: function(){
 	h2('Raconte des trucs !').
 	p('Ceci est un chat en direct avec des gens. Attention, aucune vérification n\'est faite sur l\'authenticité des utilisateurs.').
 	p('Ton pseudo : <b><span id="pseudoIHM"></span></b>.').
-	p('Il y a actuellement <span id="nbUserIHM"></span> sur le chat.').
+	p('<span id="nbUserIHM"></span> connecté.').
 	raw('<div id="chatArea" class="cadreText"></div>').
 	raw('<p><input type="text" id="messageField" class="textInput" onkeypress="touche(event)"></input></p>');
 	return response.content;

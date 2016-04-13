@@ -19,12 +19,13 @@ var page = function () {
 	this.title = 'Titre de page';
 	this.header = 'Header';
 	this.nav = { toString: function(){
-		var response = new encap().
-		a('/index','Accueil').
-		a('/game','Jeu').
-		a('/chat','Chat').
-		a('/credit','Credit');
-		return response.content;
+		var response = '<ul>';
+		response += '<li><a href="/index">Accueil</a></li>';
+		response += '<li><a href="/game">Jeu</a></li>';
+		response += '<li><a href="/chat">Chat</a></li>';
+		response += '<li><a href="/credit">Credit</a></li>';
+		response += '</ul>';
+		return response;
 	}};
 	this.section = 'Page';
 	this.footer = 'Footer';
@@ -38,6 +39,7 @@ var page = function () {
 		// Debut HEAD
 		response += '<head>';
 		response += '<title>' + this.title.toString() + '</title>';
+		response += '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
 		response += '<link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet" type="text/css">';
 		response += '<script src="/socket.io/socket.io.js"></script>';
 		response += '<link rel="stylesheet" type="text/css" href="style/style.css">';

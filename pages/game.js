@@ -28,7 +28,7 @@ p.section = { toString: function(){
 	h2('En construction').
 	p('Y\'a pas grand chose ici ...').
 	p('... à part un script !').
-	raw('<button onclick="start()">Lancer</button>').
+	raw('<button onclick="start()">Lancer</button> ').
 	raw('<button onclick="clearTimeout(timer);started = false;">Stopper</button>').
 	p('Résultat :').
 	raw('<p id="ajaxResult"></p>');
