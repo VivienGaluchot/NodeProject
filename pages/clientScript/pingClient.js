@@ -2,6 +2,28 @@ var socket = io('/pingTest');
 var timer = null;
 var nStorred = 30;
 var lastPings = [];
+var canvas;
+var ctx;
+
+window.onload = function(){
+	ctx = document.getElementById("pingGraph").getContext("2d");
+	canvas = document.getElementById("pingGraph");
+	setHDCanvas(canvas);
+}
+
+setHDCanvas = function(can) {
+	var dpr = window.devicePixelRatio || 1;
+	var bsr = ctx.webkitBackingStorePixelRatio ||
+		ctx.mozBackingStorePixelRatio ||
+		ctx.msBackingStorePixelRatio ||
+		ctx.oBackingStorePixelRatio ||
+		ctx.backingStorePixelRatio || 1;
+	var ratio = dpr/bsr;
+	can.width = can.offsetWidth * ratio;
+	can.height = can.offsetHeight * ratio;
+	can.getContext("2d").setTransform(ratio, 0, 0, ratio, 0, 0);
+	return can;
+}
 
 var start = function(){
 	if(timer === null){
@@ -17,20 +39,18 @@ var start = function(){
 
 var ping = function(){
 	socket.emit('latency', Date.now(), function(startTime) {
-	    var latency = Date.now() - startTime;
-	    lastPings.push(latency);
-	    if(lastPings.length > nStorred)
-	    	lastPings.shift();
-	    document.getElementById('pingResult').innerHTML = latency;
-	    draw();
+		var latency = Date.now() - startTime;
+		lastPings.push(latency);
+		if(lastPings.length > nStorred)
+			lastPings.shift();
+		document.getElementById('pingResult').innerHTML = latency;
+		draw();
 	});
 }
 
 function draw() {
-	var canvas = document.getElementById("pingGraph");
-	var ctx = canvas.getContext("2d");
-	var width = canvas.width;
-	var height = canvas.height;
+	var width = canvas.offsetWidth;
+	var height = canvas.offsetHeight;
 
 	ctx.clearRect(0,0,width,height);
 
@@ -76,4 +96,3 @@ function draw() {
 	ctx.font = "12px Arial";
 	ctx.fillText('Ping max sur '+nStorred+' s : '+maxValue+' ms',5,15);
 }
-
