@@ -31,8 +31,8 @@ p.section = { toString: function(){
 	p_('Le code source du machin est dispo ici : ').a('https://github.com/VivienGaluchot/NodeProject','GitHub')._p('.').
 	h2('Informations').
 	p('Y\'a pas grand chose pour le moment...').
-	p('Ce site web fonctionne avec javascript, webSocket et webGl.').
-	p_('Le code source du machin est dispo ici : ').a('https://github.com/VivienGaluchot/NodeProject','GitHub')._p('.').
+	p('Ce site web fonctionne avec JavaScript, WebSocket et WebGl.').
+	p_('La librairie JavaScript ').a('http://socket.io/','Socket.io')._p(' est utilisée.');
 	return response.content;
 }};
 
