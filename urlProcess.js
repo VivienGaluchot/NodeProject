@@ -48,11 +48,14 @@ addElement('image/png','/img/header.png');
 
 // Traitement
 module.exports = function(request, response, url){
-		// lib socket.io, gérée par le module
+		// socket.io, gérée par le module
 		if(url.startsWith('/socket.io'))
 			return;
 
-		log.conLog((request.headers['x-forwarded-for'] || request.connection.remoteAddress || request.socket.remoteAddress || request.connection.socket.remoteAddress) +
+		log.conLog((request.headers['x-forwarded-for'] ||
+			request.connection.remoteAddress ||
+			request.socket.remoteAddress ||
+			request.connection.socket.remoteAddress) +
 			' - url : ' + url);
 
 		if(url === null || url.length === 0 || url === '/')

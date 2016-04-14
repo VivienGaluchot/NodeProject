@@ -28,6 +28,6 @@ p.section = { toString: function(){
 	h2('En construction').
 	p('Y\'a pas grand chose ici ...').	
 	p('<canvas id="pingGraph" class="graph" width="400px" height="100px"></canvas>').
-	raw('<button id="startButton" onclick="start()">Ping</button> Résultat : <span id="pingResult">-</span> ms.');
+	raw('<button id="startButton" onclick="start()">Ping</button> <span id="pingResult">-</span> ms');
 	return response.content;
 }};
