@@ -4,7 +4,7 @@ var nStorred = 60;
 var lastPings = [];
 var canvas;
 var ctx;
-var dTping = 500;
+var dTping = 1000;
 var animTime = new Date();
 var animate = false;
 
@@ -104,10 +104,10 @@ var draw = function () {
 var drawGrille = function(width, height, unitX){
 	// Vertical lines
 	ctx.lineWidth="1";
-	for(var i=1;i<nStorred-1;i++){
+	for(var i=1;i<(nStorred-1)*1000/dTping;i++){
 		ctx.beginPath();
-		ctx.moveTo(width-unitX*i,5);
-		ctx.lineTo(width-unitX*i,height-5);
+		ctx.moveTo(width-unitX*i*1000/dTping,5);
+		ctx.lineTo(width-unitX*i*1000/dTping,height-5);
 		if(i%10 === 0)
 			ctx.strokeStyle="rgba(0,0,0,0.2)";
 		else
