@@ -69,7 +69,7 @@ var pingMoyen = function(){
 		sum += lastPings[i];
 	}
 	return sum/i;
-}
+};
 
 var draw = function () {
 	var width = canvas.offsetWidth;
@@ -124,7 +124,7 @@ var drawGrille = function(width, height, unitX){
 	ctx.moveTo(0,height-10);
 	ctx.lineTo(width,height-10);
 	ctx.stroke();
-}
+};
 
 var drawCurve = function(width, height, unitX, maxY){
 	var decalage;
@@ -155,4 +155,4 @@ var drawCurve = function(width, height, unitX, maxY){
 	ctx.lineTo(width - decalage,height-10);
 	ctx.fillStyle = "rgba(4, 24, 38,0.2)";
 	ctx.fill();
-}
+};
