@@ -27,7 +27,7 @@ p.section = { toString: function(){
 	var response = new encap().
 	h2('En construction').
 	p('Y\'a pas grand chose ici ...').	
-	p('<canvas id="pingGraph" class="graph" width="400px" height="100px"></canvas>').
-	raw('<button id="startButton" onclick="start()">Ping</button> <span id="pingResult">-</span> ms');
+	p('<canvas id="pingGraph" class="graph" width="840px" height="100px" style="height:100px;"></canvas>').
+	raw('<button id="startButton" onclick="start()">Ping</button> Instantané : <span id="pingResult">-</span> ms. Moyenne : <span id="pingMoyen">-</span> ms');
 	return response.content;
 }};
