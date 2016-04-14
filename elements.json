@@ -1,0 +1,21 @@
+{
+	"elements": [
+		"/clientScript/pingClient.js",
+		"/clientScript/chatClient.js",
+		"/style/style.css",
+		"/img/map.png",
+		"/img/mindmap.png",
+		"/img/patternBody.png",
+		"/img/patternHeader.png",
+		"/img/header.png"
+	],
+	"elementsJS": [
+		"/index",
+		"/error404",
+		"/game",
+		"/chat",
+		"/credit"
+	]
+}
+
+

@@ -27,38 +27,26 @@ const options = {
 const serverS = https.createServer(options);
 
 // Gestion
+
+
+// ---- Gestion du serveur ---- //
+
 const urlProcess = require('./urlProcess');
-const socketProcess = require('./socketProcess');
-
-
-// ---- event Handler HTML ---- //
-
-const servHandler = function(request, response){
-	// Informations
-	// var parametres = queryString.parse(url.parse(request.url).query);
-	var pageUrl = url.parse(request.url).pathname;
-
-    // Process
-	urlProcess(request, response, pageUrl);
-};
-
-
-// ---- Gestion des sockets ---- //
-
-socketProcess(io);
-
-
-// ---- Démarage, arret du service ---- //
 
 // Démarrage du serveur HTTP
-server.on('request',servHandler);
+server.on('request',urlProcess);
 server.listen(8080);
 log.conLog('Serveur HTTP en écoute');
 
 // Démarrage du serveur HTTPS
-serverS.on('request',servHandler);
+serverS.on('request',urlProcess);
 serverS.listen(8081);
 log.conLog('Serveur HTTPS en écoute');
+
+// ---- Gestion des sockets ---- //
+
+const socketProcess = require('./socketProcess');
+socketProcess(io);
 
 // Fermeture de nodeJs
 const quit = function(){
