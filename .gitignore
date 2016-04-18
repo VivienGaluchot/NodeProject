@@ -1,3 +1,14 @@
 #crypto
 *.crt
 *.key
+keys/*
+
+#IDE
+*.sublime-project
+*.sublime-workspace
+
+#lib
+node_modules/*
+
+#util
+jsl-0.3.0/*
