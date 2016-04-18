@@ -1,37 +1,21 @@
 var socket = io('/pingTest');
+var canPing = new canvasObj('gameCanvas');
+
 var timer = null;
 var nStorred = 60;
 var lastPings = [];
-var canvas;
-var ctx;
 var dTping = 1000;
 var animTime = new Date();
 var animate = false;
 
 window.onload = function(){
-	ctx = document.getElementById("pingGraph").getContext("2d");
-	canvas = document.getElementById("pingGraph");
-	setHDCanvas(canvas);
+	canPing.load();
 	draw();
 };
 
 window.onresize = function(){
-	setHDCanvas(canvas);
+	canPing.resize();
 	draw();
-};
-
-setHDCanvas = function(can) {
-	var dpr = window.devicePixelRatio || 1;
-	var bsr = ctx.webkitBackingStorePixelRatio ||
-		ctx.mozBackingStorePixelRatio ||
-		ctx.msBackingStorePixelRatio ||
-		ctx.oBackingStorePixelRatio ||
-		ctx.backingStorePixelRatio || 1;
-	var ratio = dpr/bsr;
-	can.width = can.offsetWidth * ratio;
-	can.height = can.offsetHeight * ratio;
-	can.getContext("2d").setTransform(ratio, 0, 0, ratio, 0, 0);
-	return can;
 };
 
 var start = function(){
@@ -71,38 +55,16 @@ var pingMoyen = function(){
 	return sum/i;
 };
 
-var draw = function () {
-	var width = canvas.offsetWidth;
-	var height = canvas.offsetHeight;
+canPing.draw = function () {
+	var ctx = canPing.ctx;
+	var width = canPing.width;
+	var height = canPing.height;
+
 	var unitX = width / (nStorred-2);
 
-	ctx.clearRect(0,0,width,height);	
+	ctx.clearRect(0,0,width,height);
 
-	drawGrille(width, height, unitX);
-
-	if(lastPings.length === 0)
-		return;
-
-	var maxValue = Math.max.apply(null, lastPings);
-	if(maxValue < 1)
-		maxValue = 1;
-
-	drawCurve(width, height, unitX, maxValue);
-
-	// info
-	ctx.fillStyle = "rgb(4, 24, 38)";
-	ctx.font = "12px Arial";
-	var txt = maxValue+' ms';
-	ctx.clearRect(3,2,ctx.measureText(txt).width + 4,12);
-	ctx.fillText(txt,5,12);
-
-	// continuer l'annimation
-	if(animate)
-		window.requestAnimationFrame(draw);
-};
-
-var drawGrille = function(width, height, unitX){
-	// Vertical lines
+	// ---- Grille ---- //
 	ctx.lineWidth="1";
 	for(var i=1;i<(nStorred-1)*1000/dTping;i++){
 		ctx.beginPath();
@@ -124,9 +86,15 @@ var drawGrille = function(width, height, unitX){
 	ctx.moveTo(0,height-10);
 	ctx.lineTo(width,height-10);
 	ctx.stroke();
-};
 
-var drawCurve = function(width, height, unitX, maxY){
+	// ---- Courbe ---- //
+	if(lastPings.length === 0)
+		return;
+
+	var maxY = Math.max.apply(null, lastPings);
+	if(maxY < 1)
+		maxY = 1;
+
 	var decalage;
 	var dt = new Date() - animTime;
 	if(dt > dTping){
@@ -155,4 +123,15 @@ var drawCurve = function(width, height, unitX, maxY){
 	ctx.lineTo(width - decalage,height-10);
 	ctx.fillStyle = "rgba(4, 24, 38,0.2)";
 	ctx.fill();
+
+	// ---- Informations ---- //
+	ctx.fillStyle = "rgb(4, 24, 38)";
+	ctx.font = "12px Arial";
+	var txt = maxY+' ms';
+	ctx.clearRect(3,2,ctx.measureText(txt).width + 4,12);
+	ctx.fillText(txt,5,12);
+
+	// continuer l'annimation
+	if(animate)
+		window.requestAnimationFrame(draw);
 };

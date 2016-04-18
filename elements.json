@@ -1,7 +1,9 @@
 {
 	"elements": [
+		"/clientScript/canvas.js",
 		"/clientScript/pingClient.js",
 		"/clientScript/chatClient.js",
+		"/clientScript/gameClient.js",
 		"/style/style.css",
 		"/img/map.png",
 		"/img/mindmap.png",

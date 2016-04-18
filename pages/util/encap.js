@@ -43,7 +43,7 @@ var encap = function(){
 		this.content += '<div class="legend">'+text+'</div>';
 		return this;
 	};
-	script = function(text){
+	this.script = function(text){
 		this.content += '<script>'+text+'</script>';
 		return this;
 	};

@@ -11,7 +11,9 @@ const page = require('./util/page');
 var p = new page();
 
 // Code spécifique
+p.scriptFile = '/clientScript/canvas.js';
 p.scriptFile = '/clientScript/pingClient.js';
+p.scriptFile = '/clientScript/gameClient.js';
 
 // Nav
 p.url = '/game';
@@ -28,6 +30,8 @@ p.header = { toString: function(){
 
 p.section = { toString: function(){
 	var response = new encap().
+	h2('Espace de jeu...').
+	raw('<canvas id="gameCanvas" class="graph" width="840px" height="100px" style="height:300px;"></canvas>').
 	h2('En construction').
 	p('Y\'a pas grand chose ici ...').	
 	p('<canvas id="pingGraph" class="graph" width="840px" height="100px" style="height:100px;"></canvas>').
