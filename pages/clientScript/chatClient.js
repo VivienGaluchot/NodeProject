@@ -18,6 +18,10 @@ window.onload = function(){
 		setPseudo('Ce pseudo est déja pris');
 	});
 
+	socket.on('pseudoVide', function(){
+		setPseudo('Entrez un pseudo non vide');
+	});
+
 	socket.on('chatNew', function(data) {
 		updateNbUser(data.nbUser);
 		display(data.timeStamp + ' - <b>'+data.pseudo+'</b> a rejoint le Chat');
