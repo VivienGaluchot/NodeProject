@@ -11,9 +11,13 @@ var encap = require('./util/encap');
 var page = require('./util/page');
 var p = new page();
 
-module.exports.out = function(){return p.out();};
 // Code spécifique
 p.scriptFile = '/clientScript/chatClient.js';
+
+// Nav
+p.url = '/chat';
+p.navName = 'Chat';
+p.addToNav();
 
 p.title = 'Chat';
 
@@ -33,3 +37,6 @@ p.section = { toString: function(){
 	raw('<input type="text" id="messageField" class="textInput" onkeypress="touche(event)"></input>');
 	return response.content;
 }};
+
+module.exports.out = function(){return p.out();};
+module.exports.url = p.url;

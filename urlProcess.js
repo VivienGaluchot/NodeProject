@@ -61,8 +61,15 @@ const addElementJS = function(url, contentType){
 	if(contentType === undefined)
 		contentType = 'text/html\; charset=UTF-8';
 	try{
-		var object = require('./pages'+url);
-		elementsJS[url] = {type: contentType, content: object.out};
+		var p = require('./pages'+url);
+		if(p.url !== undefined) {
+			if(url !== p.url){
+				log.conLogSuite(url+' : redéfinition d\'url -> '+p.url);
+			}
+			elementsJS[p.url] = {type: contentType, page: p};
+		}
+		else 			
+			elementsJS[url] = {type: contentType, page: p};
 		log.conLogSuite(' - '+url);
 	} catch (err) {
 		log.conLogError('from addElementJS()');
@@ -122,11 +129,15 @@ module.exports = function(request, response){
 	// Elements JS
 	else if(typeof (el = elementsJS[reqUrl]) !== 'undefined'){
 		response.writeHead(200, {'Content-Type': el.type});
-		response.write(el.content.call(request));
+		var res = el.page.out.call(request);
+		if(res != undefined)
+			response.write(res);
+		else
+			log.conLogError(reqUrl + ' : Page Undefined');
 	}
 	else{
 		response.writeHead(404, {'Content-Type': elementsJS['/error404'].type});
-		response.write(elementsJS['/error404'].content.call(request));
+		response.write(elementsJS['/error404'].page.out.call(request));
 	}
 	response.end();
 };

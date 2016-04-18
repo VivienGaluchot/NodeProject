@@ -9,31 +9,50 @@
 	requette, la page sera reconstruite.
 --------------------------------------------------- */
 
-var encap = require('./encap');
+const encap = require('./encap');
+
+var navPages = [];
 
 var page = function () {
 	this.script = null;
 	this.scriptFile = null;
 	this.scriptOnload = null;
 
+	// ---- Content ---- //
 	this.title = 'Titre de page';
 	this.header = 'Header';
-	this.nav = { toString: function(){
-		var response = '<ul>';
-		response += '<li><a href="/index">Accueil</a></li>';
-		response += '<li><a href="/game">Jeu</a></li>';
-		response += '<li><a href="/chat">Chat</a></li>';
-		response += '<li><a href="/credit">Credit</a></li>';
-		response += '</ul>';
-		return response;
-	}};
 	this.section = 'Page';
 	this.footer = 'Footer';
 
+	// ---- Nav ---- //
+	this.url = '';
+	this.navName = '';
+	this.nav = function(){
+		var response = '<ul>';
+		for(var i=0;i<navPages.length;i++){
+			if(this.url !== navPages[i].url)
+				response += '<li><a href="'+navPages[i].url+'">'+navPages[i].navName+'</a></li>';
+			else
+				response += '<li><a class="pageOuverte" href="'+navPages[i].url+'">'+navPages[i].navName+'</a></li>';
+		}
+		response += '</ul>';
+		return response;
+	};
+	// Ajouter la page au nav
+	this.addToNav = function(){
+		navPages.push(this);
+		for(var i=0;i<navPages.length;i++)
+			navPages.oneTimeRefresh = true;	// Reconstructon des pages avec le nouveau menu
+	};
+
+	// ---- FLAGS ---- //
+	this.oneTimeRefresh = false;	// Reconstruit la page une seule fois dès que mis a true
+	this.needToRefresh = false;		// Si vrai, la page est reconstruire a chaque fois
+
 	// System
-	this.needToRefresh = false;
 	this.current = null;
 
+	// ---- Construction de la page ---- //
 	this.refresh = function(){
 		var response = '<html>';
 		// Debut HEAD
@@ -55,7 +74,7 @@ var page = function () {
 		else
 			response += '<body>';
 		response += '<header>' + '<div class="icon"></div>' + this.header.toString() + '</header>';
-		response += '<nav>' + this.nav.toString() + '</nav>';
+		response += '<nav>' + this.nav() + '</nav>';
 		response += '<section>' + this.section.toString() + '</section>';
 		response += '<footer>' + this.footer.toString() + '</footer>';
 		response += '</body>';
@@ -64,8 +83,10 @@ var page = function () {
 		this.current = response;
 	};
 
-	this.out = function(){
-		if(this.needToRefresh || this.current===null){
+	// ---- Résultat ---- //
+	this.out = function(resquest){
+		if(this.oneTimeRefresh===true || this.needToRefresh===true || this.current===null){
+			this.oneTimeRefresh = false;
 			this.refresh();
 			return this.current;
 		}

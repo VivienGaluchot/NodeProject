@@ -4,16 +4,19 @@
 	Page du jeu
 --------------------------------------------------- */
 
-var encap = require('./util/encap');
+const encap = require('./util/encap');
 
 // Hérite de l'objet page
-var page = require('./util/page');
+const page = require('./util/page');
 var p = new page();
-
-module.exports.out = function(){return p.out();};
 
 // Code spécifique
 p.scriptFile = '/clientScript/pingClient.js';
+
+// Nav
+p.url = '/game';
+p.navName = 'Jeu';
+p.addToNav();
 
 p.title = 'Jouer';
 
@@ -31,3 +34,6 @@ p.section = { toString: function(){
 	raw('<button id="startButton" onclick="start()">Ping</button> Instantané : <span id="pingResult">-</span> ms. Moyenne : <span id="pingMoyen">-</span> ms');
 	return response.content;
 }};
+
+module.exports.out = function(){return p.out();};
+module.exports.url = p.url;

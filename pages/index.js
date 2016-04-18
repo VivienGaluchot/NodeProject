@@ -4,17 +4,21 @@
 	Page d'accueil
 --------------------------------------------------- */
 
-var encap = require('./util/encap');
+const encap = require('./util/encap');
 
 // Hérite de l'objet page
-var page = require('./util/page');
+const page = require('./util/page');
 var p = new page();
 
-module.exports.out = function(){return p.out();};
-
 // Code spécifique
+
 // La page doit se reconstruire
 p.needToRefresh = true;
+
+// Nav
+p.url = '/index';
+p.navName = 'Accueil';
+p.addToNav();
 
 p.title = 'Accueil';
 
@@ -37,8 +41,15 @@ p.section = { toString: function(){
 }};
 
 p.footer = { toString: function(){
-	var date = new Date();
 	var response = new encap().
-	p(date.toString());
+	p('Page générée à ' + timeToStr(new Date()));
 	return response.content;
 }};
+
+// UTIL
+const timeToStr = function(date){
+	return date.getHours()+':'+date.getMinutes()+':'+date.getSeconds();
+};
+
+module.exports.out = function(){return p.out();};
+module.exports.url = p.url;

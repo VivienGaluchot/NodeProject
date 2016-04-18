@@ -4,13 +4,13 @@
 	Page d'erreur 404
 --------------------------------------------------- */
 
-var encap = require('./util/encap');
+const encap = require('./util/encap');
 
 // Hérite de l'objet page
-var page = require('./util/page');
+const page = require('./util/page');
 var p = new page();
 
-module.exports.out = function(){return p.out();};
+p.url = '/error404';
 
 // Code spécifique
 p.title = 'Erreur 404';
@@ -26,3 +26,6 @@ p.section = { toString: function(){
 	p('La page demandée n\'existe pas :(');
 	return response.content;
 }};
+
+module.exports.out = function(){return p.out();};
+module.exports.url = p.url;

@@ -60,22 +60,26 @@ nav li a{
 	font-weight: 700;
 	font-size: 20px;
 	background-color: rgb(11, 42, 62);
-	border: 1px solid rgb(241, 230, 169);
-	border-bottom: 3px solid rgb(241, 230, 169);
-	color: rgb(241, 230, 169);
+	border: 1px solid white;
+	border-bottom: 3px solid white;
+	color: white;
 	padding: 5px 10px;
 	margin: 5px 2px;
 }
 
+nav li .pageOuverte{
+	text-decoration: underline;
+}
+
 nav li a:hover{
 	background-color: rgb(11, 42, 62);
-	border-bottom: 2px solid rgb(241, 230, 169);
+	border-bottom: 2px solid white;
 	margin-top: 6px;
 }
 
 nav li a:active{
 	background-color: rgb(11, 42, 62);
-	border: 1px solid rgb(241, 230, 169);
+	border: 1px solid white;
 	margin-top: 7px;
 }
 

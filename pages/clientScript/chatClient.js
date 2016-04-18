@@ -46,6 +46,8 @@ window.onload = function(){
 var setPseudo = function(str){
 	var elementPseudo = document.getElementById('pseudoIHM');
 	pseudo = prompt(str);
+	if(pseudo == undefined)
+		return;
 	elementPseudo.innerHTML = pseudo;
 	socket.emit('chatNew', pseudo);
 };
