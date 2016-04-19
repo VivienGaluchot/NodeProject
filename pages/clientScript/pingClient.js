@@ -1,5 +1,5 @@
-var socket = io('/pingTest');
-var canPing = new canvasObj('gameCanvas');
+var pingSocket = io('/ping');
+var pingCanvas = new canvasObj('pingGraph');
 
 var timer = null;
 var nStorred = 60;
@@ -8,15 +8,15 @@ var dTping = 1000;
 var animTime = new Date();
 var animate = false;
 
-window.onload = function(){
-	canPing.load();
-	draw();
-};
+addLoadEvent(function(){
+	pingCanvas.load();
+	pingCanvas.draw();
+});
 
-window.onresize = function(){
-	canPing.resize();
-	draw();
-};
+addResizeEvent(function(){
+	pingCanvas.resize();
+	pingCanvas.draw();
+});
 
 var start = function(){
 	if(timer === null){
@@ -32,7 +32,7 @@ var start = function(){
 };
 
 var ping = function(){
-	socket.emit('latency', Date.now(), function(startTime) {
+	pingSocket.emit('latency', Date.now(), function(startTime) {
 		var latency = Date.now() - startTime;
 		lastPings.push(latency);
 		if(lastPings.length > nStorred)
@@ -41,7 +41,7 @@ var ping = function(){
 		document.getElementById('pingMoyen').innerHTML = Math.round(100*pingMoyen())/100;
 		animTime = new Date();
 		animate = true;		
-		draw();
+		pingCanvas.draw();
 	});
 };
 
@@ -55,10 +55,10 @@ var pingMoyen = function(){
 	return sum/i;
 };
 
-canPing.draw = function () {
-	var ctx = canPing.ctx;
-	var width = canPing.width;
-	var height = canPing.height;
+pingCanvas.draw = function () {
+	var ctx = pingCanvas.ctx;
+	var width = pingCanvas.width;
+	var height = pingCanvas.height;
 
 	var unitX = width / (nStorred-2);
 
@@ -133,5 +133,5 @@ canPing.draw = function () {
 
 	// continuer l'annimation
 	if(animate)
-		window.requestAnimationFrame(draw);
+		window.requestAnimationFrame(pingCanvas.draw);
 };

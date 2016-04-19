@@ -14,8 +14,9 @@ const encap = require('./encap');
 var navPages = [];
 
 var page = function () {
-	this.script = null;
+	this.scriptRaw = null;
 	this.scriptFile = null;
+	this.scriptFileList = [];
 	this.scriptOnload = null;
 
 	// ---- Content ---- //
@@ -60,12 +61,13 @@ var page = function () {
 		response += '<title>' + this.title.toString() + '</title>';
 		response += '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
 		response += '<link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet" type="text/css">';
-		response += '<script src="/socket.io/socket.io.js"></script>';
 		response += '<link rel="stylesheet" type="text/css" href="style/style.css">';
-		if(this.script !== null)
-			response += '<script>'+this.script.toString()+'</script>';
+		if(this.scriptRaw !== null)
+			response += '<script>'+this.scriptRaw.toString()+'</script>';
 		if(this.scriptFile !== null)
-			response += ' <script src="'+this.scriptFile.toString()+'"></script>';
+			response += '<script src="'+this.scriptFile.toString()+'"></script>';
+		for(var i=0;i<this.scriptFileList.length;i++)
+			response += '<script src="'+this.scriptFileList[i].toString()+'"></script>';
 		response += '</head>';
 		// Fin HEAD
 		// BODY

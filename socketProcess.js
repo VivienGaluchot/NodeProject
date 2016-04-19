@@ -56,7 +56,7 @@ module.exports = function (io) {
 	});
 
 	// ---- PING ---- //
-	var ping = io.of('/pingTest');
+	var ping = io.of('/ping');
 	ping.on('connection', function (socket) {
 		socket.on('latency', function (startTime, cb) {
 			cb(startTime);

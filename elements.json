@@ -1,5 +1,6 @@
 {
 	"elements": [
+		"/clientScript/util.js",
 		"/clientScript/canvas.js",
 		"/clientScript/pingClient.js",
 		"/clientScript/chatClient.js",

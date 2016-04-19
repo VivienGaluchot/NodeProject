@@ -1,15 +1,15 @@
-var socket = io('/game');
+//var gameSocket = io('/game');
 
-var canGame = new canvasObj('gameCanvas');
+var gameCanvas = new canvasObj('gameCanvas');
 
-window.onload = function(){
-	canGame.load();
-};
+addLoadEvent(function(){
+	gameCanvas.load();
+});
 
-window.onresize = function(){
-	canGame.resize();
-};
+addResizeEvent(function(){
+	gameCanvas.resize();
+});
 
 var draw = function(){
 
-}
+};

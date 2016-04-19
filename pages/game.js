@@ -11,9 +11,13 @@ const page = require('./util/page');
 var p = new page();
 
 // Code spécifique
-p.scriptFile = '/clientScript/canvas.js';
-p.scriptFile = '/clientScript/pingClient.js';
-p.scriptFile = '/clientScript/gameClient.js';
+
+// Scripts
+p.scriptFileList.push('/socket.io/socket.io.js');
+p.scriptFileList.push('/clientScript/util.js');
+p.scriptFileList.push('/clientScript/canvas.js');
+p.scriptFileList.push('/clientScript/pingClient.js');
+p.scriptFileList.push('/clientScript/gameClient.js');
 
 // Nav
 p.url = '/game';

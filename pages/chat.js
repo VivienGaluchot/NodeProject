@@ -12,7 +12,8 @@ var page = require('./util/page');
 var p = new page();
 
 // Code spécifique
-p.scriptFile = '/clientScript/chatClient.js';
+p.scriptFileList.push('/socket.io/socket.io.js');
+p.scriptFileList.push('/clientScript/chatClient.js');
 
 // Nav
 p.url = '/chat';
