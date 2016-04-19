@@ -11,7 +11,7 @@ var canvasObj = function(id){
 
 	this.draw = function(){
 		self.ctx.clearRect(0,0,self.width,self.height);
-	}
+	};
 
 	// Retina fix
 	this.resize = function(){
@@ -25,7 +25,7 @@ var canvasObj = function(id){
 		self.element.width = self.element.offsetWidth * ratio;
 		self.element.height = self.element.offsetHeight * ratio;
 		self.element.getContext("2d").setTransform(ratio, 0, 0, ratio, 0, 0);
-	}
+	};
 
 	// ---- Loading ---- //
 	this.load = function(){
@@ -37,5 +37,5 @@ var canvasObj = function(id){
 		self.ctx = self.element.getContext("2d");
 
 		self.resize();
-	}
-}
+	};
+};

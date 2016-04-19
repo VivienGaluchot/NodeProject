@@ -7,9 +7,9 @@ var addLoadEvent = function(func) {
 			if (oldonload)
 				oldonload();
 			func();
-		}
+		};
 	}
-}
+};
 
 var addResizeEvent = function(func) {
 	var olonresize = window.onresize;
@@ -20,6 +20,6 @@ var addResizeEvent = function(func) {
 			if (olonresize)
 				olonresize();
 			func();
-		}
+		};
 	}
-}
+};

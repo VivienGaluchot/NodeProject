@@ -61,12 +61,13 @@ pingCanvas.draw = function () {
 	var height = pingCanvas.height;
 
 	var unitX = width / (nStorred-2);
+	var i;
 
 	ctx.clearRect(0,0,width,height);
 
 	// ---- Grille ---- //
 	ctx.lineWidth="1";
-	for(var i=1;i<(nStorred-1)*1000/dTping;i++){
+	for(i=1;i<(nStorred-1)*1000/dTping;i++){
 		ctx.beginPath();
 		ctx.moveTo(width-unitX*i*1000/dTping,5);
 		ctx.lineTo(width-unitX*i*1000/dTping,height-5);
@@ -109,7 +110,7 @@ pingCanvas.draw = function () {
 	var y = (1-lastPings[lastPings.length-1]/maxY)*(height-26)+16;
 	ctx.beginPath();
 	ctx.moveTo(x, y);
-	for(var i=1;i<lastPings.length;i++){
+	for(i=1;i<lastPings.length;i++){
 		var nx = width - decalage - i*unitX;
 		var ny = (1-lastPings[lastPings.length-1-i]/maxY)*(height-26)+16;
 		ctx. bezierCurveTo(x-unitX/2, y, nx+unitX/2, ny, nx, ny);
