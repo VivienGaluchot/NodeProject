@@ -23,3 +23,48 @@ var addResizeEvent = function(func) {
 		};
 	}
 };
+
+var Vector2D = function(x,y){
+	if(x === undefined)
+		this.x = 0;
+	else
+		this.x = x;
+	if(y === undefined)
+		this.y = 0;
+	else
+		this.y = y;
+
+
+	this.setFromRad = function(rayon, angle){
+		if(rayon === 0){
+			this.x = 0;
+			this.y = 0;
+		} else {
+			this.x = rayon * Math.cos(angle);
+			this.y = rayon * Math.sin(angle);
+		}
+	};
+
+	this.getAngle = function(){
+		if(this.y === 0 && this.x>0)
+			return 0;
+		if(this.y === 0 && this.x>0)
+			return Math.PI;
+		return Math.atan(this.x/this.y);
+	};
+
+	this.getRayon = function(){
+		return Math.sqrt(this.x*this.x + this.y*this.y);
+	};
+
+	this.setRayonTo = function(rayon){
+		if(this.x === 0 && this.y === 0)
+			return;
+		
+		var h = rayon / this.getRayon();
+		this.x *= h;
+		this.y *= h;
+	}
+};{
+
+};

@@ -8,13 +8,12 @@ var yourBonhome;
 
 addLoadEvent(function(){
 	gameCanvas.load();
-	lastDraw = new Date();
+	lastDraw = Date.now();
 
-	var jaque = new bonhome();
+	var jaque = new Bonhome();
 	jaque.nom = 'jaque';
-	jaque.posX = 100;
-	jaque.posY = 100;
-	jaque.vitX = 0.1;
+	jaque.pos.x = 100;
+	jaque.pos.y = 100;
 
 	yourBonhome = jaque;
 
@@ -31,7 +30,7 @@ gameCanvas.draw = function(){
 	var width = gameCanvas.width;
 	var height = gameCanvas.height;
 
-	var nT = new Date();
+	var nT = Date.now();
 	var dT = nT - lastDraw;
 	lastDraw = nT;
 
@@ -45,105 +44,116 @@ gameCanvas.draw = function(){
 	window.requestAnimationFrame(gameCanvas.draw);
 };
 
-var bonhome = function(){
+var Bonhome = function(){
 	this.nom = null;
+	this.vitMax = 0.2;
+	this.size = 15;
+
 	// pos en px
-	this.posX = 0;
-	this.posY = 0;
+	this.pos = new Vector2D();
 	// acc en px² / ms
-	this.vitX = 0;
-	this.vitY = 0;
+	this.vit = new Vector2D();
+	
 	// en rad
 	this.lookDirection = 0;
 
 	this.drawOn = function(ctx){
 		ctx.strokeStyle="rgba(255,255,255)";
-		ctx.strokeRect(this.posX-5,this.posY-5,10,10);
+		ctx.strokeRect(this.pos.x-this.size/2,this.pos.y-this.size/2,this.size,this.size);
 	};
 
-	// t en ms
-	this.stepAnim = function(t){
-		this.posX += this.vitX * t;
-		this.posY += this.vitY * t;
-		if(this.posX <= 0) this.vitX = 0.1;
-		if(this.posX > gameCanvas.width) this.vitX = -0.1;
+	this.stepAnim = function(t){ // t en ms
+		this.pos.x += this.vit.x * t;
+		this.pos.y += this.vit.y * t;
+
+		// Collisions ext
+		var temp = this.size/2;
+		if(this.pos.x <= temp) this.pos.x = temp;
+		if(this.pos.y <= temp) this.pos.y = temp;
+		var temp2 = gameCanvas.width - temp;
+		if(this.pos.x > temp2) this.pos.x = temp2;
+		var temp3 = gameCanvas.height - temp;
+		if(this.pos.y > temp3) this.pos.y = temp3;
 	};
+
+	this.bindKey = function(up,right,down,left){
+		this.vit.x = 0;
+		this.vit.y = 0;
+		if(up !== down){
+			if(up){ // vers le haut
+				this.vit.y = -1;
+			} else { // vert le bas
+				this.vit.y = 1;
+			}
+		}
+
+		if(right !== left){
+			if(right){ // vers la droite
+				this.vit.x = 1;
+			} else { // vert la gauche
+				this.vit.x = -1;
+			}
+		}
+		this.vit.setRayonTo(this.vitMax);
+	}
 };
-
-var goLeft = function(){yourBonhome.vitX = -0.2;};
-var goUp = function(){yourBonhome.vitY = -0.2;};
-var goRight = function(){yourBonhome.vitX = 0.2;};
-var goDown = function(){yourBonhome.vitY = 0.2;};
 
 
 // ---- Inputs ---- //
 
-var LEFT_ARROW = 37;
 var UP_ARROW = 38;
 var RIGHT_ARROW = 39;
 var DOWN_ARROW = 40;
+var LEFT_ARROW = 37;
 var ENTER = 13;
 
-var leftDown = false;
-var upDown = false;
-var rightDown = false;
-var downDown = false;
+var keyUpDown = false;
+var keyRightDown = false;
+var keyDownDown = false;
+var keyLeftDown = false;
 
 var toucheDown = function(event){
-	if(event.keyCode === LEFT_ARROW) {
-		event.preventDefault();		
-		leftDown = true;
-		goLeft();
-	}
-	else if(event.keyCode === UP_ARROW) {
+	if(event.keyCode === UP_ARROW) {
 		event.preventDefault();
-		upDown = true;
-		goUp();
+		keyUpDown = true;
+		yourBonhome.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	}
 	else if(event.keyCode === RIGHT_ARROW) {
 		event.preventDefault();
-		rightDown = true;
-		goRight();
+		keyRightDown = true;
+		yourBonhome.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	}
 	else if(event.keyCode === DOWN_ARROW) {
 		event.preventDefault();
-		downDown = true;
-		goDown();
+		keyDownDown = true;
+		yourBonhome.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+	} else if(event.keyCode === LEFT_ARROW) {
+		event.preventDefault();		
+		keyLeftDown = true;
+		yourBonhome.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	}
+	yourBonhome.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 };
 
 var toucheUp = function(event){
-	if(event.keyCode === LEFT_ARROW) {
-		event.preventDefault();		
-		leftDown = false;
-		if(!rightDown)
-			yourBonhome.vitX = 0;
-		else
-			goRight();
-	}
-	else if(event.keyCode === UP_ARROW) {
+	if(event.keyCode === UP_ARROW) {
 		event.preventDefault();
-		upDown = false;
-		if(!downDown)
-			yourBonhome.vitY = 0;
-		else
-			goDown();
+		keyUpDown = false;
+		yourBonhome.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	}
 	else if(event.keyCode === RIGHT_ARROW) {
 		event.preventDefault();
-		rightDown = false;
-		if(!leftDown)
-			yourBonhome.vitX = 0;
-		else
-			goLeft();
+		keyRightDown = false;
+		yourBonhome.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	}
 	else if(event.keyCode === DOWN_ARROW) {
 		event.preventDefault();
-		downDown = false;
-		if(!upDown)
-			yourBonhome.vitY = 0;
-		else
-			goUp();
+		keyDownDown = false;
+		yourBonhome.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+	} else if(event.keyCode === LEFT_ARROW) {
+		event.preventDefault();		
+		keyLeftDown = false;
+		yourBonhome.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	}
 };
 
