@@ -34,7 +34,6 @@ var Vector2D = function(x,y){
 	else
 		this.y = y;
 
-
 	this.setFromRad = function(rayon, angle){
 		if(rayon === 0){
 			this.x = 0;
@@ -64,7 +63,10 @@ var Vector2D = function(x,y){
 		var h = rayon / this.getRayon();
 		this.x *= h;
 		this.y *= h;
-	}
-};{
+	};
 
+	this.setFromVect = function(vect){
+		this.x = vect.x;
+		this.y = vect.y;
+	}
 };
