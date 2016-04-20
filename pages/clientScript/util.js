@@ -73,6 +73,15 @@ var Vector2D = function(x,y){
 		this.x = vect.x;
 		this.y = vect.y;
 	}
+	
+	this.export = function(){
+		return [this.x, this.y];
+	}
+
+	this.import = function(obj){
+		this.x = obj[0];
+		this.y = obj[1];
+	}
 };
 
 // ---- Objects ---- //
@@ -103,6 +112,16 @@ var animPoint = function(){
 
 		ctx.strokeRect(this.pos.x-this.size/2,this.pos.y-this.size/2,this.size,this.size);
 	};
+
+	this.export = function(){
+		return [this.pos.export(), this.vit.export(), this.acc.export()];
+	}
+
+	this.import = function(obj){
+		this.pos.import(obj[0]);
+		this.vit.import(obj[1]);
+		this.acc.import(obj[2]);
+	}
 };
 
 // Orientable Animable Object
@@ -149,4 +168,15 @@ var animOrientedPoint = function(){
 		this.orientVector.y = y-this.pos.y;
 		this.orientVector.setRayonTo(this.orientVectorSize);
 	};
+
+	this.export = function(){
+		return [this.pos.export(), this.vit.export(), this.acc.export(), this.orientVector.export()];
+	}
+
+	this.import = function(obj){
+		this.pos.import(obj[0]);
+		this.vit.import(obj[1]);
+		this.acc.import(obj[2]);
+		this.orientVector.import(obj[3]);
+	}
 };

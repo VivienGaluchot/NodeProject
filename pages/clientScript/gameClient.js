@@ -1,26 +1,22 @@
-//var gameSocket = io('/game');
+var gameSocket = null;
 
 var gameCanvas = new canvasObj('gameCanvas');
 
 var lastDraw = null;
 var objectPool = [];
-var yourBonhome;
+var yourBonhome = null;
 
 addLoadEvent(function(){
+	initGameSocket();
+
 	gameCanvas.load();
 	lastDraw = Date.now();
-
-	var jaque = new Bonhome();
-	jaque.nom = 'jaque';
-	jaque.P.pos.x = 100;
-	jaque.P.pos.y = 100;
-
-	yourBonhome = jaque;
 
 	var franck = new Bonhome();
 	franck.nom = 'franck';
 	franck.P.pos.x = 200;
 	franck.P.pos.y = 100;
+	objectPool.push(franck);
 
 	window.addEventListener('keydown',toucheDown,false);
 	window.addEventListener('keyup',toucheUp,false);
@@ -28,14 +24,67 @@ addLoadEvent(function(){
 	window.addEventListener('mousemove',mouseEvent,false);
 	window.addEventListener('click',clickEvent,false);
 
-	objectPool.push(jaque);
-	objectPool.push(franck);
 	gameCanvas.draw();
 });
 
 addResizeEvent(function(){
 	gameCanvas.resize();
 });
+
+var initGameSocket = function(){
+	var infoElement = document.getElementById('gameInfo');
+	gameSocket = io('/game');
+
+	gameSocket.on('connect',function(){		
+		infoElement.innerHTML = 'Connecté au serveur';
+		if(yourBonhome === null)
+			setYourBonhome('Entrez votre pseudo');
+		else
+			gameSocket.emit('gameNew', yourBonhome);
+	});
+
+	gameSocket.on('gameNew', function(data) {
+		var bonhome = new Bonhome();
+		bonhome.import(data);
+		objectPool.push(bonhome);
+	});
+
+	gameSocket.on('updateObjectPool', function(data) {
+
+	});
+
+	gameSocket.on('gameDisconnect', function(data) {
+
+	});
+
+	gameSocket.on('disconnect',function(){
+		infoElement.innerHTML = 'Perte de la connexion au serveur';
+	});
+}
+
+var setYourBonhome = function(str){
+	var pseudo = prompt(str);
+	if(pseudo == undefined)
+		return;
+
+	var jaque = new Bonhome();
+	jaque.nom = pseudo;
+	jaque.P.pos.x = 100;
+	jaque.P.pos.y = 100;
+
+	console.log(jaque.export());
+
+	gameSocket.emit('gameNew', jaque.export(), function(rep){
+		if(rep === 'valid'){
+			yourBonhome = jaque;
+			objectPool.push(jaque);
+		}
+		else if(rep === 'pseudoPris')
+			setYourBonhome('Ce pseudo est déja pris');
+		else if(rep === 'pseudoVide')
+			setYourBonhome('Entrez un pseudo non vide');
+	});
+};
 
 gameCanvas.draw = function(){
 	var nT = Date.now();
@@ -127,12 +176,21 @@ var Bonhome = function(){
 	this.drawOn = function(ctx){
 		P.drawOn(ctx);
 
-		ctx.font = "12px Arial";
+		ctx.font = '12px Arial';
 		if(P.pos.y<this.size/2+16)
 			ctx.fillText(this.nom,P.pos.x - (ctx.measureText(this.nom).width/2),P.pos.y+this.size/2+15);
 		else
 			ctx.fillText(this.nom,P.pos.x - (ctx.measureText(this.nom).width/2),P.pos.y-this.size/2-4);
 	};
+
+	this.export = function(){
+		return {'nom':this.nom,'data':this.P.export()};
+	};
+
+	this.import = function(obj){
+		this.nom = obj.nom;
+		this.P.import(obj.data);
+	}
 };
 
 var Balle = function(){
@@ -147,7 +205,7 @@ var Balle = function(){
 
 	this.drawOn = function(ctx){		
 		ctx.lineWidth = 3;
-		ctx.strokeStyle="rgb(255,50,0)";
+		ctx.strokeStyle='rgb(255,50,0)';
 		// ligne
 		ctx.beginPath();
 		ctx.moveTo(P.pos.x,P.pos.y);
@@ -191,6 +249,8 @@ var keyDownDown = false;
 var keyLeftDown = false;
 
 var toucheDown = function(event){
+	if(yourBonhome === null)
+		return;
 	if(event.keyCode === UP_ARROW || event.keyCode === Z_KEY) {
 		event.preventDefault();
 		keyUpDown = true;
@@ -214,6 +274,8 @@ var toucheDown = function(event){
 };
 
 var toucheUp = function(event){
+	if(yourBonhome === null)
+		return;
 	if(event.keyCode === UP_ARROW || event.keyCode === Z_KEY) {
 		event.preventDefault();
 		keyUpDown = false;
@@ -240,6 +302,8 @@ var touchePress = function(event){
 };
 
 var mouseEvent = function(event){
+	if(yourBonhome === null)
+		return;
 	var rect = gameCanvas.element.getBoundingClientRect();
 	var mouseX = event.clientX - rect.left;
 	var mouseY = event.clientY - rect.top;
@@ -247,5 +311,7 @@ var mouseEvent = function(event){
 };
 
 var clickEvent = function(event){
+	if(yourBonhome === null)
+		return;
 	yourBonhome.fire();
 };

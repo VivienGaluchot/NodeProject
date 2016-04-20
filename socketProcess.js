@@ -10,6 +10,7 @@ const ent = require('ent');
 log.conLog('Chargement de socketProcess');
 
 var listPseudo = [];
+var listBonhome = [];
 
 module.exports = function (io) {
 	// ---- CHAT ---- //
@@ -51,6 +52,34 @@ module.exports = function (io) {
 			} else {
 				socket.emit('pseudoVide');
 				log.conLog('chatNew error : pseudoVide');
+			}
+		});
+	});
+
+	// ---- GAME ---- //
+	var chat = io.of('/game');
+	chat.on('connection',	function(socket){
+		socket.on('gameNew', function(bonhome, cb) {
+			if(bonhome.nom != undefined && bonhome.nom.length > 0){
+					bonhome.nom = ent.encode(bonhome.nom);
+					if(listBonhome.indexOf(bonhome) === -1){
+						cb('valid');
+						// bonhome non utilisé
+						socket.bonhome = bonhome;
+						listBonhome.push(bonhome);
+						socket.broadcast.emit('gameNew', bonhome);
+
+						socket.on('disconnect', function(){
+							var id = listBonhome.indexOf(socket.bonhome);
+							if(id !== -1)
+								listBonhome.splice(id,1);		
+							//socket.broadcast.emit('gameDisconnect', {timeStamp: timeToStr(new Date()), nbUser: listPseudo.length, pseudo: socket.pseudo});
+						});
+					} else {
+						cb('pseudoPris');
+					}
+			} else {
+				cb('pseudoVide');
 			}
 		});
 	});
