@@ -3,8 +3,7 @@
 var gameCanvas = new canvasObj('gameCanvas');
 
 var lastDraw = null;
-var bonhomeList = [];
-var balleList = [];
+var objectPool = [];
 var yourBonhome;
 
 addLoadEvent(function(){
@@ -13,12 +12,24 @@ addLoadEvent(function(){
 
 	var jaque = new Bonhome();
 	jaque.nom = 'jaque';
-	jaque.pos.x = 100;
-	jaque.pos.y = 100;
+	jaque.P.pos.x = 100;
+	jaque.P.pos.y = 100;
 
 	yourBonhome = jaque;
 
-	bonhomeList.push(jaque);
+	var franck = new Bonhome();
+	franck.nom = 'franck';
+	franck.P.pos.x = 200;
+	franck.P.pos.y = 100;
+
+	window.addEventListener('keydown',toucheDown,false);
+	window.addEventListener('keyup',toucheUp,false);
+	window.addEventListener('keypress',touchePress,false);
+	window.addEventListener('mousemove',mouseEvent,false);
+	window.addEventListener('click',clickEvent,false);
+
+	objectPool.push(jaque);
+	objectPool.push(franck);
 	gameCanvas.draw();
 });
 
@@ -27,24 +38,22 @@ addResizeEvent(function(){
 });
 
 gameCanvas.draw = function(){
-	var ctx = gameCanvas.ctx;
-	var width = gameCanvas.width;
-	var height = gameCanvas.height;
-
 	var nT = Date.now();
 	var dT = nT - lastDraw;
 	lastDraw = nT;
 
-	ctx.clearRect(0,0,width,height);
+	gameCanvas.ctx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
 
-	for(var i=0;i<bonhomeList.length;i++){
-		bonhomeList[i].stepAnim(dT);
-		bonhomeList[i].drawOn(ctx);
-	}
-	for(var i=0;i<balleList.length;i++){
-		balleList[i].stepAnim(dT);
-		if(balleList[i] !== undefined) // peut disparaitre
-			balleList[i].drawOn(ctx);
+	// deletion cycle un peu nul
+	var i=0;
+	while(i<objectPool.length){
+		if(objectPool[i].toDelete === true)
+			objectPool.splice(i,1);
+		else {
+			objectPool[i].stepAnim(dT);
+			objectPool[i].drawOn(gameCanvas.ctx);
+			i++;
+		}
 	}
 
 	window.requestAnimationFrame(gameCanvas.draw);
@@ -54,94 +63,75 @@ var Bonhome = function(){
 	this.nom = null;
 	this.vitMax = 0.2;
 	this.size = 15;
-
-	// pos en px
-	this.pos = new Vector2D();
-	// acc en px² / ms
-	this.vit = new Vector2D();
 	
-	// en rad
-	this.lookDirectionSize = 20;
-	this.lookDirection = new Vector2D();
+	// point
+	var P = new animOrientedPoint();
+	this.P = P;
 
-	// system
+	// en rad
+	P.orientVectorSize = 20;
+
+	// mouse tracking
 	this.mouseX = 0;
 	this.mouseY = 0;
-
-	this.drawOn = function(ctx){
-		ctx.lineWidth = 1;
-		ctx.strokeStyle="rgb(0,0,0)";
-		ctx.strokeRect(this.pos.x-this.size/2,this.pos.y-this.size/2,this.size,this.size);
-
-		// lookDirection
-		ctx.beginPath();
-		ctx.moveTo(this.pos.x,this.pos.y);
-		ctx.lineTo(this.pos.x+this.lookDirection.x,this.pos.y+this.lookDirection.y);
-		ctx.stroke();
-
-		// name
-		ctx.font = "12px Arial";
-		if(this.pos.y<this.size/2+15)
-			ctx.fillText(this.nom,this.pos.x - (ctx.measureText(this.nom).width/2),this.pos.y+this.size/2+15);
-		else
-			ctx.fillText(this.nom,this.pos.x - (ctx.measureText(this.nom).width/2),this.pos.y-this.size/2-3);
-	};
-
-	this.stepAnim = function(t){ // t en ms
-		this.pos.x += this.vit.x * t;
-		this.pos.y += this.vit.y * t;
-
-		// Collisions ext
-		var temp = this.size/2;
-		if(this.pos.x <= temp) this.pos.x = temp;
-		if(this.pos.y <= temp) this.pos.y = temp;
-		var temp2 = gameCanvas.width - temp;
-		if(this.pos.x > temp2) this.pos.x = temp2;
-		var temp3 = gameCanvas.height - temp;
-		if(this.pos.y > temp3) this.pos.y = temp3;
-
-		// lookDirection
-		this.lookDirection.x = this.mouseX-this.pos.x;
-		this.lookDirection.y = this.mouseY-this.pos.y;
-		this.lookDirection.setRayonTo(this.lookDirectionSize);
-	};
-
-	this.bindKey = function(up,right,down,left){
-		this.vit.x = 0;
-		this.vit.y = 0;
-		if(up !== down){
-			if(up){ // vers le haut
-				this.vit.y = -1;
-			} else { // vert le bas
-				this.vit.y = 1;
-			}
-		}
-
-		if(right !== left){
-			if(right){ // vers la droite
-				this.vit.x = 1;
-			} else { // vert la gauche
-				this.vit.x = -1;
-			}
-		}
-		this.vit.setRayonTo(this.vitMax);
-	};
-
 	this.lookTo = function(x,y){
 		this.mouseX = x;
 		this.mouseY = y;
 	};
 
+	this.bindKey = function(up,right,down,left){
+		this.P.vit.x = 0;
+		this.P.vit.y = 0;
+		if(up !== down){
+			if(up){ // vers le haut
+				P.vit.y = -1;
+			} else { // vert le bas
+				P.vit.y = 1;
+			}
+		}
+
+		if(right !== left){
+			if(right){ // vers la droite
+				P.vit.x = 1;
+			} else { // vert la gauche
+				P.vit.x = -1;
+			}
+		}
+		this.P.vit.setRayonTo(this.vitMax);
+	};
+
 	this.fire = function(){
 		var balle = new Balle();
 		// position
-		balle.pos.x = this.pos.x + this.lookDirection.x;
-		balle.pos.y = this.pos.y + this.lookDirection.y;
+		balle.P.pos.x = P.pos.x + this.P.orientVector.x;
+		balle.P.pos.y = P.pos.y + this.P.orientVector.y;
 		// vitesse
-		balle.vit.setFromVect(this.lookDirection);
-		balle.vit.setRayonTo(balle.vitMax);
+		balle.P.vit.setFromVect(this.P.orientVector);
+		balle.P.vit.setRayonTo(balle.vitMax);
+		objectPool.push(balle);
+	};
 
-		balleList.push(balle);
+	this.stepAnim = function(t){
+		P.stepAnim(t);
+		P.orientToThePoint(this.mouseX,this.mouseY);
+
+		var temp = this.size/2;
+		if(P.pos.x <= temp) P.pos.x = temp;
+		if(P.pos.y <= temp) P.pos.y = temp;
+		var temp2 = gameCanvas.width - temp;
+		if(P.pos.x > temp2) P.pos.x = temp2;
+		var temp3 = gameCanvas.height - temp;
+		if(P.pos.y > temp3) P.pos.y = temp3;
+	};
+
+	this.drawOn = function(ctx){
+		P.drawOn(ctx);
+
+		ctx.font = "12px Arial";
+		if(P.pos.y<this.size/2+16)
+			ctx.fillText(this.nom,P.pos.x - (ctx.measureText(this.nom).width/2),P.pos.y+this.size/2+15);
+		else
+			ctx.fillText(this.nom,P.pos.x - (ctx.measureText(this.nom).width/2),P.pos.y-this.size/2-4);
 	};
 };
 
@@ -149,10 +139,9 @@ var Balle = function(){
 	this.vitMax = 1;
 	this.size = 6;
 
-	// pos en px
-	this.pos = new Vector2D();
-	// acc en px² / ms
-	this.vit = new Vector2D();
+	// point
+	var P = new animPoint();
+	this.P = P;
 	/// affichage de la trace
 	this.trainee = new Vector2D();
 
@@ -161,33 +150,31 @@ var Balle = function(){
 		ctx.strokeStyle="rgb(255,50,0)";
 		// ligne
 		ctx.beginPath();
-		ctx.moveTo(this.pos.x,this.pos.y);
-		ctx.lineTo(this.pos.x+this.trainee.x,this.pos.y+this.trainee.y);
+		ctx.moveTo(P.pos.x,P.pos.y);
+		ctx.lineTo(P.pos.x+this.trainee.x,P.pos.y+this.trainee.y);
 		ctx.stroke();
 	};
 
+	this.colide = function(){
+		var temp = this.size/2;
+		if(P.pos.x <= temp || P.pos.y <= temp)
+			this.toDelete = true;
+		var temp2 = gameCanvas.width - temp;
+		if(P.pos.x > temp2)
+			this.toDelete = true;
+		var temp3 = gameCanvas.height - temp;
+		if(P.pos.y > temp3)
+			this.toDelete = true;
+	}
+
 	this.stepAnim = function(t){ // t en ms
-		this.trainee.x = -this.vit.x;
-		this.trainee.y = -this.vit.y;
+		this.trainee.x = -P.vit.x;
+		this.trainee.y = -P.vit.y;
 		this.trainee.setRayonTo(this.size);
 
-		this.pos.x += this.vit.x * t;
-		this.pos.y += this.vit.y * t;
-
-		// Collisions ext
-		var temp = this.size/2;
-		if(this.pos.x <= temp) this.end();
-		if(this.pos.y <= temp) this.end();
-		var temp2 = gameCanvas.width - temp;
-		if(this.pos.x > temp2) this.end();
-		var temp3 = gameCanvas.height - temp;
-		if(this.pos.y > temp3) this.end();
+		P.stepAnim(t);
 	};
-
-	this.end = function(){
-		balleList.splice(balleList.indexOf(this),1);
-	}
-}
+};
 
 
 // ---- Inputs ---- //
@@ -249,9 +236,7 @@ var toucheUp = function(event){
 };
 
 var touchePress = function(event){
-	if(event.keyCode === ENTER){
-		yourBonhome.fire();
-	}
+
 };
 
 var mouseEvent = function(event){
@@ -261,7 +246,6 @@ var mouseEvent = function(event){
 	yourBonhome.lookTo(mouseX,mouseY);
 };
 
-window.addEventListener('keydown',toucheDown,false);
-window.addEventListener('keyup',toucheUp,false);
-window.addEventListener('keypress',touchePress,false);
-window.addEventListener('mousemove',mouseEvent,false);
+var clickEvent = function(event){
+	yourBonhome.fire();
+};
