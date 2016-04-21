@@ -1,41 +1,39 @@
 var canvasObj = function(id){
-	var self = this;
+	this.id = id;
 
-	self.id = id;
+	this.element = null;
+	this.ctx = null;
 
-	self.element = null;
-	self.ctx = null;
-
-	self.width = 0;
-	self.height = 0;
+	this.width = 0;
+	this.height = 0;
 
 	this.draw = function(){
-		self.ctx.clearRect(0,0,self.width,self.height);
+		this.ctx.clearRect(0,0,this.width,this.height);
 	};
 
 	// Retina fix
 	this.resize = function(){
 		var dpr = window.devicePixelRatio || 1;
-		var bsr = self.ctx.webkitBackingStorePixelRatio ||
-			self.ctx.mozBackingStorePixelRatio ||
-			self.ctx.msBackingStorePixelRatio ||
-			self.ctx.oBackingStorePixelRatio ||
-			self.ctx.backingStorePixelRatio || 1;
+		var bsr = this.ctx.webkitBackingStorePixelRatio ||
+			this.ctx.mozBackingStorePixelRatio ||
+			this.ctx.msBackingStorePixelRatio ||
+			this.ctx.oBackingStorePixelRatio ||
+			this.ctx.backingStorePixelRatio || 1;
 		var ratio = dpr/bsr;
-		self.element.width = self.element.offsetWidth * ratio;
-		self.element.height = self.element.offsetHeight * ratio;
-		self.element.getContext("2d").setTransform(ratio, 0, 0, ratio, 0, 0);
+		this.element.width = this.element.offsetWidth * ratio;
+		this.element.height = this.element.offsetHeight * ratio;
+		this.element.getContext("2d").setTransform(ratio, 0, 0, ratio, 0, 0);
 
-		self.width = self.element.width;
-		self.height = self.element.height;
+		this.width = this.element.width;
+		this.height = this.element.height;
 	};
 
 	// ---- Loading ---- //
 	this.load = function(){
-		self.element = document.getElementById(self.id);
+		this.element = document.getElementById(this.id);
 
-		self.ctx = self.element.getContext("2d");
+		this.ctx = this.element.getContext("2d");
 
-		self.resize();
+		this.resize();
 	};
 };

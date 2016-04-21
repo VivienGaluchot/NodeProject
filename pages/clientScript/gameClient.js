@@ -48,6 +48,8 @@ var initGameSocket = function(){
 					setYourBonhome('Pseudo est déja pris');
 				else if(rep === 'pseudoVide')
 					setYourBonhome('Entrez un pseudo non vide');
+				else if(rep === 'plusDePlace')
+					alert('Plus de place dans le serveur');
 				else
 					yourBonhomeKey = rep;
 			});
@@ -69,12 +71,12 @@ var initGameSocket = function(){
 		}
 	});
 
-	gameSocket.on('reqUpdatePos', function() {
+	gameSocket.on('reqUpdatePos', function(obj) {
 		gameSocket.emit('updatePos',yourBonhome.exportP());
 	});
 
 	gameSocket.on('updateObjectPool', function(obj) {
-		gameObjectPool[obj.key].import(obj.data);
+		gameObjectPool[obj.key].importP(obj.data);
 	});
 
 	gameSocket.on('initObjectPool', function(data) { // data : gameObjectPool
@@ -101,10 +103,14 @@ var initGameSocket = function(){
 		yourBonhome = gameObjectPool[yourBonhomeKey];
 	});
 
+	gameSocket.on('deleteObject', function(key){
+		delete gameObjectPool[key];
+	});
+
 	gameSocket.on('disconnect',function(){
 		infoElement.innerHTML = 'Perte de la connexion au serveur';
 	});
-}
+};
 
 var setYourBonhome = function(str){
 	var pseudo = prompt(str);
@@ -226,16 +232,20 @@ var Bonhome = function(){
 		return {'type':'Bonhome','nom':this.nom,'data':this.P.export()};
 	};
 
-	this.exportP = function(){		
-		return {'type':'Bonhome','data':this.P.export()};
-	}
-
 	this.import = function(obj){
 		if(obj.nom !== undefined)
 			this.nom = obj.nom;
 		if(obj.data !== undefined)
 			this.P.import(obj.data);
-	}
+	};
+
+	this.exportP = function(){		
+		return this.P.export();
+	};
+
+	this.importP = function(obj){
+		this.P.import(obj);
+	};
 };
 
 var Balle = function(){
@@ -284,7 +294,15 @@ var Balle = function(){
 
 	this.import = function(obj){
 		this.P.import(obj.data);
-	}
+	};
+
+	this.exportP = function(){		
+		return this.P.export();
+	};
+
+	this.importP = function(obj){
+		this.P.import(obj);
+	};
 };
 
 
