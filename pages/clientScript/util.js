@@ -129,15 +129,15 @@ var animOrientedPoint = function(){
 	this.toDelete = false;
 	this.size = 10;
 
-	this.orientVector = new Vector2D(1,1);
-	this.orientVectorSize = 15;
-
 	// pos en px
 	this.pos = new Vector2D();
 	// vit en px / ms
 	this.vit = new Vector2D();
 	// acc en px / ms²
 	this.acc = new Vector2D();
+
+	this.orientVectorSize = 15;
+	this.orientVector = new Vector2D(this.orientVectorSize,0);
 
 	this.stepAnim = function(t){
 		this.vit.x += this.acc.x * t;

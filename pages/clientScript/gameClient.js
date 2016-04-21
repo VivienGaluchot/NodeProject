@@ -3,8 +3,11 @@ var gameSocket = null;
 var gameCanvas = new canvasObj('gameCanvas');
 
 var lastDraw = null;
-var objectPool = [];
+
+var gameObjectPool = [];
+
 var yourBonhome = null;
+var yourBonhomeKey = null;
 
 addLoadEvent(function(){
 	initGameSocket();
@@ -12,11 +15,11 @@ addLoadEvent(function(){
 	gameCanvas.load();
 	lastDraw = Date.now();
 
-	var franck = new Bonhome();
+/*	var franck = new Bonhome();
 	franck.nom = 'franck';
 	franck.P.pos.x = 200;
 	franck.P.pos.y = 100;
-	objectPool.push(franck);
+	objectPool.push(franck);*/
 
 	window.addEventListener('click',clickEvent,false);
 	window.addEventListener('keydown',toucheDown,false);
@@ -40,43 +43,62 @@ var initGameSocket = function(){
 		if(yourBonhome === null)
 			setYourBonhome('Entrez votre pseudo');
 		else
-			gameSocket.emit('gameNew', yourBonhome);
+			gameSocket.emit('nouveauJoueur', yourBonhome.export(), function(rep){
+				if(rep === 'pseudoPris')
+					setYourBonhome('Pseudo est déja pris');
+				else if(rep === 'pseudoVide')
+					setYourBonhome('Entrez un pseudo non vide');
+				else
+					yourBonhomeKey = rep;
+			});
 	});
 
-	gameSocket.on('gameNew', function(data) {
-		var bonhome = new Bonhome();
-		bonhome.import(data);
-		objectPool.push(bonhome);
+	gameSocket.on('newObject', function(data) {
+		var obj = data.obj;
+
+		if(obj.type === 'Bonhome'){
+			var bonhome = new Bonhome();
+			bonhome.import(obj);
+			gameObjectPool[data.key] = bonhome;
+		} else if(obj.type === 'Balle'){
+			var balle = new Balle();
+			balle.import(obj);
+			gameObjectPool[data.key] = balle;
+		} else {
+			// TODO gestion d'erreur ?
+		}
 	});
 
 	gameSocket.on('reqUpdatePos', function() {
 		gameSocket.emit('updatePos',yourBonhome.exportP());
 	});
 
-	gameSocket.on('updateObjectPool', function(obj,cb) {
-		objectPool[obj.id].import(obj.data);
+	gameSocket.on('updateObjectPool', function(obj) {
+		gameObjectPool[obj.key].import(obj.data);
 	});
 
-	gameSocket.on('initObjectPool', function(data) {
-		objectPool = [];
-		for(var i=0;i<data.array.length;i++){
-			if(data.array[i].type === 'Bonhome'){
-				var bonhome = new Bonhome();
-				bonhome.import(data.array[i]);
-				objectPool.push(bonhome);
-			} else if(data.array[i].type === 'Balle'){
-				var balle = new Balle();
-				balle.import(data.array[i]);
-				objectPool.push(balle);
-			} else {
-				// TODO gestion d'erreur ?
+	gameSocket.on('initObjectPool', function(data) { // data : gameObjectPool
+		gameObjectPool = [];
+
+		for(var i=0;i<data.length;i++){
+			var obj = data[i];
+
+			if(obj !== undefined){
+				if(obj.type === 'Bonhome'){
+					var bonhome = new Bonhome();
+					bonhome.import(obj);
+					gameObjectPool[i] = bonhome;
+				} else if(obj.type === 'Balle'){
+					var balle = new Balle();
+					balle.import(obj);
+					gameObjectPool[i] = balle;
+				} else {
+					// TODO gestion d'erreur ?
+				}
 			}
 		}
-		yourBonhome = objectPool[data.you];
-	});
 
-	gameSocket.on('gameDisconnect', function(data) {
-
+		yourBonhome = gameObjectPool[yourBonhomeKey];
 	});
 
 	gameSocket.on('disconnect',function(){
@@ -94,15 +116,13 @@ var setYourBonhome = function(str){
 	jaque.P.pos.x = 100;
 	jaque.P.pos.y = 100;
 
-	gameSocket.emit('gameNew', jaque.export(), function(rep){
-		if(rep === 'valid'){
-			yourBonhome = jaque;
-			objectPool.push(jaque);
-		}
-		else if(rep === 'pseudoPris')
+	gameSocket.emit('nouveauJoueur', jaque.export(), function(rep){
+		if(rep === 'pseudoPris')
 			setYourBonhome('Ce pseudo est déja pris');
 		else if(rep === 'pseudoVide')
 			setYourBonhome('Entrez un pseudo non vide');
+		else
+			yourBonhomeKey = rep;
 	});
 };
 
@@ -113,15 +133,10 @@ gameCanvas.draw = function(){
 
 	gameCanvas.ctx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
 
-	// deletion cycle un peu nul
-	var i=0;
-	while(i<objectPool.length){
-		if(objectPool[i].toDelete === true)
-			objectPool.splice(i,1);
-		else {
-			objectPool[i].stepAnim(dT);
-			objectPool[i].drawOn(gameCanvas.ctx);
-			i++;
+	for(var i=0;i<gameObjectPool.length;i++){
+		if(gameObjectPool[i] !== undefined){	
+			gameObjectPool[i].stepAnim(dT);
+			gameObjectPool[i].drawOn(gameCanvas.ctx);
 		}
 	}
 
@@ -177,12 +192,16 @@ var Bonhome = function(){
 		// vitesse
 		balle.P.vit.setFromVect(this.P.orientVector);
 		balle.P.vit.setRayonTo(balle.vitMax);
-		objectPool.push(balle);
+
+		gameSocket.emit('newObject',balle.export(),function(key){
+			gameObjectPool[key] = balle;
+		});
 	};
 
 	this.stepAnim = function(t){
 		P.stepAnim(t);
-		P.orientToThePoint(this.mouseX,this.mouseY);
+		if(this === yourBonhome)
+			P.orientToThePoint(this.mouseX,this.mouseY);
 
 		var temp = this.size/2;
 		if(P.pos.x <= temp) P.pos.x = temp;

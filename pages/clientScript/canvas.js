@@ -1,7 +1,7 @@
 var canvasObj = function(id){
 	var self = this;
 
-	this.id = id;
+	self.id = id;
 
 	self.element = null;
 	self.ctx = null;
@@ -25,14 +25,14 @@ var canvasObj = function(id){
 		self.element.width = self.element.offsetWidth * ratio;
 		self.element.height = self.element.offsetHeight * ratio;
 		self.element.getContext("2d").setTransform(ratio, 0, 0, ratio, 0, 0);
+
+		self.width = self.element.width;
+		self.height = self.element.height;
 	};
 
 	// ---- Loading ---- //
 	this.load = function(){
 		self.element = document.getElementById(self.id);
-
-		self.width = self.element.offsetWidth;
-		self.height = self.element.offsetHeight;
 
 		self.ctx = self.element.getContext("2d");
 
