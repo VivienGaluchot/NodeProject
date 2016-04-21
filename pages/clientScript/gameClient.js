@@ -18,11 +18,11 @@ addLoadEvent(function(){
 	franck.P.pos.y = 100;
 	objectPool.push(franck);
 
+	window.addEventListener('click',clickEvent,false);
 	window.addEventListener('keydown',toucheDown,false);
 	window.addEventListener('keyup',toucheUp,false);
 	window.addEventListener('keypress',touchePress,false);
 	window.addEventListener('mousemove',mouseEvent,false);
-	window.addEventListener('click',clickEvent,false);
 
 	gameCanvas.draw();
 });
@@ -49,8 +49,30 @@ var initGameSocket = function(){
 		objectPool.push(bonhome);
 	});
 
-	gameSocket.on('updateObjectPool', function(data) {
+	gameSocket.on('reqUpdatePos', function() {
+		gameSocket.emit('updatePos',yourBonhome.exportP());
+	});
 
+	gameSocket.on('updateObjectPool', function(obj,cb) {
+		objectPool[obj.id].import(obj.data);
+	});
+
+	gameSocket.on('initObjectPool', function(data) {
+		objectPool = [];
+		for(var i=0;i<data.array.length;i++){
+			if(data.array[i].type === 'Bonhome'){
+				var bonhome = new Bonhome();
+				bonhome.import(data.array[i]);
+				objectPool.push(bonhome);
+			} else if(data.array[i].type === 'Balle'){
+				var balle = new Balle();
+				balle.import(data.array[i]);
+				objectPool.push(balle);
+			} else {
+				// TODO gestion d'erreur ?
+			}
+		}
+		yourBonhome = objectPool[data.you];
 	});
 
 	gameSocket.on('gameDisconnect', function(data) {
@@ -71,8 +93,6 @@ var setYourBonhome = function(str){
 	jaque.nom = pseudo;
 	jaque.P.pos.x = 100;
 	jaque.P.pos.y = 100;
-
-	console.log(jaque.export());
 
 	gameSocket.emit('gameNew', jaque.export(), function(rep){
 		if(rep === 'valid'){
@@ -184,12 +204,18 @@ var Bonhome = function(){
 	};
 
 	this.export = function(){
-		return {'nom':this.nom,'data':this.P.export()};
+		return {'type':'Bonhome','nom':this.nom,'data':this.P.export()};
 	};
 
+	this.exportP = function(){		
+		return {'type':'Bonhome','data':this.P.export()};
+	}
+
 	this.import = function(obj){
-		this.nom = obj.nom;
-		this.P.import(obj.data);
+		if(obj.nom !== undefined)
+			this.nom = obj.nom;
+		if(obj.data !== undefined)
+			this.P.import(obj.data);
 	}
 };
 
@@ -232,6 +258,14 @@ var Balle = function(){
 
 		P.stepAnim(t);
 	};
+
+	this.export = function(){
+		return {'type':'Balle','data':this.P.export()};
+	};
+
+	this.import = function(obj){
+		this.P.import(obj.data);
+	}
 };
 
 

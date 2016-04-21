@@ -9,11 +9,9 @@ const ent = require('ent');
 
 log.conLog('Chargement de socketProcess');
 
-var listPseudo = [];
-var listBonhome = [];
-
 module.exports = function (io) {
 	// ---- CHAT ---- //
+	var listPseudo = [];
 	var chat = io.of('/chat');
 	chat.on('connection',	function(socket){
 		socket.on('chatNew', function(userPseudo) {
@@ -56,23 +54,35 @@ module.exports = function (io) {
 		});
 	});
 
-	// ---- GAME ---- //
+	// ---- GAME ---- //	
+	var gameObjectPool = [];
 	var chat = io.of('/game');
 	chat.on('connection',	function(socket){
 		socket.on('gameNew', function(bonhome, cb) {
 			if(bonhome.nom != undefined && bonhome.nom.length > 0){
 					bonhome.nom = ent.encode(bonhome.nom);
-					if(listBonhome.indexOf(bonhome) === -1){
+					if(gameObjectPool.indexOf(bonhome) === -1){
 						cb('valid');
 						// bonhome non utilisé
 						socket.bonhome = bonhome;
-						listBonhome.push(bonhome);
+						gameObjectPool.push(bonhome);
+						socket.emit('initObjectPool', {'array':gameObjectPool, 'you':gameObjectPool.indexOf(bonhome)});
 						socket.broadcast.emit('gameNew', bonhome);
 
+						socket.emit('reqUpdatePos');
+
+						socket.on('updatePos', function(response){
+							var id = gameObjectPool.indexOf(socket.bonhome);
+							gameObjectPool[id].data = response.data;
+							socket.broadcast.emit('updateObjectPool',{'id':id, 'data':response});
+
+							socket.emit('reqUpdatePos');
+						}); 
+
 						socket.on('disconnect', function(){
-							var id = listBonhome.indexOf(socket.bonhome);
+							var id = gameObjectPool.indexOf(socket.bonhome);
 							if(id !== -1)
-								listBonhome.splice(id,1);		
+								gameObjectPool.splice(id,1);		
 							//socket.broadcast.emit('gameDisconnect', {timeStamp: timeToStr(new Date()), nbUser: listPseudo.length, pseudo: socket.pseudo});
 						});
 					} else {
