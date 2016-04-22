@@ -74,23 +74,10 @@ var initGameSocket = function(){
 	var infoElement = document.getElementById('gameInfo');
 	gameSocket = io('/game');
 
-	gameSocket.on('connect',function(){	
+	gameSocket.on('connect',function(){
 		infoElement.innerHTML = 'Connecté au serveur';
-		if(yourBonhomme === null)
-			setYourBonhomme('Entrez votre pseudo');
-
-		gameSocket.emit('nouveauJoueur', yourBonhomme.pack(), function(rep){
-			console.log('cb nouveauJoueur',rep);
-			if(rep === 'pseudoVide')
-				setYourBonhomme('Entrez un pseudo non vide');
-			else if(rep === 'erreur')
-				alert('Erreur');
-			else
-				yourBonhommeKey = rep;
-
-			yourBonhomme = gameObjectPool[yourBonhommeKey];
-			console.log('reception de yourBonhommeKey',yourBonhommeKey);
-		});
+		
+		setYourBonhomme('Entrez votre pseudo');
 	});
 
 	gameSocket.on('initObjectPool', function(data,cb) {
@@ -113,7 +100,6 @@ var initGameSocket = function(){
 				}*/
 			}
 		}
-		console.log('yourBonhommeKey : '+gameObjectPool[yourBonhommeKey]);
 		yourBonhomme = gameObjectPool[yourBonhommeKey];
 
 		// Debut du dessin
@@ -160,7 +146,7 @@ var initGameSocket = function(){
 
 var setYourBonhomme = function(str){
 	var pseudo = prompt(str);
-	if(pseudo == undefined)
+	if(pseudo === undefined)
 		return;
 
 	var jaque = new Bonhomme();
@@ -168,12 +154,16 @@ var setYourBonhomme = function(str){
 	jaque.P.setPos(100,100);
 
 	gameSocket.emit('nouveauJoueur', jaque.pack(), function(rep){
-		if(rep === 'pseudoPris')
-			setYourBonhomme('Ce pseudo est déja pris');
-		else if(rep === 'pseudoVide')
+		if(rep === 'pseudoVide'){
 			setYourBonhomme('Entrez un pseudo non vide');
-		else
+		}
+		else if(rep === 'erreur'){
+			alert('Erreur');
+		}
+		else{
 			yourBonhommeKey = rep;
+			yourBonhomme = gameObjectPool[yourBonhommeKey];
+		}
 	});
 };
 
