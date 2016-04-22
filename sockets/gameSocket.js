@@ -19,7 +19,7 @@ const gameObjectPool = new util.gameObjectPool(100);
 
 // 	Objets pris en charche : {type:t, data:d, toAnimate:bool}
 gameObjectPool.validObject = function(obj){
-	if(obj.data === undefined || obj.type === undefined || obj.type === 'bonhome' || obj.type === 'balle')
+	if(obj.data === undefined || obj.type === undefined || obj.type === 'bonhomme' || obj.type === 'balle')
 		return false;
 	return true;
 };
@@ -52,7 +52,7 @@ gameObjectPool.updateData = function(key,data){
 		Informe de la déconnection d'un client
 
 	Client -> Serveur
-	- nouveauJoueur : bonhome, cb(key/'pseudoVide'/'erreur')
+	- nouveauJoueur : bonhomme, cb(key/'pseudoVide'/'erreur')
 		Informe le serveur de son entré en jeu
 	- newObject
 		// TEMPORAIRE
@@ -67,20 +67,20 @@ module.exports.process = function (gameIo,io){
 		var clientIp = socket.request.connection.remoteAddress;
 		log.conLog('Game - connection from ' + clientIp);
 
-		socket.on('nouveauJoueur', function(bonhome, cb){
+		socket.on('nouveauJoueur', function(bonhomme, cb){
 			// XSS safe
-			bonhome.nom = ent.encode(bonhome.nom);
+			bonhomme.nom = ent.encode(bonhomme.nom);
 
 			// Gestion des erreurs
-			if(bonhome.nom === undefined || bonhome.nom.length === 0){
+			if(bonhomme.nom === undefined || bonhomme.nom.length === 0){
 				cb('pseudoVide');
 				return;
 			}
 
-			log.conLog('Game - nouveauJoueur : '+bonhome.nom);
+			log.conLog('Game - nouveauJoueur : '+bonhomme.nom);
 
 			// Ajout de l'objet
-			var key = gameObjectPool.add(bonhome);
+			var key = gameObjectPool.add(bonhomme);
 			// Erreur
 			if(key instanceof Error){
 				cb('erreur');
@@ -102,7 +102,7 @@ module.exports.process = function (gameIo,io){
 			socket.emit('initObjectPool', gameObjectPool.pack(), function(){
 				log.conLog('Game - initObjectPool effectué: '+socket.key);
 			});
-			socket.broadcast.emit('newObject', {'key':key, 'data':bonhome});
+			socket.broadcast.emit('newObject', {'key':key, 'data':bonhomme});
 
 			// TEMPORAIRE
 			socket.on('newObject', function(object,cb){

@@ -5,8 +5,8 @@ var gameCanvas = new canvasObj('gameCanvas');
 var gameObjectPool = [];
 var lastDraw = null;
 
-var yourBonhome = null;
-var yourBonhomeKey = null;
+var yourBonhomme = null;
+var yourBonhommeKey = null;
 
 addLoadEvent(function(){
 	gameCanvas.load();
@@ -60,7 +60,7 @@ gameCanvas.draw = function(){
 		Informe de la déconnection d'un client
 
 	Client -> Serveur
-	- nouveauJoueur : bonhome, cb(key/'pseudoVide'/'erreur')
+	- nouveauJoueur : bonhomme, cb(key/'pseudoVide'/'erreur')
 		Informe le serveur de son entré en jeu
 	- newObject
 		// TEMPORAIRE
@@ -76,20 +76,20 @@ var initGameSocket = function(){
 
 	gameSocket.on('connect',function(){	
 		infoElement.innerHTML = 'Connecté au serveur';
-		if(yourBonhome === null)
-			setYourBonhome('Entrez votre pseudo');
+		if(yourBonhomme === null)
+			setYourBonhomme('Entrez votre pseudo');
 
-		gameSocket.emit('nouveauJoueur', yourBonhome.pack(), function(rep){
+		gameSocket.emit('nouveauJoueur', yourBonhomme.pack(), function(rep){
 			console.log('cb nouveauJoueur',rep);
 			if(rep === 'pseudoVide')
-				setYourBonhome('Entrez un pseudo non vide');
+				setYourBonhomme('Entrez un pseudo non vide');
 			else if(rep === 'erreur')
 				alert('Erreur');
 			else
-				yourBonhomeKey = rep;
+				yourBonhommeKey = rep;
 
-			yourBonhome = gameObjectPool[yourBonhomeKey];
-			console.log('reception de yourBonhomeKey',yourBonhomeKey);
+			yourBonhomme = gameObjectPool[yourBonhommeKey];
+			console.log('reception de yourBonhommeKey',yourBonhommeKey);
 		});
 	});
 
@@ -100,10 +100,10 @@ var initGameSocket = function(){
 			var obj = data[i];
 
 			if(obj !== undefined){
-				if(obj.type === 'Bonhome'){
-					var bonhome = new Bonhome();
-					bonhome.unpack(obj);
-					gameObjectPool[i] = bonhome;
+				if(obj.type === 'Bonhomme'){
+					var bonhomme = new Bonhomme();
+					bonhomme.unpack(obj);
+					gameObjectPool[i] = bonhomme;
 				} else if(obj.type === 'Balle'){
 					var balle = new Balle();
 					balle.unpack(obj);
@@ -113,8 +113,8 @@ var initGameSocket = function(){
 				}*/
 			}
 		}
-		console.log('yourBonhomeKey : '+gameObjectPool[yourBonhomeKey]);
-		yourBonhome = gameObjectPool[yourBonhomeKey];
+		console.log('yourBonhommeKey : '+gameObjectPool[yourBonhommeKey]);
+		yourBonhomme = gameObjectPool[yourBonhommeKey];
 
 		// Debut du dessin
 		lastDraw = Date.now();
@@ -124,10 +124,10 @@ var initGameSocket = function(){
 	gameSocket.on('newObject', function(objet) {
 		var data = objet.data;
 
-		if(data.type === 'Bonhome'){
-			var bonhome = new Bonhome();
-			bonhome.unpack(data);
-			gameObjectPool[objet.key] = bonhome;
+		if(data.type === 'Bonhomme'){
+			var bonhomme = new Bonhomme();
+			bonhomme.unpack(data);
+			gameObjectPool[objet.key] = bonhomme;
 		} else if(data.type === 'Balle'){
 			var balle = new Balle();
 			balle.unpack(data);
@@ -138,7 +138,7 @@ var initGameSocket = function(){
 	});
 
 	gameSocket.on('reqUpdatePos', function(msg,cb) {
-		cb(yourBonhome.packP());
+		cb(yourBonhomme.packP());
 	});
 
 	gameSocket.on('updateObject', function(objet) {
@@ -158,28 +158,28 @@ var initGameSocket = function(){
 	});
 };
 
-var setYourBonhome = function(str){
+var setYourBonhomme = function(str){
 	var pseudo = prompt(str);
 	if(pseudo == undefined)
 		return;
 
-	var jaque = new Bonhome();
+	var jaque = new Bonhomme();
 	jaque.nom = pseudo;
 	jaque.P.setPos(100,100);
 
 	gameSocket.emit('nouveauJoueur', jaque.pack(), function(rep){
 		if(rep === 'pseudoPris')
-			setYourBonhome('Ce pseudo est déja pris');
+			setYourBonhomme('Ce pseudo est déja pris');
 		else if(rep === 'pseudoVide')
-			setYourBonhome('Entrez un pseudo non vide');
+			setYourBonhomme('Entrez un pseudo non vide');
 		else
-			yourBonhomeKey = rep;
+			yourBonhommeKey = rep;
 	});
 };
 
-// ---- Bonhome ---- //
+// ---- Bonhomme ---- //
 
-var Bonhome = function(){
+var Bonhomme = function(){
 	this.nom = null;
 	this.vitMax = 0.2;
 	this.size = 15;
@@ -235,7 +235,7 @@ var Bonhome = function(){
 
 	this.stepAnim = function(t){
 		P.stepAnim(t);
-		if(this === yourBonhome)
+		if(this === yourBonhomme)
 			P.orientToThePoint(this.mouseX,this.mouseY);
 
 		var temp = this.size/2;
@@ -258,7 +258,7 @@ var Bonhome = function(){
 	};
 
 	this.pack = function(){
-		return {'type':'Bonhome','nom':this.nom,'data':this.P.pack()};
+		return {'type':'Bonhomme','nom':this.nom,'data':this.P.pack()};
 	};
 
 	this.unpack = function(obj){
@@ -349,51 +349,51 @@ var keyDownDown = false;
 var keyLeftDown = false;
 
 var toucheDown = function(event){
-	if(yourBonhome === null)
+	if(yourBonhomme === null)
 		return;
 	if(event.keyCode === UP_ARROW || event.keyCode === Z_KEY) {
 		event.preventDefault();
 		keyUpDown = true;
-		yourBonhome.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+		yourBonhomme.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	}
 	else if(event.keyCode === RIGHT_ARROW || event.keyCode === D_KEY) {
 		event.preventDefault();
 		keyRightDown = true;
-		yourBonhome.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+		yourBonhomme.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	}
 	else if(event.keyCode === DOWN_ARROW || event.keyCode === S_KEY) {
 		event.preventDefault();
 		keyDownDown = true;
-		yourBonhome.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+		yourBonhomme.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	} else if(event.keyCode === LEFT_ARROW || event.keyCode === Q_KEY) {
 		event.preventDefault();		
 		keyLeftDown = true;
-		yourBonhome.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+		yourBonhomme.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	}
-	yourBonhome.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+	yourBonhomme.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 };
 
 var toucheUp = function(event){
-	if(yourBonhome === null)
+	if(yourBonhomme === null)
 		return;
 	if(event.keyCode === UP_ARROW || event.keyCode === Z_KEY) {
 		event.preventDefault();
 		keyUpDown = false;
-		yourBonhome.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+		yourBonhomme.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	}
 	else if(event.keyCode === RIGHT_ARROW || event.keyCode === D_KEY) {
 		event.preventDefault();
 		keyRightDown = false;
-		yourBonhome.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+		yourBonhomme.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	}
 	else if(event.keyCode === DOWN_ARROW || event.keyCode === S_KEY) {
 		event.preventDefault();
 		keyDownDown = false;
-		yourBonhome.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+		yourBonhomme.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	} else if(event.keyCode === LEFT_ARROW || event.keyCode === Q_KEY) {
 		event.preventDefault();		
 		keyLeftDown = false;
-		yourBonhome.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+		yourBonhomme.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	}
 };
 
@@ -402,16 +402,16 @@ var touchePress = function(event){
 };
 
 var mouseEvent = function(event){
-	if(yourBonhome === null)
+	if(yourBonhomme === null)
 		return;
 	var rect = gameCanvas.element.getBoundingClientRect();
 	var mouseX = event.clientX - rect.left;
 	var mouseY = event.clientY - rect.top;
-	yourBonhome.lookTo(mouseX,mouseY);
+	yourBonhomme.lookTo(mouseX,mouseY);
 };
 
 var clickEvent = function(event){
-	if(yourBonhome === null)
+	if(yourBonhomme === null)
 		return;
-	yourBonhome.fire();
+	yourBonhomme.fire();
 };
