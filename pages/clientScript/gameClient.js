@@ -2,84 +2,98 @@ var gameSocket = null;
 
 var gameCanvas = new canvasObj('gameCanvas');
 
-var lastDraw = null;
-
 var gameObjectPool = [];
+var lastDraw = null;
 
 var yourBonhome = null;
 var yourBonhomeKey = null;
 
 addLoadEvent(function(){
-	initGameSocket();
-
 	gameCanvas.load();
-	lastDraw = Date.now();
 
-/*	var franck = new Bonhome();
-	franck.nom = 'franck';
-	franck.P.pos.x = 200;
-	franck.P.pos.y = 100;
-	objectPool.push(franck);*/
+	initGameSocket();
 
 	window.addEventListener('click',clickEvent,false);
 	window.addEventListener('keydown',toucheDown,false);
 	window.addEventListener('keyup',toucheUp,false);
 	window.addEventListener('keypress',touchePress,false);
 	window.addEventListener('mousemove',mouseEvent,false);
-
-	gameCanvas.draw();
 });
 
 addResizeEvent(function(){
 	gameCanvas.resize();
 });
 
+gameCanvas.draw = function(){
+	var nT = Date.now();
+	var dT = nT - lastDraw;
+	lastDraw = nT;
+
+	gameCanvas.ctx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
+
+	for(var i=0;i<gameObjectPool.length;i++){
+		if(gameObjectPool[i] !== undefined){	
+			gameObjectPool[i].stepAnim(dT);
+			gameObjectPool[i].drawOn(gameCanvas.ctx);
+		}
+	}
+
+	window.requestAnimationFrame(gameCanvas.draw);
+};
+
+// ---- Socket ---- //
+/*
+  Evenements :
+
+	Serveur -> Client
+	- initObjectPool : data
+		Envoi l'ensemble des objets au client
+	- newObject : {'key':key, 'data':data}
+		Objet a ajouter a la pool 
+	- reqUpdatePos : null, cb(data)
+		Demande une mise a jour de la position
+	- updateObject : {'key':key, 'data':data}
+		Informe de la mise a jour d'un objet 
+	- deleteObject : key
+		Informe de la suppression d'un objet 
+	- departDuJoueur : key
+		Informe de la déconnection d'un client
+
+	Client -> Serveur
+	- nouveauJoueur : bonhome, cb(key/'pseudoVide'/'erreur')
+		Informe le serveur de son entré en jeu
+	- newObject
+		// TEMPORAIRE
+	- fire
+		// TODO
+	- disconnect
+		Deconnexion du client
+*/
+
 var initGameSocket = function(){
 	var infoElement = document.getElementById('gameInfo');
 	gameSocket = io('/game');
 
-	gameSocket.on('connect',function(){		
+	gameSocket.on('connect',function(){	
 		infoElement.innerHTML = 'Connecté au serveur';
 		if(yourBonhome === null)
 			setYourBonhome('Entrez votre pseudo');
-		else
-			gameSocket.emit('nouveauJoueur', yourBonhome.export(), function(rep){
-				if(rep === 'pseudoPris')
-					setYourBonhome('Pseudo est déja pris');
-				else if(rep === 'pseudoVide')
-					setYourBonhome('Entrez un pseudo non vide');
-				else if(rep === 'plusDePlace')
-					alert('Plus de place dans le serveur');
-				else
-					yourBonhomeKey = rep;
-			});
+
+		gameSocket.emit('nouveauJoueur', yourBonhome.export(), function(rep){
+			console.log('cb nouveauJoueur',rep);
+			if(rep === 'pseudoVide')
+				setYourBonhome('Entrez un pseudo non vide');
+			else if(rep === 'erreur')
+				alert('Erreur');
+			else
+				yourBonhomeKey = rep;
+
+			yourBonhome = gameObjectPool[yourBonhomeKey];
+			console.log('reception de yourBonhomeKey',yourBonhomeKey);
+		});
 	});
 
-	gameSocket.on('newObject', function(data) {
-		var obj = data.obj;
-
-		if(obj.type === 'Bonhome'){
-			var bonhome = new Bonhome();
-			bonhome.import(obj);
-			gameObjectPool[data.key] = bonhome;
-		} else if(obj.type === 'Balle'){
-			var balle = new Balle();
-			balle.import(obj);
-			gameObjectPool[data.key] = balle;
-		} else {
-			// TODO gestion d'erreur ?
-		}
-	});
-
-	gameSocket.on('reqUpdatePos', function(obj) {
-		gameSocket.emit('updatePos',yourBonhome.exportP());
-	});
-
-	gameSocket.on('updateObjectPool', function(obj) {
-		gameObjectPool[obj.key].importP(obj.data);
-	});
-
-	gameSocket.on('initObjectPool', function(data) { // data : gameObjectPool
+	gameSocket.on('initObjectPool', function(data,cb) {
 		gameObjectPool = [];
 
 		for(var i=0;i<data.length;i++){
@@ -99,11 +113,43 @@ var initGameSocket = function(){
 				}
 			}
 		}
-
+		console.log('yourBonhomeKey : '+gameObjectPool[yourBonhomeKey]);
 		yourBonhome = gameObjectPool[yourBonhomeKey];
+
+		// Debut du dessin
+		lastDraw = Date.now();
+		gameCanvas.startDraw();
+	});
+
+	gameSocket.on('newObject', function(objet) {
+		var data = objet.data;
+
+		if(data.type === 'Bonhome'){
+			var bonhome = new Bonhome();
+			bonhome.import(data);
+			gameObjectPool[objet.key] = bonhome;
+		} else if(data.type === 'Balle'){
+			var balle = new Balle();
+			balle.import(data);
+			gameObjectPool[objet.key] = balle;
+		} else {
+			// TODO gestion d'erreur ?
+		}
+	});
+
+	gameSocket.on('reqUpdatePos', function(msg,cb) {
+		cb(yourBonhome.exportP());
+	});
+
+	gameSocket.on('updateObject', function(objet) {
+		gameObjectPool[obj.key].importP(obj.data);
 	});
 
 	gameSocket.on('deleteObject', function(key){
+		delete gameObjectPool[key];
+	});
+
+	gameSocket.on('departDuJoueur', function(key){
 		delete gameObjectPool[key];
 	});
 
@@ -119,8 +165,7 @@ var setYourBonhome = function(str){
 
 	var jaque = new Bonhome();
 	jaque.nom = pseudo;
-	jaque.P.pos.x = 100;
-	jaque.P.pos.y = 100;
+	jaque.P.setPos(100,100);
 
 	gameSocket.emit('nouveauJoueur', jaque.export(), function(rep){
 		if(rep === 'pseudoPris')
@@ -132,22 +177,7 @@ var setYourBonhome = function(str){
 	});
 };
 
-gameCanvas.draw = function(){
-	var nT = Date.now();
-	var dT = nT - lastDraw;
-	lastDraw = nT;
-
-	gameCanvas.ctx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
-
-	for(var i=0;i<gameObjectPool.length;i++){
-		if(gameObjectPool[i] !== undefined){	
-			gameObjectPool[i].stepAnim(dT);
-			gameObjectPool[i].drawOn(gameCanvas.ctx);
-		}
-	}
-
-	window.requestAnimationFrame(gameCanvas.draw);
-};
+// ---- Bonhome ---- //
 
 var Bonhome = function(){
 	this.nom = null;
@@ -170,34 +200,33 @@ var Bonhome = function(){
 	};
 
 	this.bindKey = function(up,right,down,left){
-		this.P.vit.x = 0;
-		this.P.vit.y = 0;
+		this.P.setVit(0,0);
 		if(up !== down){
 			if(up){ // vers le haut
-				P.vit.y = -1;
+				this.P.getVit().y = -1;
 			} else { // vert le bas
-				P.vit.y = 1;
+				this.P.getVit().y = 1;
 			}
 		}
 
 		if(right !== left){
 			if(right){ // vers la droite
-				P.vit.x = 1;
+				this.P.getVit().x = 1;
 			} else { // vert la gauche
-				P.vit.x = -1;
+				this.P.getVit().x = -1;
 			}
 		}
-		this.P.vit.setRayonTo(this.vitMax);
+		this.P.getVit().setRayonTo(this.vitMax);
 	};
 
 	this.fire = function(){
 		var balle = new Balle();
 		// position
-		balle.P.pos.x = P.pos.x + this.P.orientVector.x;
-		balle.P.pos.y = P.pos.y + this.P.orientVector.y;
+		balle.P.getPos().x = P.getPos().x + this.P.orientVector.x;
+		balle.P.getPos().y = P.getPos().y + this.P.orientVector.y;
 		// vitesse
-		balle.P.vit.setFromVect(this.P.orientVector);
-		balle.P.vit.setRayonTo(balle.vitMax);
+		balle.P.getVit().setFromVect(this.P.orientVector);
+		balle.P.getVit().setRayonTo(balle.vitMax);
 
 		gameSocket.emit('newObject',balle.export(),function(key){
 			gameObjectPool[key] = balle;
@@ -210,22 +239,22 @@ var Bonhome = function(){
 			P.orientToThePoint(this.mouseX,this.mouseY);
 
 		var temp = this.size/2;
-		if(P.pos.x <= temp) P.pos.x = temp;
-		if(P.pos.y <= temp) P.pos.y = temp;
+		if(P.getPos().x <= temp) P.getPos().x = temp;
+		if(P.getPos().y <= temp) P.getPos().y = temp;
 		var temp2 = gameCanvas.width - temp;
-		if(P.pos.x > temp2) P.pos.x = temp2;
+		if(P.getPos().x > temp2) P.getPos().x = temp2;
 		var temp3 = gameCanvas.height - temp;
-		if(P.pos.y > temp3) P.pos.y = temp3;
+		if(P.getPos().y > temp3) P.getPos().y = temp3;
 	};
 
 	this.drawOn = function(ctx){
 		P.drawOn(ctx);
 
 		ctx.font = '12px Arial';
-		if(P.pos.y<this.size/2+16)
-			ctx.fillText(this.nom,P.pos.x - (ctx.measureText(this.nom).width/2),P.pos.y+this.size/2+15);
+		if(P.getPos().y<this.size/2+16)
+			ctx.fillText(this.nom,P.getPos().x - (ctx.measureText(this.nom).width/2),P.getPos().y+this.size/2+15);
 		else
-			ctx.fillText(this.nom,P.pos.x - (ctx.measureText(this.nom).width/2),P.pos.y-this.size/2-4);
+			ctx.fillText(this.nom,P.getPos().x - (ctx.measureText(this.nom).width/2),P.getPos().y-this.size/2-4);
 	};
 
 	this.export = function(){
@@ -263,26 +292,26 @@ var Balle = function(){
 		ctx.strokeStyle='rgb(255,50,0)';
 		// ligne
 		ctx.beginPath();
-		ctx.moveTo(P.pos.x,P.pos.y);
-		ctx.lineTo(P.pos.x+this.trainee.x,P.pos.y+this.trainee.y);
+		ctx.moveTo(P.getPos().x,P.getPos().y);
+		ctx.lineTo(P.getPos().x+this.trainee.x,P.getPos().y+this.trainee.y);
 		ctx.stroke();
 	};
 
 	this.colide = function(){
 		var temp = this.size/2;
-		if(P.pos.x <= temp || P.pos.y <= temp)
+		if(P.getPos().x <= temp || P.getPos().y <= temp)
 			this.toDelete = true;
 		var temp2 = gameCanvas.width - temp;
-		if(P.pos.x > temp2)
+		if(P.getPos().x > temp2)
 			this.toDelete = true;
 		var temp3 = gameCanvas.height - temp;
-		if(P.pos.y > temp3)
+		if(P.getPos().y > temp3)
 			this.toDelete = true;
 	}
 
 	this.stepAnim = function(t){ // t en ms
-		this.trainee.x = -P.vit.x;
-		this.trainee.y = -P.vit.y;
+		this.trainee.x = -P.getVit().x;
+		this.trainee.y = -P.getVit().y;
 		this.trainee.setRayonTo(this.size);
 
 		P.stepAnim(t);

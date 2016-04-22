@@ -11,6 +11,10 @@ var canvasObj = function(id){
 		this.ctx.clearRect(0,0,this.width,this.height);
 	};
 
+	this.startDraw = function(){
+		window.requestAnimationFrame(this.draw);
+	};
+
 	// Retina fix
 	this.resize = function(){
 		var dpr = window.devicePixelRatio || 1;

@@ -34,7 +34,7 @@ const addElement = function(url, contentType){
 			return;
 		}
 		elements[url] = {type: contentType, content: data};
-		log.conLogSuite(' - '+url);
+		log.conLogSuite('Succes - '+url);
 	});
 };
 
@@ -64,13 +64,13 @@ const addElementJS = function(url, contentType){
 		var p = require('./pages'+url);
 		if(p.url !== undefined) {
 			if(url !== p.url){
-				log.conLogSuite(url+' : redéfinition d\'url -> '+p.url);
+				log.conLogSuite('Redéfinition d\'url : '+url+' -> '+p.url);
 			}
 			elementsJS[p.url] = {type: contentType, page: p};
 		}
 		else 			
 			elementsJS[url] = {type: contentType, page: p};
-		log.conLogSuite(' - '+url);
+		log.conLogSuite('Succes - '+url);
 	} catch (err) {
 		log.conLogError('from addElementJS()');
 		log.conLogSuite(err);

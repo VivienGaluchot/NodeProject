@@ -1,30 +1,10 @@
-// ---- MultiEvents ---- //
+/* ---------------------------------------------------
+	By Pellgrain - 21/04/2016
 
-var addLoadEvent = function(func) {
-	var oldonload = window.onload;
-	if (typeof window.onload != 'function') {
-		window.onload = func;
-	} else {
-		window.onload = function() {
-			if (oldonload)
-				oldonload();
-			func();
-		};
-	}
-};
+	Utilitaire, coté serveur de
+	pages/clientScript/util.js
+--------------------------------------------------- */
 
-var addResizeEvent = function(func) {
-	var olonresize = window.onresize;
-	if (typeof window.onresize != 'function') {
-		window.onresize = func;
-	} else {
-		window.onresize = function() {
-			if (olonresize)
-				olonresize();
-			func();
-		};
-	}
-};
 
 // ---- Math ---- //
 
@@ -89,6 +69,8 @@ var Vector2D = function(x,y){
 	}
 };
 
+module.exports.Vector2D = Vector2D;
+
 // ---- Objects ---- //
 
 // Animable Object
@@ -136,6 +118,8 @@ var animPoint = function(){
 		this.acc.import(obj[2]);
 	}
 };
+
+module.exports.animPoint = animPoint;
 
 // Orientable Animable Object
 var animOrientedPoint = function(){
@@ -186,3 +170,55 @@ var animOrientedPoint = function(){
 		this.orientVector.import(obj[1]);
 	}
 };
+
+module.exports.animOrientedPoint = animOrientedPoint;
+
+// ---- ObjectPool ---- //
+
+var gameObjectPool = function(n){
+	this.sizeMax = n;
+	this.pool = [];
+
+	this.get = function(key){
+		return this.pool[key];
+	};
+
+	this.set = function(key,obj){
+		if(!this.validObject(obj))
+			return new Error('gameObjectPool.addObject obj mal formé : '+obj);
+		this.pool[key] = obj;
+	};
+
+	this.add = function(obj){
+		var key = this.findFreeId();
+		if(key instanceof Error)
+			return key;
+		if(!this.validObject(obj))
+			return new Error('gameObjectPool.addObject obj mal formé : '+obj);
+		this.pool[key] = obj;
+		return key;
+	};
+
+	this.validObject = function(obj){
+		return true;
+	};
+
+	this.findFreeId = function(){
+		for(var i=0;i<this.sizeMax;i++)
+			if(this.pool[i] === undefined)
+				return i;
+		return new Error('gameObjectPool.findFreeId plus de place');
+	};
+
+	this.remove = function(key){
+		if(this.pool[key] === undefined)
+			return new Error('gameObjectPool.remove key absente : '+key);
+		delete this.pool[key];
+	};
+
+	this.export = function(){
+		return this.pool;
+	};
+};
+
+module.exports.gameObjectPool = gameObjectPool;
