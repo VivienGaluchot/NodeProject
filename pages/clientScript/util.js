@@ -77,16 +77,16 @@ var Vector2D = function(x,y){
 	this.setFromVect = function(vect){
 		this.x = vect.x;
 		this.y = vect.y;
-	}
+	};
 	
-	this.export = function(){
+	this.pack = function(){
 		return [this.x, this.y];
-	}
+	};
 
-	this.import = function(obj){
+	this.unpack = function(obj){
 		this.x = obj[0];
 		this.y = obj[1];
-	}
+	};
 };
 
 // ---- Objects ---- //
@@ -98,17 +98,17 @@ var animPoint = function(){
 
 	// pos en px
 	this.pos = new Vector2D();
-	this.getPos = function(){ return this.pos };
+	this.getPos = function(){ return this.pos; };
 	this.setPos = function(x,y){ this.pos.set(x,y);	};
 
 	// vit en px / ms
 	this.vit = new Vector2D();
-	this.getVit = function(){ return this.vit };
+	this.getVit = function(){ return this.vit; };
 	this.setVit = function(x,y){ this.vit.set(x,y); };
 
 	// acc en px / ms²
 	this.acc = new Vector2D();
-	this.getAcc = function(){ return this.acc };
+	this.getAcc = function(){ return this.acc; };
 	this.setAcc = function(x,y){ this.acc.set(x,y);	};
 
 	this.stepAnim = function(t){
@@ -126,15 +126,15 @@ var animPoint = function(){
 		ctx.strokeRect(this.pos.x-this.size/2,this.pos.y-this.size/2,this.size,this.size);
 	};
 
-	this.export = function(){
-		return [this.pos.export(), this.vit.export(), this.acc.export()];
-	}
+	this.pack = function(){
+		return [this.pos.pack(), this.vit.pack(), this.acc.pack()];
+	};
 
-	this.import = function(obj){
-		this.pos.import(obj[0]);
-		this.vit.import(obj[1]);
-		this.acc.import(obj[2]);
-	}
+	this.unpack = function(obj){
+		this.pos.unpack(obj[0]);
+		this.vit.unpack(obj[1]);
+		this.acc.unpack(obj[2]);
+	};
 };
 
 // Orientable Animable Object
@@ -177,12 +177,12 @@ var animOrientedPoint = function(){
 		this.orientVector.setRayonTo(this.orientVectorSize);
 	};
 
-	this.export = function(){
-		return [this.animPoint.export(), this.orientVector.export()];
-	}
+	this.pack = function(){
+		return [this.animPoint.pack(), this.orientVector.pack()];
+	};
 
-	this.import = function(obj){
-		this.animPoint.import(obj[0]);
-		this.orientVector.import(obj[1]);
-	}
+	this.unpack = function(obj){
+		this.animPoint.unpack(obj[0]);
+		this.orientVector.unpack(obj[1]);
+	};
 };

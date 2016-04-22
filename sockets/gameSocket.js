@@ -28,6 +28,7 @@ gameObjectPool.updateData = function(key,data){
 	if(this.pool[key] === undefined)
 		return new Error('gameObjectPool.updateData key absente : '+key);
 	this.pool[key].data = data;
+	return 1;
 };
 
 
@@ -82,7 +83,7 @@ module.exports.process = function (gameIo,io){
 			var key = gameObjectPool.add(bonhome);
 			// Erreur
 			if(key instanceof Error){
-				cb('erreur')
+				cb('erreur');
 				return;
 			}
 			// Envois la clé en réponse
@@ -98,7 +99,7 @@ module.exports.process = function (gameIo,io){
 				});
 			};
 
-			socket.emit('initObjectPool', gameObjectPool.export(), function(){
+			socket.emit('initObjectPool', gameObjectPool.pack(), function(){
 				log.conLog('Game - initObjectPool effectué: '+socket.key);
 			});
 			socket.broadcast.emit('newObject', {'key':key, 'data':bonhome});
@@ -107,7 +108,7 @@ module.exports.process = function (gameIo,io){
 			socket.on('newObject', function(object,cb){
 				var key = gameObjectPool.add(object);
 				if(key instanceof Error){
-					cb('erreur')
+					cb('erreur');
 					return;
 				}
 				cb(key);

@@ -79,7 +79,7 @@ var initGameSocket = function(){
 		if(yourBonhome === null)
 			setYourBonhome('Entrez votre pseudo');
 
-		gameSocket.emit('nouveauJoueur', yourBonhome.export(), function(rep){
+		gameSocket.emit('nouveauJoueur', yourBonhome.pack(), function(rep){
 			console.log('cb nouveauJoueur',rep);
 			if(rep === 'pseudoVide')
 				setYourBonhome('Entrez un pseudo non vide');
@@ -102,15 +102,15 @@ var initGameSocket = function(){
 			if(obj !== undefined){
 				if(obj.type === 'Bonhome'){
 					var bonhome = new Bonhome();
-					bonhome.import(obj);
+					bonhome.unpack(obj);
 					gameObjectPool[i] = bonhome;
 				} else if(obj.type === 'Balle'){
 					var balle = new Balle();
-					balle.import(obj);
+					balle.unpack(obj);
 					gameObjectPool[i] = balle;
-				} else {
+				} /*else {
 					// TODO gestion d'erreur ?
-				}
+				}*/
 			}
 		}
 		console.log('yourBonhomeKey : '+gameObjectPool[yourBonhomeKey]);
@@ -126,23 +126,23 @@ var initGameSocket = function(){
 
 		if(data.type === 'Bonhome'){
 			var bonhome = new Bonhome();
-			bonhome.import(data);
+			bonhome.unpack(data);
 			gameObjectPool[objet.key] = bonhome;
 		} else if(data.type === 'Balle'){
 			var balle = new Balle();
-			balle.import(data);
+			balle.unpack(data);
 			gameObjectPool[objet.key] = balle;
-		} else {
+		} /*else {
 			// TODO gestion d'erreur ?
-		}
+		}*/
 	});
 
 	gameSocket.on('reqUpdatePos', function(msg,cb) {
-		cb(yourBonhome.exportP());
+		cb(yourBonhome.packP());
 	});
 
 	gameSocket.on('updateObject', function(objet) {
-		gameObjectPool[obj.key].importP(obj.data);
+		gameObjectPool[obj.key].unpackP(obj.data);
 	});
 
 	gameSocket.on('deleteObject', function(key){
@@ -167,7 +167,7 @@ var setYourBonhome = function(str){
 	jaque.nom = pseudo;
 	jaque.P.setPos(100,100);
 
-	gameSocket.emit('nouveauJoueur', jaque.export(), function(rep){
+	gameSocket.emit('nouveauJoueur', jaque.pack(), function(rep){
 		if(rep === 'pseudoPris')
 			setYourBonhome('Ce pseudo est déja pris');
 		else if(rep === 'pseudoVide')
@@ -228,7 +228,7 @@ var Bonhome = function(){
 		balle.P.getVit().setFromVect(this.P.orientVector);
 		balle.P.getVit().setRayonTo(balle.vitMax);
 
-		gameSocket.emit('newObject',balle.export(),function(key){
+		gameSocket.emit('newObject',balle.pack(),function(key){
 			gameObjectPool[key] = balle;
 		});
 	};
@@ -257,23 +257,23 @@ var Bonhome = function(){
 			ctx.fillText(this.nom,P.getPos().x - (ctx.measureText(this.nom).width/2),P.getPos().y-this.size/2-4);
 	};
 
-	this.export = function(){
-		return {'type':'Bonhome','nom':this.nom,'data':this.P.export()};
+	this.pack = function(){
+		return {'type':'Bonhome','nom':this.nom,'data':this.P.pack()};
 	};
 
-	this.import = function(obj){
+	this.unpack = function(obj){
 		if(obj.nom !== undefined)
 			this.nom = obj.nom;
 		if(obj.data !== undefined)
-			this.P.import(obj.data);
+			this.P.unpack(obj.data);
 	};
 
-	this.exportP = function(){		
-		return this.P.export();
+	this.packP = function(){		
+		return this.P.pack();
 	};
 
-	this.importP = function(obj){
-		this.P.import(obj);
+	this.unpackP = function(obj){
+		this.P.unpack(obj);
 	};
 };
 
@@ -307,7 +307,7 @@ var Balle = function(){
 		var temp3 = gameCanvas.height - temp;
 		if(P.getPos().y > temp3)
 			this.toDelete = true;
-	}
+	};
 
 	this.stepAnim = function(t){ // t en ms
 		this.trainee.x = -P.getVit().x;
@@ -317,20 +317,20 @@ var Balle = function(){
 		P.stepAnim(t);
 	};
 
-	this.export = function(){
-		return {'type':'Balle','data':this.P.export()};
+	this.pack = function(){
+		return {'type':'Balle','data':this.P.pack()};
 	};
 
-	this.import = function(obj){
-		this.P.import(obj.data);
+	this.unpack = function(obj){
+		this.P.unpack(obj.data);
 	};
 
-	this.exportP = function(){		
-		return this.P.export();
+	this.packP = function(){		
+		return this.P.pack();
 	};
 
-	this.importP = function(obj){
-		this.P.import(obj);
+	this.unpackP = function(obj){
+		this.P.unpack(obj);
 	};
 };
 
