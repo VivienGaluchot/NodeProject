@@ -98,9 +98,26 @@ var Vector2D = function(x,y){
 var animPoint = function(){
 	this.toDelete = false;
 	this.size = 10;
+	
+	var timer = null;
+	var breakingStart = null;
+	var self = this;
 
-	// l'objet se stoppe en t = 1/friction s
-	this.friction = 1;
+	// l'objet se stoppe en t ms
+	this.setBreak = function(t,d){
+		if(timer !== null)
+			clearTimeout(timer);
+		timer = setTimeout(function(){
+			if(t >= 0) {
+				self.acc.x = -self.vit.x / t;
+				self.acc.y = -self.vit.y / t;
+				breakingStart = new Vector2D(self.vit.x,self.vit.y)
+			} else {
+				self.vit.setFromRad(0,0);
+				self.acc.setFromRad(0,0);
+			}
+		}, d);
+	};
 
 	// pos en px
 	this.pos = new Vector2D();
@@ -120,6 +137,14 @@ var animPoint = function(){
 	this.stepAnim = function(t){
 		this.vit.x += this.acc.x * t;
 		this.vit.y += this.acc.y * t;
+
+		if(breakingStart !== null){
+			if((this.vit.x * breakingStart.x < 0) || (this.vit.y * breakingStart.y < 0)){
+				this.vit.set(0,0);
+				this.acc.set(0,0);
+				breakingStart = null;
+			}
+		}
 
 		this.pos.x += this.vit.x * t;
 		this.pos.y += this.vit.y * t;
@@ -149,6 +174,8 @@ var animPoint = function(){
 var animOrientedPoint = function(){
 	// point
 	this.animPoint = new animPoint();
+
+	this.setBreak = function(t,d){ this.animPoint.setBreak(t,d); };
 
 	this.getPos = function(){ return this.animPoint.getPos(); };
 	this.setPos = function(x,y){ this.animPoint.setPos(x,y); };

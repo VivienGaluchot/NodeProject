@@ -141,18 +141,25 @@ var initGameSocket = function(){
 		}*/
 	});
 
+	var updateObject = function(obj) {
+		var key = obj.key;
+		gameObjectPool[key].unpackP(obj.data);
+		if(gameObjectPool[key].type === 'Bonhomme'){
+			gameObjectPool[key].P.setBreak(dTUpdateCycle,dTUpdateCycle/2);
+		}
+	};
+
 	gameSocket.on('reqUpdatePos', function(objs,cb) {
 		for(var i=0;i<objs.length;i++){
 			if(objs[i].key !== yourBonhommeKey)
-				gameObjectPool[objs[i].key].unpackP(objs[i].data);
+				updateObject(objs[i]);
 		}
 		cb(yourBonhomme.packP());
 	});
 
-	gameSocket.on('updateObjects', function(objs) {
-		for(var i=0;i<objs.length;i++){
-			gameObjectPool[objs[i].key].unpackP(objs[i].data);
-		}
+	gameSocket.on('updateObjects', function(objs){
+		for(var i=0;i<objs.length;i++)
+			updateObject(objs[i]);
 	});
 
 	gameSocket.on('deleteObject', function(key){
@@ -199,6 +206,7 @@ var Bonhomme = function(){
 	this.nom = null;
 	this.vitMax = 0.2;
 	this.size = 15;
+	this.type = 'Bonhomme';
 	
 	// point
 	var P = new animOrientedPoint();
@@ -236,7 +244,8 @@ var Bonhomme = function(){
 	};
 
 	this.fire = function(){
-		var balle = new Balle();
+		// TODO
+/*		var balle = new Balle();
 		// position
 		balle.P.getPos().x = P.getPos().x + this.P.orientVector.x;
 		balle.P.getPos().y = P.getPos().y + this.P.orientVector.y;
@@ -246,11 +255,12 @@ var Bonhomme = function(){
 
 		gameSocket.emit('newObject',balle.pack(),function(key){
 			gameObjectPool[key] = balle;
-		});
+		});*/
 	};
 
 	this.stepAnim = function(t){
 		P.stepAnim(t);
+
 		if(this === yourBonhomme)
 			P.orientToThePoint(this.mouseX,this.mouseY);
 
@@ -285,18 +295,18 @@ var Bonhomme = function(){
 	};
 
 	this.packP = function(){
-		return [this.P.getPos().pack(),this.P.orientVector.pack()];
+		return this.P.pack();
 	};
 
 	this.unpackP = function(obj){
-		this.P.getPos().unpack(obj[0]);
-		this.P.orientVector.unpack(obj[1]);
+		this.P.unpack(obj);
 	};
 };
 
 var Balle = function(){
 	this.vitMax = 1;
 	this.size = 6;
+	this.type = 'Balle';
 
 	// point
 	var P = new animPoint();
