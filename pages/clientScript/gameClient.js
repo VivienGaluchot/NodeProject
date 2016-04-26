@@ -54,6 +54,8 @@ gameCanvas.draw = function(){
 		Demande une mise a jour de la position
 	- updateObject : {'key':key, 'data':data}
 		Informe de la mise a jour d'un objet 
+	- updateObjects : [{'key':key, 'data':data},...]
+		Informe de la mise a jour de plusieurs objets
 	- deleteObject : key
 		Informe de la suppression d'un objet 
 	- departDuJoueur : key
@@ -100,6 +102,7 @@ var initGameSocket = function(){
 				}*/
 			}
 		}
+
 		yourBonhomme = gameObjectPool[yourBonhommeKey];
 
 		// Debut du dessin
@@ -123,12 +126,22 @@ var initGameSocket = function(){
 		}*/
 	});
 
-	gameSocket.on('reqUpdatePos', function(msg,cb) {
+	gameSocket.on('reqUpdatePos', function(objs,cb) {
+		for(var i=0;i<objs.length;i++){
+			if(objs[i].key !== yourBonhommeKey)
+				gameObjectPool[objs[i].key].unpackP(objs[i].data);
+		}
 		cb(yourBonhomme.packP());
 	});
 
-	gameSocket.on('updateObject', function(objet) {
+	gameSocket.on('updateObject', function(obj) {
 		gameObjectPool[obj.key].unpackP(obj.data);
+	});
+
+	gameSocket.on('updateObjects', function(objs) {
+		for(var i=0;i<objs.length;i++){
+			gameObjectPool[objs[i].key].unpackP(objs[i].data);
+		}
 	});
 
 	gameSocket.on('deleteObject', function(key){

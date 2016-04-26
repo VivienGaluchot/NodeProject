@@ -175,7 +175,7 @@ module.exports.animOrientedPoint = animOrientedPoint;
 
 // ---- ObjectPool ---- //
 
-var gameObjectPool = function(n){
+var ObjectPool = function(n){
 	this.sizeMax = n;
 	this.pool = [];
 
@@ -185,7 +185,7 @@ var gameObjectPool = function(n){
 
 	this.set = function(key,obj){
 		if(!this.validObject(obj))
-			return new Error('gameObjectPool.addObject obj mal formé : '+obj);
+			return new Error('ObjectPool.addObject obj mal formé : '+obj);
 		this.pool[key] = obj;
 		return 1;
 	};
@@ -195,7 +195,7 @@ var gameObjectPool = function(n){
 		if(key instanceof Error)
 			return key;
 		if(!this.validObject(obj))
-			return new Error('gameObjectPool.addObject obj mal formé : '+obj);
+			return new Error('ObjectPool.addObject obj mal formé : '+obj);
 		this.pool[key] = obj;
 		return key;
 	};
@@ -210,14 +210,20 @@ var gameObjectPool = function(n){
 				return i;
 			}
 		}
-		return new Error('gameObjectPool.findFreeId plus de place');
+		return new Error('ObjectPool.findFreeId plus de place');
 	};
 
 	this.remove = function(key){
 		if(this.pool[key] === undefined)
-			return new Error('gameObjectPool.remove key absente : '+key);
+			return new Error('ObjectPool.remove key absente : '+key);
 		delete this.pool[key];
 		return 1;
+	};
+
+	this.forEach = function(cb){
+		for(var i=0;i<this.pool.length;i++){
+			cb(this.pool[i],i);
+		}
 	};
 
 	this.pack = function(){
@@ -225,4 +231,4 @@ var gameObjectPool = function(n){
 	};
 };
 
-module.exports.gameObjectPool = gameObjectPool;
+module.exports.ObjectPool = ObjectPool;

@@ -15,7 +15,7 @@ var mapSize = {'width': 512, 'height': 512};
 
 // ---- ObjectPool ---- //
 
-const gameObjectPool = new util.gameObjectPool(100);
+const gameObjectPool = new util.ObjectPool(1000);
 
 // 	Objets pris en charche : {type:t, data:d, toAnimate:bool}
 gameObjectPool.validObject = function(obj){
@@ -31,6 +31,20 @@ gameObjectPool.updateData = function(key,data){
 	return 1;
 };
 
+gameObjectPool.packForUpdate = function(){
+	var result = [];
+	for(var i=0;i<this.pool.length;i++){
+		if(this.pool[i] != undefined){
+			result.push({'key':i, 'data':this.pool[i].data});
+		}
+	}
+	return result;
+};
+
+// ---- ObjectPool ---- //
+
+const gameSocketPool = new util.ObjectPool(10);
+
 
 // ---- Process ---- //
 
@@ -42,10 +56,12 @@ gameObjectPool.updateData = function(key,data){
 		Envoi l'ensemble des objets au client
 	- newObject : {'key':key, 'data':data}
 		Objet a ajouter a la pool 
-	- reqUpdatePos : null, cb(data)
+	- reqUpdatePos : [{'key':key, 'data':data},...], cb(data)
 		Demande une mise a jour de la position
 	- updateObject : {'key':key, 'data':data}
 		Informe de la mise a jour d'un objet 
+	- updateObjects : [{'key':key, 'data':data},...]
+		Informe de la mise a jour de plusieurs objets
 	- deleteObject : key
 		Informe de la suppression d'un objet 
 	- departDuJoueur : key
@@ -62,7 +78,33 @@ gameObjectPool.updateData = function(key,data){
 		Deconnexion du client
 */
 
-module.exports.process = function (gameIo,io){
+var gameIo;
+var io;
+
+var timerUpdateCycle;
+var dTUpdateCycle = 60;
+
+var sendUpdate = function(){
+	var array = gameObjectPool.packForUpdate();
+	gameSocketPool.forEach(function(socket,key){
+		if(socket.isMaj){		
+			socket.isMaj = false;
+			socket.updatePos(array);
+		} else {
+			log.conLogWarning('Game - sendUpdate : drop du socket ' + key);
+		}
+	});
+};
+
+var startUpdateCycle = function(){
+	timerUpdateCycle = setInterval(sendUpdate, dTUpdateCycle);
+};
+
+var stopUpdateCycle = function(){
+	clearInterval(timerUpdateCycle);
+};
+
+var initSocket = function(){
 	gameIo.on('connection',	function(socket){
 		var clientIp = socket.request.connection.remoteAddress;
 		log.conLog('Game - connection from ' + clientIp);
@@ -86,16 +128,27 @@ module.exports.process = function (gameIo,io){
 				cb('erreur');
 				return;
 			}
+
+			var sockKey = gameSocketPool.add(socket);
+			// Erreur
+			if(sockKey instanceof Error){
+				gameObjectPool.remove(key);
+				cb('erreur');
+				return;
+			}
+
 			// Envois la clé en réponse
 			log.conLogSuite('Key : '+key);
 			cb(key);
 
 			// Socket
 			socket.key = key;
-			socket.updatePos = function(){
-				socket.emit('reqUpdatePos',null,function(data){
+			socket.sockKey = sockKey;
+			socket.isMaj = true;
+			socket.updatePos = function(objectsUpdated){
+				socket.emit('reqUpdatePos', objectsUpdated, function(data){
 					gameObjectPool.updateData(key,data);
-					socket.broadcast.emit('updateObject',{'key':key, 'data':data});
+					socket.isMaj = true;
 				});
 			};
 
@@ -104,16 +157,16 @@ module.exports.process = function (gameIo,io){
 			});
 			socket.broadcast.emit('newObject', {'key':key, 'data':bonhomme});
 
-			// TEMPORAIRE
-			socket.on('newObject', function(object,cb){
-				var key = gameObjectPool.add(object);
-				if(key instanceof Error){
-					cb('erreur');
-					return;
-				}
-				cb(key);
-				socket.broadcast.emit('newObject',{'key':key, 'data':object});
-			});
+//			// TEMPORAIRE
+//			socket.on('newObject', function(object,cb){
+//				var key = gameObjectPool.add(object);
+//				if(key instanceof Error){
+//					cb('erreur');
+//					return;
+//				}
+//				cb(key);
+//				socket.broadcast.emit('newObject',{'key':key, 'data':object});
+//			});
 
 //			// Ne pas faire passer la deletion, dangereux
 //			socket.on('deleteObject', function(key){
@@ -129,9 +182,18 @@ module.exports.process = function (gameIo,io){
 				if(obj !== undefined && obj.nom !== undefined)
 					log.conLog('Game - disconnect ' + obj.nom + ', key:' + socket.key +', ip:'+clientIp+'');
 				gameObjectPool.remove(socket.key);
+				gameSocketPool.remove(socket.sockKey);
 			}
 			else
 				log.conLog('Game - disconnect ip:' + clientIp);
 		});
 	});
+};
+
+module.exports.process = function(_gameIo,_io){
+	gameIo = _gameIo;
+	io = _io;
+
+	initSocket();
+	startUpdateCycle();
 };
