@@ -11,10 +11,13 @@ const util = require('./util');
 // ---- Settings ---- //
 
 var mapSize = {'width': 512, 'height': 512};
+var dTUpdateCycle = 80;
+
+var gameSettings = {'mapSize':mapSize,'dTUpdateCycle':dTUpdateCycle};
 
 
 // ---- ObjectPool ---- //
-
+// Limite maximale d'objets dans la pool : 1000
 const gameObjectPool = new util.ObjectPool(1000);
 
 // 	Objets pris en charche : {type:t, data:d, toAnimate:bool}
@@ -42,8 +45,8 @@ gameObjectPool.packForUpdate = function(){
 };
 
 // ---- ObjectPool ---- //
-
-const gameSocketPool = new util.ObjectPool(10);
+// Limite maximale de socket dans la pool : 10
+const gameSocketPool = new util.ObjectPool(4);
 
 
 // ---- Process ---- //
@@ -52,14 +55,12 @@ const gameSocketPool = new util.ObjectPool(10);
   Evenements :
 
 	Serveur -> Client
-	- initObjectPool : data
-		Envoi l'ensemble des objets au client
+	- initGame : {'settings':data, 'pool':data}
+		Envoi l'etat du jeu au client
 	- newObject : {'key':key, 'data':data}
 		Objet a ajouter a la pool 
 	- reqUpdatePos : [{'key':key, 'data':data},...], cb(data)
 		Demande une mise a jour de la position
-	- updateObject : {'key':key, 'data':data}
-		Informe de la mise a jour d'un objet 
 	- updateObjects : [{'key':key, 'data':data},...]
 		Informe de la mise a jour de plusieurs objets
 	- deleteObject : key
@@ -68,10 +69,8 @@ const gameSocketPool = new util.ObjectPool(10);
 		Informe de la déconnection d'un client
 
 	Client -> Serveur
-	- nouveauJoueur : bonhomme, cb(key/'pseudoVide'/'erreur')
+	- nouveauJoueur : bonhomme, cb(key/'erreur')
 		Informe le serveur de son entré en jeu
-	- newObject
-		// TEMPORAIRE
 	- fire
 		// TODO
 	- disconnect
@@ -82,7 +81,6 @@ var gameIo;
 var io;
 
 var timerUpdateCycle;
-var dTUpdateCycle = 60;
 
 var sendUpdate = function(){
 	var array = gameObjectPool.packForUpdate();
@@ -115,13 +113,13 @@ var initSocket = function(){
 
 			// Gestion des erreurs
 			if(bonhomme.nom === undefined || bonhomme.nom.length === 0){
-				cb('pseudoVide');
+				cb('erreur');
 				return;
 			}
 
 			log.conLog('Game - nouveauJoueur : '+bonhomme.nom);
 
-			// Ajout de l'objet
+			// Ajout de l'objet à la pool
 			var key = gameObjectPool.add(bonhomme);
 			// Erreur
 			if(key instanceof Error){
@@ -129,6 +127,7 @@ var initSocket = function(){
 				return;
 			}
 
+			// Ajout du socket à la pool
 			var sockKey = gameSocketPool.add(socket);
 			// Erreur
 			if(sockKey instanceof Error){
@@ -152,8 +151,8 @@ var initSocket = function(){
 				});
 			};
 
-			socket.emit('initObjectPool', gameObjectPool.pack(), function(){
-				log.conLog('Game - initObjectPool effectué: '+socket.key);
+			socket.emit('initGame', {'settings':gameSettings, 'pool':gameObjectPool.pack()}, function(){
+				log.conLog('Game - initGame effectué: '+socket.key);
 			});
 			socket.broadcast.emit('newObject', {'key':key, 'data':bonhomme});
 
@@ -176,13 +175,14 @@ var initSocket = function(){
 		});
 
 		socket.on('disconnect', function(){
+			if(socket.sockKey !== undefined)				
+				gameSocketPool.remove(socket.sockKey);
 			if(socket.key !== undefined){
 				socket.broadcast.emit('departDuJoueur', socket.key);
 				var obj = gameObjectPool.get(socket.key);
 				if(obj !== undefined && obj.nom !== undefined)
 					log.conLog('Game - disconnect ' + obj.nom + ', key:' + socket.key +', ip:'+clientIp+'');
 				gameObjectPool.remove(socket.key);
-				gameSocketPool.remove(socket.sockKey);
 			}
 			else
 				log.conLog('Game - disconnect ip:' + clientIp);

@@ -64,12 +64,14 @@ var Vector2D = function(x,y){
 	};
 
 	this.unpack = function(obj){
+		if(obj === undefined || obj[0] === undefined || obj[1] === undefined)
+			return new Error('obj undefined');
 		this.x = obj[0];
 		this.y = obj[1];
+		return 1;
 	};
 };
 
-module.exports.Vector2D = Vector2D;
 
 // ---- Objects ---- //
 
@@ -113,13 +115,13 @@ var animPoint = function(){
 	};
 
 	this.unpack = function(obj){
+		if(obj === undefined || obj[0] === undefined || obj[1] === undefined || obj[2] === undefined)
+			return new Error('obj undefined');
 		this.pos.unpack(obj[0]);
 		this.vit.unpack(obj[1]);
 		this.acc.unpack(obj[2]);
 	};
 };
-
-module.exports.animPoint = animPoint;
 
 // Orientable Animable Object
 var animOrientedPoint = function(){
@@ -166,12 +168,12 @@ var animOrientedPoint = function(){
 	};
 
 	this.unpack = function(obj){
+		if(obj === undefined || obj[0] === undefined || obj[1] === undefined)
+			return new Error('obj undefined');
 		this.animPoint.unpack(obj[0]);
 		this.orientVector.unpack(obj[1]);
 	};
 };
-
-module.exports.animOrientedPoint = animOrientedPoint;
 
 // ---- ObjectPool ---- //
 
@@ -222,7 +224,8 @@ var ObjectPool = function(n){
 
 	this.forEach = function(cb){
 		for(var i=0;i<this.pool.length;i++){
-			cb(this.pool[i],i);
+			if(this.pool[i] !== undefined)
+				cb(this.pool[i],i);
 		}
 	};
 
@@ -231,4 +234,9 @@ var ObjectPool = function(n){
 	};
 };
 
+// ---- Exports ---- //
+
+module.exports.Vector2D = Vector2D;
+module.exports.animPoint = animPoint;
+module.exports.animOrientedPoint = animOrientedPoint;
 module.exports.ObjectPool = ObjectPool;

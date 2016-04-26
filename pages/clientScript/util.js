@@ -84,8 +84,11 @@ var Vector2D = function(x,y){
 	};
 
 	this.unpack = function(obj){
+		if(obj === undefined || obj[0] === undefined || obj[1] === undefined)
+			return new Error('obj undefined');
 		this.x = obj[0];
 		this.y = obj[1];
+		return 1;
 	};
 };
 
@@ -95,6 +98,9 @@ var Vector2D = function(x,y){
 var animPoint = function(){
 	this.toDelete = false;
 	this.size = 10;
+
+	// l'objet se stoppe en t = 1/friction s
+	this.friction = 1;
 
 	// pos en px
 	this.pos = new Vector2D();
@@ -131,6 +137,8 @@ var animPoint = function(){
 	};
 
 	this.unpack = function(obj){
+		if(obj === undefined || obj[0] === undefined || obj[1] === undefined || obj[2] === undefined)
+			return new Error('obj undefined');
 		this.pos.unpack(obj[0]);
 		this.vit.unpack(obj[1]);
 		this.acc.unpack(obj[2]);
@@ -182,6 +190,8 @@ var animOrientedPoint = function(){
 	};
 
 	this.unpack = function(obj){
+		if(obj === undefined || obj[0] === undefined || obj[1] === undefined)
+			return new Error('obj undefined');
 		this.animPoint.unpack(obj[0]);
 		this.orientVector.unpack(obj[1]);
 	};

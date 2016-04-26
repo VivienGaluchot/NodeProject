@@ -1,12 +1,23 @@
-var gameSocket = null;
-
-var gameCanvas = new canvasObj('gameCanvas');
+// ---- GameObjects ---- //
 
 var gameObjectPool = [];
-var lastDraw = null;
-
 var yourBonhomme = null;
 var yourBonhommeKey = null;
+
+// ---- Settings ---- //
+
+var mapSize = null;
+var dTUpdateCycle = null;
+
+var setSettings = function(settings){
+	mapSize = settings.mapSize;
+	dTUpdateCycle = settings.dTUpdateCycle;
+}
+
+// ---- Display ---- //
+
+var gameCanvas = new canvasObj('gameCanvas');
+var lastDraw = null;
 
 addLoadEvent(function(){
 	gameCanvas.load();
@@ -42,18 +53,19 @@ gameCanvas.draw = function(){
 };
 
 // ---- Socket ---- //
+
+var gameSocket = null;
+
 /*
   Evenements :
 
 	Serveur -> Client
-	- initObjectPool : data
-		Envoi l'ensemble des objets au client
+	- initGame : {'settings':data, 'pool':data}
+		Envoi l'etat du jeu au client
 	- newObject : {'key':key, 'data':data}
 		Objet a ajouter a la pool 
 	- reqUpdatePos : null, cb(data)
 		Demande une mise a jour de la position
-	- updateObject : {'key':key, 'data':data}
-		Informe de la mise a jour d'un objet 
 	- updateObjects : [{'key':key, 'data':data},...]
 		Informe de la mise a jour de plusieurs objets
 	- deleteObject : key
@@ -62,10 +74,8 @@ gameCanvas.draw = function(){
 		Informe de la déconnection d'un client
 
 	Client -> Serveur
-	- nouveauJoueur : bonhomme, cb(key/'pseudoVide'/'erreur')
+	- nouveauJoueur : bonhomme, cb(key/'erreur')
 		Informe le serveur de son entré en jeu
-	- newObject
-		// TEMPORAIRE
 	- fire
 		// TODO
 	- disconnect
@@ -82,12 +92,17 @@ var initGameSocket = function(){
 		setYourBonhomme('Entrez votre pseudo');
 	});
 
-	gameSocket.on('initObjectPool', function(data,cb) {
+	//{'settings':data, 'pool':data}
+	gameSocket.on('initGame', function(data,cb) {
+		var settings = data.settings;
+		var pool = data.pool;
+
+		setSettings(settings);
+
 		gameObjectPool = [];
 
-		for(var i=0;i<data.length;i++){
-			var obj = data[i];
-
+		for(var i=0;i<pool.length;i++){
+			var obj = pool[i];
 			if(obj !== undefined){
 				if(obj.type === 'Bonhomme'){
 					var bonhomme = new Bonhomme();
@@ -134,10 +149,6 @@ var initGameSocket = function(){
 		cb(yourBonhomme.packP());
 	});
 
-	gameSocket.on('updateObject', function(obj) {
-		gameObjectPool[obj.key].unpackP(obj.data);
-	});
-
 	gameSocket.on('updateObjects', function(objs) {
 		for(var i=0;i<objs.length;i++){
 			gameObjectPool[objs[i].key].unpackP(objs[i].data);
@@ -154,6 +165,11 @@ var initGameSocket = function(){
 
 	gameSocket.on('disconnect',function(){
 		infoElement.innerHTML = 'Perte de la connexion au serveur';
+		var gameObjectPool = [];
+		var lastDraw = null;
+
+		var yourBonhomme = null;
+		var yourBonhommeKey = null;
 	});
 };
 
@@ -167,10 +183,7 @@ var setYourBonhomme = function(str){
 	jaque.P.setPos(100,100);
 
 	gameSocket.emit('nouveauJoueur', jaque.pack(), function(rep){
-		if(rep === 'pseudoVide'){
-			setYourBonhomme('Entrez un pseudo non vide');
-		}
-		else if(rep === 'erreur'){
+		if(rep === 'erreur'){
 			alert('Erreur');
 		}
 		else{
@@ -180,7 +193,7 @@ var setYourBonhomme = function(str){
 	});
 };
 
-// ---- Bonhomme ---- //
+// ---- Objets ---- //
 
 var Bonhomme = function(){
 	this.nom = null;
@@ -271,12 +284,13 @@ var Bonhomme = function(){
 			this.P.unpack(obj.data);
 	};
 
-	this.packP = function(){		
-		return this.P.pack();
+	this.packP = function(){
+		return [this.P.getPos().pack(),this.P.orientVector.pack()];
 	};
 
 	this.unpackP = function(obj){
-		this.P.unpack(obj);
+		this.P.getPos().unpack(obj[0]);
+		this.P.orientVector.unpack(obj[1]);
 	};
 };
 
@@ -336,7 +350,6 @@ var Balle = function(){
 		this.P.unpack(obj);
 	};
 };
-
 
 // ---- Inputs ---- //
 
