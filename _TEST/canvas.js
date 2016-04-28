@@ -21,7 +21,7 @@ var canvasObj = function(id){
 
 	// Retina fix
 	this.resize = function(){
-		var dpr = window.devicePixelRatio || 1;
+/*		var dpr = window.devicePixelRatio || 1;
 		var bsr = this.ctx.webkitBackingStorePixelRatio ||
 			this.ctx.mozBackingStorePixelRatio ||
 			this.ctx.msBackingStorePixelRatio ||
@@ -30,7 +30,7 @@ var canvasObj = function(id){
 		var ratio = dpr/bsr;
 		this.element.width = this.element.offsetWidth * ratio;
 		this.element.height = this.element.offsetHeight * ratio;
-		this.element.getContext("2d").setTransform(ratio, 0, 0, ratio, 0, 0);
+		this.element.getContext("2d").setTransform(ratio, 0, 0, ratio, 0, 0);*/
 
 		this.width = this.element.width;
 		this.height = this.element.height;
