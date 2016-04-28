@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset=UTF-8>
+	<title>MoteurJs</title>
+	<link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" type="text/css" href="style.css">
+
+	<!-- LibMath -->
+	<script src="sylvester.js"></script>
+	<script src="glUtils.js"></script>
+
+	<!-- Shaders -->
+	<script id="shader-vs" type="x-shader/x-vertex">
+		attribute vec3 aVertexPosition;
+		attribute vec4 aVertexColor;
+
+		uniform mat4 uMVMatrix;
+		uniform mat4 uPMatrix;
+
+		varying lowp vec4 vColor;
+
+		void main(void) {
+			gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+			vColor = aVertexColor;
+		}
+	</script>
+	<script id="shader-fs" type="x-shader/x-fragment">
+		varying lowp vec4 vColor;
+
+		void main(void) {
+			gl_FragColor = vColor;
+		}
+	</script>
+
+	<!-- Script -->
+	<script src="script.js"></script> 
+</head>
+<!-- <body onload='start()'> -->
+<body>
+	<h1>MoteurJS</h1>
+	<canvas id="glcanvas" width="640" height="480"></canvas>
+	<h1>Essais de calcul</h1>
+	<div id="calcResult"></div>
+	<canvas id='plot' width="640" height="480"></canvas>
+</body>
+<script src="testMathPoly3.js"></script>
+</html>

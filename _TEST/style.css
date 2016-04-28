@@ -1,0 +1,10 @@
+body{
+	text-align: center;
+	font-family: 'Share Tech Mono', sans-serif;
+	background-color: #dbe0e3;
+}
+
+#glcanvas{
+	border: 5px solid #5d7cc5;
+	display: inline-block;
+}
