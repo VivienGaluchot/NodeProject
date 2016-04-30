@@ -59,15 +59,18 @@ else
 //P(To) = Xo, P(Tf) = Xf
 //P'(To) = Vo, P'(Tf) = Vf
 var computePoly3 = function(To,Tf,Xo,Xf,Vo,Vf){
-	var a1 = -1/(3*Tf*To);
-	var a2 = Vo/(3*Tf*To) - (Vf-Vo)/(3*(Tf-To)*Tf);
-	var b1 = (Tf+To)/(2*Tf*To);
-	var b2 = (1 + (Tf+To)/Tf) * (Vf - Vo)/(2*(Tf-To)) - Vo * (Tf+To)/(2*Tf*To);
+	var a1 = 1/(3*Tf*To);
+	var a2 = -Vo/(3*Tf*To) + (Vf-Vo)/(3*(Tf-To)*Tf);
+	var b1 = -(Tf+To)/(2*Tf*To);
+	var b2 = (1-(Tf+To)/Tf) * (Vf-Vo)/(2*(Tf-To)) + Vo * (Tf+To)/(2*Tf*To);
 	var c1 = ((To*To*To) - (Tf*Tf*Tf))/(Tf-To);
-	var c2 = (To*To - Tf*Tf)/(Tf-To);
-	var c3 = (Xf - Xo)/(Tf-To);
+	var c2 = (To*To-Tf*Tf)/(Tf-To);
+	var c3 = (Xf-Xo)/(Tf-To);
 
-	return computeabc(a1,a2,b1,b2,c1,c2,c3);
+	var param = computeabc(a1,a2,b1,b2,c1,c2,c3);
+	param.d = Xo - param.a*To*To*To - param.b*To*To - param.c*To;
+
+	return param;
 };
 
 /*var fails = 0;
@@ -198,11 +201,11 @@ var Tf = 1;
 var Xo = -1;
 var Xf = 1;
 var Vo = 2;
-var Vf = 1;
+var Vf = -1;
 
 var param = computePoly3(To,Tf,Xo,Xf,Vo,Vf);
 var poly3 = function(x){
-	return x*x*x*param.a + x*x*param.b + x*param.c;
+	return x*x*x*param.a + x*x*param.b + x*param.c + param.d;
 };
 var polyD3 = function(x){
 	return x*x*param.a*3 + x*param.b*2 + param.c;
