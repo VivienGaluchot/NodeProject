@@ -83,17 +83,22 @@ var plotInit = function(canvasObj,Xmin,Xmax,Ymin,Ymax){
 
 	var drawLine = canvasObj.drawTransfLine;
 
-	canvasObj.ctx.strokeStyle="grey";	
-	canvasObj.ctx.lineWidth=1;
-	drawLine(0,Xmin,0,Xmax);
-	drawLine(Xmin,0,Xmax,0);
-	canvasObj.ctx.lineWidth=2;
-	canvasObj.ctx.strokeStyle="black";
-	drawLine(0,0,0,1);
-	drawLine(0,0,1,0);
-
 	this.ptDisplay = false;
 	this.ptColor = null;
+
+	this.clear = function(){
+		canvasObj.clear();
+		canvasObj.ctx.strokeStyle="grey";
+		canvasObj.ctx.lineWidth=1;
+		drawLine(0,Xmin,0,Xmax);
+		drawLine(Xmin,0,Xmax,0);
+		canvasObj.ctx.lineWidth=2;
+		canvasObj.ctx.strokeStyle="black";
+		drawLine(0,0,0,1);
+		drawLine(0,0,1,0);
+	};
+
+	this.clear();
 
 	this.setPtDisplay = function(value,ptColor){
 		this.ptDisplay = value;
@@ -139,7 +144,6 @@ var plotInit = function(canvasObj,Xmin,Xmax,Ymin,Ymax){
 		var trajF = function(t){
 			return {'x': t,'y': f(t)};
 		};
-
 		this.plotTraj(trajF,Xmin,Xmax,pas,name,color);
 	};
 };

@@ -58,33 +58,38 @@ var computeTraj = function(To,Tf,Po,Pf,Vo,Vf){
 
 var canvasPlot = new canvasObj('plot');
 canvasPlot.load();
-canvasPlot.clear();
 
 var plot = new plotInit(canvasPlot,-5,5,-5,5);
 plot.setPtDisplay(true,'black');
 
 // ---- Test ---- //
 
-var To = -5;
-var Tf = 3;
-var Po = new Vector2D(-3,-4);
-var Pf = new Vector2D(1,2);
-var Vo = new Vector2D(1,0);
-var Vf = new Vector2D(2,-2);
+var test = function(){
+	var To = -5;
+	var Tf = 3;
+	var Po = new Vector2D(-3,-4);
+	var Pf = new Vector2D(1,2);
+	var Vo = new Vector2D(1,0);
+	var Vf = new Vector2D(2,-2);
 
-var X = computeTraj(To,Tf,Po,Pf,Vo,Vf);
-var pos = X.pos;
-var vit = X.vit;
+	var X = computeTraj(To,Tf,Po,Pf,Vo,Vf);
+	var pos = X.pos;
+	var vit = X.vit;
 
-logCalc('Test de validitée :');
+	logCalc('Test de validitée :');
 
-var isEqual = function(A,B){
-	return A.x === B.x && A.y === B.y;
-};
+	var isEqual = function(A,B){
+		return A.x === B.x && A.y === B.y;
+	};
 
-logCalc('pos(To) === Po ? ' + isEqual(pos(To),Po));
-logCalc('pos(Tf) === Pf ? ' + isEqual(pos(Tf),Pf));
-logCalc('vit(To) === Vo ? ' + isEqual(vit(To),Vo));
-logCalc('vit(Tf) === Vf ? ' + isEqual(vit(Tf),Vf));
+	logCalc('pos(To) === Po ? ' + isEqual(pos(To),Po));
+	logCalc('pos(Tf) === Pf ? ' + isEqual(pos(Tf),Pf));
+	logCalc('vit(To) === Vo ? ' + isEqual(vit(To),Vo));
+	logCalc('vit(Tf) === Vf ? ' + isEqual(vit(Tf),Vf));
 
-plot.plotTraj(pos,To,Tf,0.1,'TrajTest','blue');
+	plot.clear();
+	plot.plotTraj(pos,To,Tf,0.1,'position','blue');
+	plot.plotTraj(vit,To,Tf,0.1,'vitesse','green');
+}
+
+test();
