@@ -9,32 +9,31 @@
 	<script src="canvas.js"></script>
 </head>
 <body>
-	<h1>MoteurJS</h1>
-	<h2>Essais de calcul</h2>
-	<div>
-		<div id="calcResult" class="block"></div>
-	</div>
-	<h2>Plot</h2>
-	<div class="block form">
+	<h1>MathJs</h1>
+	<div class="block">
+		<h2>Paramètres</h2>
 		<form>
 			<table>
-				<tr><td>To </td><td><input name="To" value="-1"  type="number" step="any" oninput="test()"></td></tr>
-				<tr><td>Tf </td><td><input name="Tf" value="1" type="number" step="any" oninput="test()"></td></tr>
+				<tr><td>To </td><td><input id="To" name="To" value="-1"  type="number" step="any" oninput="test()"></td></tr>
+				<tr><td>Tf </td><td><input id="Tf" name="Tf" value="1" type="number" step="any" oninput="test()"></td></tr>
 				<tr><td>Pos</td></tr>
-				<tr><td>Po : x </td><td><input name="PoX" value="-1" type="number" step="any" oninput="test()"></td>
-					<td> y </td><td><input name="PoY" value="-1" type="number" step="any" oninput="test()"><br></td></tr>
-				<tr><td>Pf : x </td><td><input name="PfX" value="1" type="number" step="any" oninput="test()"></td>
-					<td> y </td><td><input name="PfY" value="1" type="number" step="any" oninput="test()"><br></td></tr>
+				<tr><td>Po : x </td><td><input id="PoX" name="PoX" value="-1" type="number" step="any" oninput="test()"></td>
+					<td> y </td><td><input id="PoY" name="PoY" value="-1" type="number" step="any" oninput="test()"><br></td></tr>
+				<tr><td>Pf : x </td><td><input id="PfX" name="PfX" value="1" type="number" step="any" oninput="test()"></td>
+					<td> y </td><td><input id="PfY" name="PfY" value="1" type="number" step="any" oninput="test()"><br></td></tr>
 				<tr><td>Vit</td></tr>
-				<tr><td>Vo : x </td><td><input name="VoX" value="0" type="number" step="any" oninput="test()"></td>
-					<td> y </td><td><input name="VoY" value="1" type="number" step="any" oninput="test()"><br></td></tr>
-				<tr><td>Vf : x </td><td><input name="VfX" value="1" type="number" step="any" oninput="test()"></td>
-					<td> y </td><td><input name="VfY" value="0" type="number" step="any" oninput="test()"><br></td></tr>
+				<tr><td>Vo : x </td><td><input id="VoX" name="VoX" value="0" type="number" step="any" oninput="test()"></td>
+					<td> y </td><td><input id="VoY" name="VoY" value="1" type="number" step="any" oninput="test()"><br></td></tr>
+				<tr><td>Vf : x </td><td><input id="VfX" name="VfX" value="1" type="number" step="any" oninput="test()"></td>
+					<td> y </td><td><input id="VfY" name="VfY" value="0" type="number" step="any" oninput="test()"><br></td></tr>
 				<tr></tr>
 			</table>
 		</form>
+		<h2>Essais de calcul</h2>
+		<div id="calcResult"></div>
 	</div>
-	<div class="block">
+	<div class="block">		
+		<h2>Plot</h2>
 		<canvas id="plot" width="500" height="500"></canvas>
 	</div>
 </body>

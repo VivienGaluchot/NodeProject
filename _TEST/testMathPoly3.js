@@ -1,8 +1,18 @@
 var logCalc = function(txt){
 	calcResult.innerHTML += '<div>'+txt+'</div>';
 };
+var logCalcReset = function(txt){
+	calcResult.innerHTML = '';
+};
 
 var computeTraj = function(To,Tf,Po,Pf,Vo,Vf){
+/*	if(typeof To !== Number || typeof Tf !== Number ||
+		typeof Po.x !== Number || typeof Po.y !== Number ||
+		typeof Pf.x !== Number || typeof Pf.y !== Number ||
+		typeof Vo.x !== Number || typeof Vo.y !== Number ||
+		typeof Vf.x !== Number || typeof Vf.y !== Number)
+		return ;*/
+
 	var T = Tf - To;
 
 	var A = {'x':0, 'y':0};
@@ -64,18 +74,23 @@ plot.setPtDisplay(true,'black');
 
 // ---- Test ---- //
 
+var getVal = function(id){
+	return Number(document.getElementById(id).value);
+};
+
 var test = function(){
-	var To = -5;
-	var Tf = 3;
-	var Po = new Vector2D(-3,-4);
-	var Pf = new Vector2D(1,2);
-	var Vo = new Vector2D(1,0);
-	var Vf = new Vector2D(2,-2);
+	var To = getVal("To");
+	var Tf = getVal("Tf");
+	var Po = new Vector2D(getVal("PoX"), getVal("PoY"));
+	var Pf = new Vector2D(getVal("PfX"), getVal("PfY"));
+	var Vo = new Vector2D(getVal("VoX"), getVal("VoY"));
+	var Vf = new Vector2D(getVal("VfX"), getVal("VfY"));
 
 	var X = computeTraj(To,Tf,Po,Pf,Vo,Vf);
 	var pos = X.pos;
 	var vit = X.vit;
 
+	logCalcReset();
 	logCalc('Test de validitée :');
 
 	var isEqual = function(A,B){
