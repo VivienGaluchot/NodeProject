@@ -59,18 +59,21 @@ else
 //P(To) = Xo, P(Tf) = Xf
 //P'(To) = Vo, P'(Tf) = Vf
 var computePoly3 = function(To,Tf,Xo,Xf,Vo,Vf){
-	var a1 = 1/(3*Tf*To);
-	var a2 = -Vo/(3*Tf*To) + (Vf-Vo)/(3*(Tf-To)*Tf);
-	var b1 = -(Tf+To)/(2*Tf*To);
-	var b2 = (1-(Tf+To)/Tf) * (Vf-Vo)/(2*(Tf-To)) + Vo * (Tf+To)/(2*Tf*To);
-	var c1 = ((To*To*To) - (Tf*Tf*Tf))/(Tf-To);
-	var c2 = (To*To-Tf*Tf)/(Tf-To);
-	var c3 = (Xf-Xo)/(Tf-To);
+	var A1 = 1/(3*Tf*To);
+	var A2 = -Vo/(3*Tf*To) + (Vf-Vo)/(3*(Tf-To)*Tf);
+	var B1 = -(Tf+To)/(2*Tf*To);
+	var B2 = (1-(Tf+To)/Tf) * (Vf-Vo)/(2*(Tf-To)) + Vo * (Tf+To)/(2*Tf*To);
+	var C1 = ((To*To*To) - (Tf*Tf*Tf))/(Tf-To);
+	var C2 = (To*To-Tf*Tf)/(Tf-To);
+	var C3 = (Xf-Xo)/(Tf-To);
 
-	var param = computeabc(a1,a2,b1,b2,c1,c2,c3);
-	param.d = Xo - param.a*To*To*To - param.b*To*To - param.c*To;
+	
+	var c = (A2*C1 + B2*C2 + C3)/(1 - A1*C1 - B1*C2);
+	var a = A1 * c + A2;
+	var b = B1 * c + B2;
+	var d = Xo - a*To*To*To - b*To*To - c*To;
 
-	return param;
+	return {'a':a, 'b':b, 'c':c, 'd':d};
 };
 
 /*var fails = 0;
@@ -93,6 +96,21 @@ logCalc('1000 test : '+fails+' fails');*/
 
 var canvasPlot = new canvasObj('plot');
 canvasPlot.load();
+
+function multiplyMatrices(m1, m2) {
+    var result = [];
+    for (var i = 0; i < m1.length; i++) {
+        result[i] = [];
+        for (var j = 0; j < m2[0].length; j++) {
+            var sum = 0;
+            for (var k = 0; k < m1[0].length; k++) {
+                sum += m1[i][k] * m2[k][j];
+            }
+            result[i][j] = sum;
+        }
+    }
+    return result;
+};
 
 // f : fonction
 // i : minX, h :maxX
@@ -181,19 +199,38 @@ var plotFunc = function(f,p,color,pt){
 	}
 };
 
-function multiplyMatrices(m1, m2) {
-    var result = [];
-    for (var i = 0; i < m1.length; i++) {
-        result[i] = [];
-        for (var j = 0; j < m2[0].length; j++) {
-            var sum = 0;
-            for (var k = 0; k < m1[0].length; k++) {
-                sum += m1[i][k] * m2[k][j];
-            }
-            result[i][j] = sum;
-        }
-    }
-    return result;
+//Function : f(t) = {x,y}
+var plotTraj = function(f,p,from,to,color,pt){
+	var values = [];
+	for(var x=from;x<to;x += p){
+		var calc = f(x);
+		values.push({'x':calc.x, 'y':calc.y});
+	}
+	var calc = f(to);
+	values.push({'x':to, 'y':calc});
+
+	var ctx = canvasPlot.ctx;
+
+	for(var x=0;x<values.length-1;x++){
+		// Courbe
+		ctx.lineWidth=2;
+		ctx.strokeStyle=color;
+		this.drawLine(values[x].x,values[x].y,values[x+1].x,values[x+1].y);
+		// Points
+		if(pt){
+			ctx.lineWidth=1;
+			ctx.strokeStyle='black';
+			var p = this.transform(values[x].x,values[x].y);
+			ctx.beginPath();
+			ctx.moveTo(p.x,p.y-3);
+			ctx.lineTo(p.x,p.y+3);
+			ctx.stroke();
+			ctx.beginPath();
+			ctx.moveTo(p.x-3,p.y);
+			ctx.lineTo(p.x+3,p.y);
+			ctx.stroke();		
+		}
+	}
 };
 
 var To = -1;
@@ -224,5 +261,21 @@ plotInit(-5,5,-5,5);
 plotFunc(poly3,0.05,'green',false);
 plotFunc(polyD3,0.05,'red',false);
 
-
 logCalc('Courbe verte : poly3, courbe rouge : polyD3');
+
+var Po = {'x':-2,'y':1};
+var Pf = {'x':1,'y':2};
+var Vo = {'x':0,'y':-1.5};
+var Vf = {'x':2,'y':-2};
+var paramTrajX = computePoly3(To,Tf,Po.x,Pf.x,Vo.x,Vf.x);
+var paramTrajY = computePoly3(To,Tf,Po.y,Pf.y,Vo.y,Vf.y);
+var polyParam3 = function(x,param){
+	return x*x*x*param.a + x*x*param.b + x*param.c + param.d;
+};
+
+var traj = function(t){
+	var res = {'x': polyParam3(t,paramTrajX),'y': polyParam3(t,paramTrajY)};
+	return res;
+};
+
+plotTraj(traj,0.1,To,Tf,'blue',true);
