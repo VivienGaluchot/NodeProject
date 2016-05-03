@@ -8,3 +8,16 @@ body{
 	border: 5px solid #5d7cc5;
 	display: inline-block;
 }
+
+.block{
+	text-align: left;
+	display: inline-block;
+	vertical-align: middle;
+	margin: 10px;
+	padding: 10px;
+	border: 1px grey solid;
+}
+
+.form{
+	background-color: #dbe0e3;
+}

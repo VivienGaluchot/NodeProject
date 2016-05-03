@@ -2,280 +2,89 @@ var logCalc = function(txt){
 	calcResult.innerHTML += '<div>'+txt+'</div>';
 };
 
-// Calcule a,b,c tels que
-//
-// a = A1*c + A2
-// b = B1*c + B2
-// c = C1*a + C2*b + C3
-//
-// return {'a':a, 'b':b, 'c':c}
-var computeabc = function(A1,A2,B1,B2,C1,C2,C3){
-	var a = 0;
-	var b = 0;
-	var c = 0;
+var computeTraj = function(To,Tf,Po,Pf,Vo,Vf){
+	var T = Tf - To;
 
-	c = (A2*C1 + B2*C2 + C3)/(1 - A1*C1 - B1*C2);
-	a = A1 * c + A2;
-	b = B1 * c + B2;
+	var A = {'x':0, 'y':0};
+	var B = {'x':0, 'y':0};
+	var C = {'x':0, 'y':0};
+	var D = {'x':0, 'y':0};
 
-	var result = {'a':a, 'b':b, 'c':c};
-	
-	// TEST
-	var valid = true;
-	var t = Math.abs((A1*c + A2)-a);
-	if(t > 1e-6){
-		logCalc('a invalid : '+t);
-		valid = false;
-	}
-	t = Math.abs((B1*c + B2)-b);
-	if(t > 1e-6){
-		logCalc('b invalid : '+t);
-		valid = false;
-	}
-	t = Math.abs((C1*a + C2*b + C3) - c);
-	if(t > 1e-6){
-		logCalc(A1+','+A2+','+B1+','+B2+','+C1+','+C2+','+C3);
-		logCalc('c invalid : '+t);
-		valid = false;
+	D.x = Po.x;
+	C.x = Vo.x;
+	B.x = ( 3*(Pf.x - Po.x)/T - (Vf.x + 2*Vo.x) )/T;
+	A.x = (Vf.x - Vo.x - 2*B.x*T) / (3*T*T);
+
+	D.y = Po.y;
+	C.y = Vo.y;
+	B.y = ( 3*(Pf.y - Po.y)/T - (Vf.y + 2*Vo.y) )/T;
+	A.y = (Vf.y - Vo.y - 2*B.y*T) / (3*T*T);
+
+	var pos = function(time){
+		var t = time-To;
+		this.t3 = t*t*t;
+		this.t2 = t*t;
+
+		this.A = {'x':A.x, 'y':A.y};
+		this.B = {'x':B.x, 'y':B.y};
+		this.C = {'x':C.x, 'y':C.y};
+		this.D = {'x':D.x, 'y':D.y};
+
+		var P = {'x':0, 'y':0};
+		P.x = this.A.x*t3 + this.B.x*t2+ this.C.x*t + this.D.x;
+		P.y = this.A.y*t3 + this.B.y*t2+ this.C.y*t + this.D.y;
+		return P;
+	};
+
+	var vit = function(time){
+		var t = time-To;
+		this.t2 = t*t;
+
+		this.A = {'x':A.x, 'y':A.y};
+		this.B = {'x':B.x, 'y':B.y};
+		this.C = {'x':C.x, 'y':C.y};
+
+		var V = {'x':0, 'y':0};
+		V.x = this.A.x*t2*3 + this.B.x*t*2+ this.C.x;
+		V.y = this.A.y*t2*3 + this.B.y*t*2+ this.C.y;
+		return V;
 	}
 
-	if(valid)
-		return result;
-	else
-		return 'invalid';
+	return {'pos':pos ,'vit':vit};
 };
 
-if(computeabc(1,1,2,2,3,3,3) !== 'invalid')
-	logCalc('test 1 : valide');
-else
-	logCalc('test 1 : invalide');
-if(computeabc(0,10,2,-10,34,31.57,3) !== 'invalid')
-	logCalc('test 2 : valide');
-else
-	logCalc('test 2 : invalide');
-// Calcule les coef a,b,c du polynome P de degre 3, tels que
-//
-//P(x) = ax^3 + bx^2 + bx +c
-//P(To) = Xo, P(Tf) = Xf
-//P'(To) = Vo, P'(Tf) = Vf
-var computePoly3 = function(To,Tf,Xo,Xf,Vo,Vf){
-	var A1 = 1/(3*Tf*To);
-	var A2 = -Vo/(3*Tf*To) + (Vf-Vo)/(3*(Tf-To)*Tf);
-	var B1 = -(Tf+To)/(2*Tf*To);
-	var B2 = (1-(Tf+To)/Tf) * (Vf-Vo)/(2*(Tf-To)) + Vo * (Tf+To)/(2*Tf*To);
-	var C1 = ((To*To*To) - (Tf*Tf*Tf))/(Tf-To);
-	var C2 = (To*To-Tf*Tf)/(Tf-To);
-	var C3 = (Xf-Xo)/(Tf-To);
 
-	
-	var c = (A2*C1 + B2*C2 + C3)/(1 - A1*C1 - B1*C2);
-	var a = A1 * c + A2;
-	var b = B1 * c + B2;
-	var d = Xo - a*To*To*To - b*To*To - c*To;
-
-	return {'a':a, 'b':b, 'c':c, 'd':d};
-};
-
-/*var fails = 0;
-for(var i=0;i<1000;i++){
-	if(!computeabc(
-			Math.random() * 10000 - 5000,
-			Math.random() * 10000 - 5000,
-			Math.random() * 10000 - 5000,
-			Math.random() * 10000 - 5000,
-			Math.random() * 10000 - 5000,
-			Math.random() * 10000 - 5000,
-			Math.random() * 10000 - 5000)
-		)
-		fails++;
-}
-
-logCalc('1000 test : '+fails+' fails');*/
-
-// ---- Plot ---- //
+// ---- Plot Init ---- //
 
 var canvasPlot = new canvasObj('plot');
 canvasPlot.load();
-
-function multiplyMatrices(m1, m2) {
-    var result = [];
-    for (var i = 0; i < m1.length; i++) {
-        result[i] = [];
-        for (var j = 0; j < m2[0].length; j++) {
-            var sum = 0;
-            for (var k = 0; k < m1[0].length; k++) {
-                sum += m1[i][k] * m2[k][j];
-            }
-            result[i][j] = sum;
-        }
-    }
-    return result;
-};
-
-// f : fonction
-// i : minX, h :maxX
-// p : pax
-// k : minY, l : maxY
-var plotInit = function(i,j,k,l){
-	this.i = i;
-	this.j = j;
-	this.k = k;
-	this.l = l;
-
-	var min = k;
-	var max = l;
-	// i-j -> 0-width
-	// min-max -> height-0
-	this.M = [
-				[canvasPlot.width/(j-i)		,0									,canvasPlot.width*(-i)/(j-i)		],
-				[0							,(-1*canvasPlot.height)/(max-min)	,canvasPlot.height*(max)/(max-min)	],
-				[0							,0									,1									]
-			];
-	var M = this.M;
-
-	this.transform = function(x,y){
-		var vec = multiplyMatrices(M, [[x],[y],[1]]);
-		var p = {'x':vec[0][0],'y':vec[1][0]};
-		return p;
-	};
-	var transform = this.transform;
-
-	this.drawLine = function(x1,y1,x2,y2){
-		var p;
-		ctx.beginPath();
-		p = transform(x1,y1);
-		ctx.moveTo(p.x,p.y);
-		p = transform(x2,y2);
-		ctx.lineTo(p.x,p.y);
-		ctx.stroke();
-	};
-	var drawLine = this.drawLine;
-
-	var ctx = canvasPlot.ctx;
-	ctx.strokeStyle="grey";	
-	ctx.lineWidth=1;
-	drawLine(0,min,0,max);
-	drawLine(i,0,j,0);
-	ctx.lineWidth=2;
-	ctx.strokeStyle="black";
-	drawLine(0,0,0,1);
-	drawLine(0,0,1,0);
-};
-
-var plotFunc = function(f,p,color,pt){
-	i = this.i;
-	j = this.j;
-	k = this.k;
-	l = this.l;
-	var values = [];
-	for(var x=i;x<j;x += p){
-		var calc = f(x);
-		values.push({'x':x, 'y':calc});
-	}
-	var calc = f(j);
-	values.push({'x':j, 'y':calc});
-
-	var ctx = canvasPlot.ctx;
-
-	for(var x=0;x<values.length-1;x++){
-		// Courbe
-		ctx.lineWidth=2;
-		ctx.strokeStyle=color;
-		this.drawLine(values[x].x,values[x].y,values[x+1].x,values[x+1].y);
-		// Points
-		if(pt){
-			ctx.lineWidth=1;
-			ctx.strokeStyle='black';
-			var p = this.transform(values[x].x,values[x].y);
-			ctx.beginPath();
-			ctx.moveTo(p.x,p.y-3);
-			ctx.lineTo(p.x,p.y+3);
-			ctx.stroke();
-			ctx.beginPath();
-			ctx.moveTo(p.x-3,p.y);
-			ctx.lineTo(p.x+3,p.y);
-			ctx.stroke();		
-		}
-	}
-};
-
-//Function : f(t) = {x,y}
-var plotTraj = function(f,p,from,to,color,pt){
-	var values = [];
-	for(var x=from;x<to;x += p){
-		var calc = f(x);
-		values.push({'x':calc.x, 'y':calc.y});
-	}
-	var calc = f(to);
-	values.push({'x':to, 'y':calc});
-
-	var ctx = canvasPlot.ctx;
-
-	for(var x=0;x<values.length-1;x++){
-		// Courbe
-		ctx.lineWidth=2;
-		ctx.strokeStyle=color;
-		this.drawLine(values[x].x,values[x].y,values[x+1].x,values[x+1].y);
-		// Points
-		if(pt){
-			ctx.lineWidth=1;
-			ctx.strokeStyle='black';
-			var p = this.transform(values[x].x,values[x].y);
-			ctx.beginPath();
-			ctx.moveTo(p.x,p.y-3);
-			ctx.lineTo(p.x,p.y+3);
-			ctx.stroke();
-			ctx.beginPath();
-			ctx.moveTo(p.x-3,p.y);
-			ctx.lineTo(p.x+3,p.y);
-			ctx.stroke();		
-		}
-	}
-};
-
-var To = -1;
-var Tf = 1;
-var Xo = -1;
-var Xf = 1;
-var Vo = 2;
-var Vf = -1;
-
-var param = computePoly3(To,Tf,Xo,Xf,Vo,Vf);
-var poly3 = function(x){
-	return x*x*x*param.a + x*x*param.b + x*param.c + param.d;
-};
-var polyD3 = function(x){
-	return x*x*param.a*3 + x*param.b*2 + param.c;
-};
-logCalc('---------------------------------------------');
-logCalc('Données');
-logCalc('To = '+To+', Tf = '+Tf+', Xo = '+Xo+', Xf = '+Xf+', Vo = '+Vo+', Vf = '+Vf);
-logCalc('---------------------------------------------');
-logCalc('Valeurs calculées');
-logCalc('param : '+param.a+', '+param.b+', '+param.c);
-logCalc('Xo = poly(To) = '+poly3(To)+' | '+'Xf = poly(Tf) = '+poly3(Tf));
-logCalc('Vo = polyD(To) = '+polyD3(To)+' | '+'Vf = polyD(Tf) = '+polyD3(Tf));
-
 canvasPlot.clear();
-plotInit(-5,5,-5,5);
-plotFunc(poly3,0.05,'green',false);
-plotFunc(polyD3,0.05,'red',false);
 
-logCalc('Courbe verte : poly3, courbe rouge : polyD3');
+var plot = new plotInit(canvasPlot,-5,5,-5,5);
+plot.setPtDisplay(true,'black');
 
-var Po = {'x':-2,'y':1};
-var Pf = {'x':1,'y':2};
-var Vo = {'x':0,'y':-1.5};
-var Vf = {'x':2,'y':-2};
-var paramTrajX = computePoly3(To,Tf,Po.x,Pf.x,Vo.x,Vf.x);
-var paramTrajY = computePoly3(To,Tf,Po.y,Pf.y,Vo.y,Vf.y);
-var polyParam3 = function(x,param){
-	return x*x*x*param.a + x*x*param.b + x*param.c + param.d;
+// ---- Test ---- //
+
+var To = -5;
+var Tf = 3;
+var Po = new Vector2D(-3,-4);
+var Pf = new Vector2D(1,2);
+var Vo = new Vector2D(1,0);
+var Vf = new Vector2D(2,-2);
+
+var X = computeTraj(To,Tf,Po,Pf,Vo,Vf);
+var pos = X.pos;
+var vit = X.vit;
+
+logCalc('Test de validitée :');
+
+var isEqual = function(A,B){
+	return A.x === B.x && A.y === B.y;
 };
 
-var traj = function(t){
-	var res = {'x': polyParam3(t,paramTrajX),'y': polyParam3(t,paramTrajY)};
-	return res;
-};
+logCalc('pos(To) === Po ? ' + isEqual(pos(To),Po));
+logCalc('pos(Tf) === Pf ? ' + isEqual(pos(Tf),Pf));
+logCalc('vit(To) === Vo ? ' + isEqual(vit(To),Vo));
+logCalc('vit(Tf) === Vf ? ' + isEqual(vit(Tf),Vf));
 
-plotTraj(traj,0.1,To,Tf,'blue',true);
+plot.plotTraj(pos,To,Tf,0.1,'TrajTest','blue');
