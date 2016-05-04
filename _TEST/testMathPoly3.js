@@ -103,8 +103,8 @@ var test = function(){
 	logCalc('vit(Tf) === Vf ? ' + isEqual(vit(Tf),Vf));
 
 	plot.clear();
+	plot.setPtDisplay(true,'black');
 	plot.plotTraj(pos,To,Tf,0.1,'position','blue');
-	plot.plotTraj(vit,To,Tf,0.1,'vitesse','green');
 }
 
 test();

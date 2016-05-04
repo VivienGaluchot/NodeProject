@@ -145,16 +145,15 @@ var initGameSocket = function(){
 		var key = obj.key;
 		gameObjectPool[key].unpackP(obj.data);
 		if(gameObjectPool[key].type === 'Bonhomme'){
-			gameObjectPool[key].P.setBreak(dTUpdateCycle,dTUpdateCycle/2);
+			gameObjectPool[key].P.setBreak(dTUpdateCycle);
 		}
 	};
 
 	gameSocket.on('reqUpdatePos', function(objs,cb) {
+		cb(movDir.pack());
 		for(var i=0;i<objs.length;i++){
-			if(objs[i].key !== yourBonhommeKey)
-				updateObject(objs[i]);
+			updateObject(objs[i]);
 		}
-		cb(yourBonhomme.packP());
 	});
 
 	gameSocket.on('updateObjects', function(objs){
@@ -200,166 +199,6 @@ var setYourBonhomme = function(str){
 	});
 };
 
-// ---- Objets ---- //
-
-var Bonhomme = function(){
-	this.nom = null;
-	this.vitMax = 0.2;
-	this.size = 15;
-	this.type = 'Bonhomme';
-	
-	// point
-	var P = new animOrientedPoint();
-	this.P = P;
-
-	// en rad
-	P.orientVectorSize = 20;
-
-	// mouse tracking
-	this.mouseX = 0;
-	this.mouseY = 0;
-	this.lookTo = function(x,y){
-		this.mouseX = x;
-		this.mouseY = y;
-	};
-
-	this.bindKey = function(up,right,down,left){
-		this.P.setVit(0,0);
-		if(up !== down){
-			if(up){ // vers le haut
-				this.P.getVit().y = -1;
-			} else { // vert le bas
-				this.P.getVit().y = 1;
-			}
-		}
-
-		if(right !== left){
-			if(right){ // vers la droite
-				this.P.getVit().x = 1;
-			} else { // vert la gauche
-				this.P.getVit().x = -1;
-			}
-		}
-		this.P.getVit().setRayonTo(this.vitMax);
-	};
-
-	this.fire = function(){
-		// TODO
-/*		var balle = new Balle();
-		// position
-		balle.P.getPos().x = P.getPos().x + this.P.orientVector.x;
-		balle.P.getPos().y = P.getPos().y + this.P.orientVector.y;
-		// vitesse
-		balle.P.getVit().setFromVect(this.P.orientVector);
-		balle.P.getVit().setRayonTo(balle.vitMax);
-
-		gameSocket.emit('newObject',balle.pack(),function(key){
-			gameObjectPool[key] = balle;
-		});*/
-	};
-
-	this.stepAnim = function(t){
-		P.stepAnim(t);
-
-		if(this === yourBonhomme)
-			P.orientToThePoint(this.mouseX,this.mouseY);
-
-		var temp = this.size/2;
-		if(P.getPos().x <= temp) P.getPos().x = temp;
-		if(P.getPos().y <= temp) P.getPos().y = temp;
-		var temp2 = gameCanvas.width - temp;
-		if(P.getPos().x > temp2) P.getPos().x = temp2;
-		var temp3 = gameCanvas.height - temp;
-		if(P.getPos().y > temp3) P.getPos().y = temp3;
-	};
-
-	this.drawOn = function(ctx){
-		P.drawOn(ctx);
-
-		ctx.font = '12px Arial';
-		if(P.getPos().y<this.size/2+16)
-			ctx.fillText(this.nom,P.getPos().x - (ctx.measureText(this.nom).width/2),P.getPos().y+this.size/2+15);
-		else
-			ctx.fillText(this.nom,P.getPos().x - (ctx.measureText(this.nom).width/2),P.getPos().y-this.size/2-4);
-	};
-
-	this.pack = function(){
-		return {'type':'Bonhomme','nom':this.nom,'data':this.P.pack()};
-	};
-
-	this.unpack = function(obj){
-		if(obj.nom !== undefined)
-			this.nom = obj.nom;
-		if(obj.data !== undefined)
-			this.P.unpack(obj.data);
-	};
-
-	this.packP = function(){
-		return this.P.pack();
-	};
-
-	this.unpackP = function(obj){
-		this.P.unpack(obj);
-	};
-};
-
-var Balle = function(){
-	this.vitMax = 1;
-	this.size = 6;
-	this.type = 'Balle';
-
-	// point
-	var P = new animPoint();
-	this.P = P;
-	/// affichage de la trace
-	this.trainee = new Vector2D();
-
-	this.drawOn = function(ctx){		
-		ctx.lineWidth = 3;
-		ctx.strokeStyle='rgb(255,50,0)';
-		// ligne
-		ctx.beginPath();
-		ctx.moveTo(P.getPos().x,P.getPos().y);
-		ctx.lineTo(P.getPos().x+this.trainee.x,P.getPos().y+this.trainee.y);
-		ctx.stroke();
-	};
-
-	this.colide = function(){
-		var temp = this.size/2;
-		if(P.getPos().x <= temp || P.getPos().y <= temp)
-			this.toDelete = true;
-		var temp2 = gameCanvas.width - temp;
-		if(P.getPos().x > temp2)
-			this.toDelete = true;
-		var temp3 = gameCanvas.height - temp;
-		if(P.getPos().y > temp3)
-			this.toDelete = true;
-	};
-
-	this.stepAnim = function(t){ // t en ms
-		this.trainee.x = -P.getVit().x;
-		this.trainee.y = -P.getVit().y;
-		this.trainee.setRayonTo(this.size);
-
-		P.stepAnim(t);
-	};
-
-	this.pack = function(){
-		return {'type':'Balle','data':this.P.pack()};
-	};
-
-	this.unpack = function(obj){
-		this.P.unpack(obj.data);
-	};
-
-	this.packP = function(){		
-		return this.P.pack();
-	};
-
-	this.unpackP = function(obj){
-		this.P.unpack(obj);
-	};
-};
 
 // ---- Inputs ---- //
 
@@ -374,29 +213,31 @@ var keyRightDown = false;
 var keyDownDown = false;
 var keyLeftDown = false;
 
+var movDir = new Vector2D(0,0);
+
 var toucheDown = function(event){
 	if(yourBonhomme === null)
 		return;
 	if(event.keyCode === UP_ARROW || event.keyCode === Z_KEY) {
 		event.preventDefault();
 		keyUpDown = true;
-		yourBonhomme.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+		bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	}
 	else if(event.keyCode === RIGHT_ARROW || event.keyCode === D_KEY) {
 		event.preventDefault();
 		keyRightDown = true;
-		yourBonhomme.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+		bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	}
 	else if(event.keyCode === DOWN_ARROW || event.keyCode === S_KEY) {
 		event.preventDefault();
 		keyDownDown = true;
-		yourBonhomme.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+		bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	} else if(event.keyCode === LEFT_ARROW || event.keyCode === Q_KEY) {
 		event.preventDefault();		
 		keyLeftDown = true;
-		yourBonhomme.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+		bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	}
-	yourBonhomme.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+	bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 };
 
 var toucheUp = function(event){
@@ -405,26 +246,25 @@ var toucheUp = function(event){
 	if(event.keyCode === UP_ARROW || event.keyCode === Z_KEY) {
 		event.preventDefault();
 		keyUpDown = false;
-		yourBonhomme.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+		bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	}
 	else if(event.keyCode === RIGHT_ARROW || event.keyCode === D_KEY) {
 		event.preventDefault();
 		keyRightDown = false;
-		yourBonhomme.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+		bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	}
 	else if(event.keyCode === DOWN_ARROW || event.keyCode === S_KEY) {
 		event.preventDefault();
 		keyDownDown = false;
-		yourBonhomme.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+		bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	} else if(event.keyCode === LEFT_ARROW || event.keyCode === Q_KEY) {
 		event.preventDefault();		
 		keyLeftDown = false;
-		yourBonhomme.bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
+		bindKey(keyUpDown,keyRightDown,keyDownDown,keyLeftDown);
 	}
 };
 
 var touchePress = function(event){
-
 };
 
 var mouseEvent = function(event){
@@ -437,7 +277,26 @@ var mouseEvent = function(event){
 };
 
 var clickEvent = function(event){
-	if(yourBonhomme === null)
+/*	if(yourBonhomme === null)
 		return;
-	yourBonhomme.fire();
+	yourBonhomme.fire();*/
+};
+
+var bindKey = function(up,right,down,left){
+	movDir.set(0,0);
+	if(up !== down){
+		if(up){ // vers le haut
+			movDir.y = -1;
+		} else { // vert le bas
+			movDir.y = 1;
+		}
+	}
+
+	if(right !== left){
+		if(right){ // vers la droite
+			movDir.x = 1;
+		} else { // vert la gauche
+			movDir.x = -1;
+		}
+	}
 };

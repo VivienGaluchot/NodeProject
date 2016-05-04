@@ -17,6 +17,7 @@ p.scriptFileList.push('/socket.io/socket.io.js');
 p.scriptFileList.push('/clientScript/util.js');
 p.scriptFileList.push('/clientScript/canvas.js');
 p.scriptFileList.push('/clientScript/pingClient.js');
+p.scriptFileList.push('/clientScript/gameObjects.js');
 p.scriptFileList.push('/clientScript/gameClient.js');
 
 // Nav

@@ -18,14 +18,6 @@ const http = require('http');
 const server = http.createServer();
 const io = require('socket.io')(server);
 
-// HTTPS (TODO : socket.io)
-const https = require('https');
-const options = {
-	key: fs.readFileSync('./keys/serv.key'),
-	cert: fs.readFileSync('./keys/serv.crt')
-};
-const serverS = https.createServer(options);
-
 // Gestion
 
 
@@ -38,11 +30,6 @@ server.on('request',urlProcess);
 server.listen(8080);
 log.conLog('Serveur HTTP en écoute');
 
-// Démarrage du serveur HTTPS
-serverS.on('request',urlProcess);
-serverS.listen(8081);
-log.conLog('Serveur HTTPS en écoute');
-
 // ---- Gestion des sockets ---- //
 
 const socketProcess = require('./socketProcess');
@@ -54,9 +41,6 @@ const quit = function(){
 	log.conLog('Fermeture du serveur  HTTP');
 	io.close();
 	server.close();
-	// HTTPS
-	log.conLog('Fermeture du serveur  HTTS');
-	serverS.close();
 	log.conLog('FIN');
 	process.exit(1);
 };

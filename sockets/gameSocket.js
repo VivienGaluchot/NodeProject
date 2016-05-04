@@ -7,6 +7,7 @@
 const ent = require('ent');
 const log = require('../log');
 const util = require('./util');
+const gameObjects = require('./gameObjects');
 
 // ---- Settings ---- //
 
@@ -22,8 +23,10 @@ const gameObjectPool = new util.ObjectPool(1000);
 
 // 	Objets pris en charche : {type:t, data:d, toAnimate:bool}
 gameObjectPool.validObject = function(obj){
-	if(obj.data === undefined || obj.type === undefined || obj.type === 'bonhomme' || obj.type === 'balle')
+	if(obj.type === undefined || (obj.type !== 'Bonhomme' && obj.type !== 'Balle')){
+		log.conLogWarning('gameObjectPool.validObject, obj.type:'+obj.type);
 		return false;
+	}
 	return true;
 };
 
@@ -36,17 +39,15 @@ gameObjectPool.updateData = function(key,data){
 
 gameObjectPool.packForUpdate = function(){
 	var result = [];
-	for(var i=0;i<this.pool.length;i++){
-		if(this.pool[i] != undefined){
-			result.push({'key':i, 'data':this.pool[i].data});
-		}
-	}
+	gameObjectPool.forEach(function(obj,key){
+		result.push({'key':key, 'data':obj.packP()});
+	});
 	return result;
 };
 
 // ---- ObjectPool ---- //
 // Limite maximale de socket dans la pool : 10
-const gameSocketPool = new util.ObjectPool(4);
+const gameSocketPool = new util.ObjectPool(10);
 
 
 // ---- Process ---- //
@@ -82,20 +83,29 @@ var io;
 
 var timerUpdateCycle;
 
-var sendUpdate = function(){
-	var array = gameObjectPool.packForUpdate();
-	gameSocketPool.forEach(function(socket,key){
-		if(socket.isMaj){		
-			socket.isMaj = false;
-			socket.updatePos(array);
-		} else {
-			log.conLogWarning('Game - sendUpdate : drop du socket ' + key);
-		}
-	});
+var startUpdateCycle = function(){
+	timerUpdateCycle = setInterval(updateCycle, dTUpdateCycle);
 };
 
-var startUpdateCycle = function(){
-	timerUpdateCycle = setInterval(sendUpdate, dTUpdateCycle);
+var updateCycle = function(){
+	// Maj des positions
+	gameObjectPool.forEach(function(object,key){
+		// ICI object.P.getPos().x === NaN
+		console.log(object.P.getPos().x);
+		object.stepAnim(timerUpdateCycle);
+		object.P.getVit().set(0,0);
+	});
+
+	// Envoi de la maj
+	var array = gameObjectPool.packForUpdate();
+	gameSocketPool.forEach(function(socket,key){
+		if(socket.isMaj){	
+			socket.isMaj = false;
+			socket.updatePos(array);
+		}/* else {
+			log.conLogWarning('Game - updateCycle : drop du socket ' + key);
+		}*/
+	});
 };
 
 var stopUpdateCycle = function(){
@@ -107,23 +117,28 @@ var initSocket = function(){
 		var clientIp = socket.request.connection.remoteAddress;
 		log.conLog('Game - connection from ' + clientIp);
 
-		socket.on('nouveauJoueur', function(bonhomme, cb){
+		socket.on('nouveauJoueur', function(bonhommeData, cb){
 			// XSS safe
-			bonhomme.nom = ent.encode(bonhomme.nom);
+			bonhommeData.nom = ent.encode(bonhommeData.nom);
 
 			// Gestion des erreurs
-			if(bonhomme.nom === undefined || bonhomme.nom.length === 0){
-				cb('erreur');
+			if(bonhommeData.nom === undefined || bonhommeData.nom.length === 0){
+				cb('erreur');				
+				log.conLogWarning('nom Error');
 				return;
 			}
 
-			log.conLog('Game - nouveauJoueur : '+bonhomme.nom);
+			log.conLog('Game - nouveauJoueur : '+bonhommeData.nom);
 
 			// Ajout de l'objet à la pool
-			var key = gameObjectPool.add(bonhomme);
+			var jaque = new gameObjects.Bonhomme();
+			jaque.unpack(bonhommeData);
+
+			var key = gameObjectPool.add(jaque);
 			// Erreur
 			if(key instanceof Error){
 				cb('erreur');
+				log.conLogWarning('key Error');
 				return;
 			}
 
@@ -133,6 +148,7 @@ var initSocket = function(){
 			if(sockKey instanceof Error){
 				gameObjectPool.remove(key);
 				cb('erreur');
+				log.conLogWarning('sockKey Error');
 				return;
 			}
 
@@ -141,12 +157,15 @@ var initSocket = function(){
 			cb(key);
 
 			// Socket
+			socket.bonhomme = jaque;
 			socket.key = key;
 			socket.sockKey = sockKey;
 			socket.isMaj = true;
 			socket.updatePos = function(objectsUpdated){
 				socket.emit('reqUpdatePos', objectsUpdated, function(data){
-					gameObjectPool.updateData(key,data);
+					var dir = new util.Vector2D();
+					socket.bonhomme.P.getVit().setFromVect(dir);
+					socket.bonhomme.P.getVit().setRayonTo(socket.bonhomme.vitMax);
 					socket.isMaj = true;
 				});
 			};
@@ -154,7 +173,7 @@ var initSocket = function(){
 			socket.emit('initGame', {'settings':gameSettings, 'pool':gameObjectPool.pack()}, function(){
 				log.conLog('Game - initGame effectué: '+socket.key);
 			});
-			socket.broadcast.emit('newObject', {'key':key, 'data':bonhomme});
+			socket.broadcast.emit('newObject', {'key':key, 'data':bonhommeData});
 
 //			// TEMPORAIRE
 //			socket.on('newObject', function(object,cb){
