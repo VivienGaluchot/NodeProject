@@ -60,7 +60,7 @@ const gameSocketPool = new util.ObjectPool(10);
 		Envoi l'etat du jeu au client
 	- newObject : {'key':key, 'data':data}
 		Objet a ajouter a la pool 
-	- reqUpdatePos : [{'key':key, 'data':data},...], cb(data)
+	- reqUpdatePos : null, cb({'mov':movDir.pack(),'look':lookDir.pack()})
 		Demande une mise a jour de la position
 	- updateObjects : [{'key':key, 'data':data},...]
 		Informe de la mise a jour de plusieurs objets
@@ -159,12 +159,12 @@ var initSocket = function(){
 			socket.sockKey = sockKey;
 			socket.isMaj = true;
 			socket.updatePos = function(objectsUpdated){
+				//data : {'mov':movDir.pack(),'look':lookDir.pack()}
 				socket.emit('reqUpdatePos', objectsUpdated, function(data){
-					var dir = new util.Vector2D();
-					dir.unpack(data);
 					var jaque = gameObjectPool.get(socket.key);
-					jaque.P.getVit().setFromVect(dir);
+					jaque.P.getVit().unpack(data.mov);
 					jaque.P.getVit().setRayonTo(jaque.vitMax);
+					jaque.P.orientVector.unpack(data.look);
 					socket.isMaj = true;
 				});
 			};

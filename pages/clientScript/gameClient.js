@@ -64,7 +64,7 @@ var gameSocket = null;
 		Envoi l'etat du jeu au client
 	- newObject : {'key':key, 'data':data}
 		Objet a ajouter a la pool 
-	- reqUpdatePos : null, cb(data)
+	- reqUpdatePos : null, cb({'mov':movDir.pack(),'look':lookDir.pack()})
 		Demande une mise a jour de la position
 	- updateObjects : [{'key':key, 'data':data},...]
 		Informe de la mise a jour de plusieurs objets
@@ -150,7 +150,7 @@ var initGameSocket = function(){
 	};
 
 	gameSocket.on('reqUpdatePos', function(objs,cb) {
-		cb(movDir.pack());
+		cb({'mov':movDir.pack(),'look':yourBonhomme.P.orientVector.pack()});
 		for(var i=0;i<objs.length;i++){
 			updateObject(objs[i]);
 		}
@@ -213,7 +213,10 @@ var keyRightDown = false;
 var keyDownDown = false;
 var keyLeftDown = false;
 
+var mouseX;
+var mouseY;
 var movDir = new Vector2D(0,0);
+var lookDir = new Vector2D(0,0);
 
 var toucheDown = function(event){
 	if(yourBonhomme === null)
@@ -271,9 +274,10 @@ var mouseEvent = function(event){
 	if(yourBonhomme === null)
 		return;
 	var rect = gameCanvas.element.getBoundingClientRect();
-	var mouseX = event.clientX - rect.left;
-	var mouseY = event.clientY - rect.top;
+	mouseX = event.clientX - rect.left;
+	mouseY = event.clientY - rect.top;
 	yourBonhomme.lookTo(mouseX,mouseY);
+	lookDir.setFromVect(yourBonhomme.P.orientVector);
 };
 
 var clickEvent = function(event){

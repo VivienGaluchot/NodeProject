@@ -12,18 +12,17 @@ var Bonhomme = function(){
 	P.orientVectorSize = 20;
 
 	// mouse tracking
-	this.mouseX = 0;
-	this.mouseY = 0;
 	this.lookTo = function(x,y){
-		this.mouseX = x;
-		this.mouseY = y;
+		P.orientToThePoint(x,y);
 	};
 
 	this.stepAnim = function(t){
 		P.stepAnim(t);
 
-		if(this === yourBonhomme)
-			P.orientToThePoint(this.mouseX,this.mouseY);
+		if(this===yourBonhomme){
+			yourBonhomme.lookTo(mouseX,mouseY);
+			lookDir.setFromVect(yourBonhomme.P.orientVector);
+		}
 
 		var temp = this.size/2;
 		if(P.getPos().x <= temp) P.getPos().x = temp;
@@ -63,6 +62,7 @@ var Bonhomme = function(){
 		this.P.unpack(obj);
 	};
 };
+
 
 var Balle = function(){
 	this.vitMax = 1;
