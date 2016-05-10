@@ -191,6 +191,10 @@ button:active{
 	box-sizing: border-box;
 }
 
+#gameCanvas{
+	border: 1px gray solid;
+}
+
 /* Version mobile */
 
 @media (max-width: 900px) {

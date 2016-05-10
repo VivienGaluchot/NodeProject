@@ -19,6 +19,12 @@ var canvasObj = function(id){
 		window.requestAnimationFrame(this.draw);
 	};
 
+	this.setSize = function(size){
+		this.element.style.width = size.width + "px";
+		this.element.style.height = size.height + "px";
+		this.resize();
+	};
+
 	// Retina fix
 	this.resize = function(){
 		var dpr = window.devicePixelRatio || 1;
@@ -30,7 +36,7 @@ var canvasObj = function(id){
 		var ratio = dpr/bsr;
 		this.element.width = this.element.offsetWidth * ratio;
 		this.element.height = this.element.offsetHeight * ratio;
-		this.element.getContext("2d").setTransform(ratio, 0, 0, ratio, 0, 0);
+		this.ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
 
 		this.width = this.element.width;
 		this.height = this.element.height;

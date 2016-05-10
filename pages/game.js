@@ -37,7 +37,7 @@ p.section = { toString: function(){
 	var response = new encap().
 	h2('Espace de jeu').
 	raw('<p><b>Informations : </b><span id="gameInfo"> - </span></p>').
-	raw('<canvas id="gameCanvas" class="graph" width="840px" height="100px" style="height:300px;"></canvas>').
+	raw('<canvas id="gameCanvas" class="graph" width="100px" height="100px" style="height:300px;"></canvas>').
 	h2('En construction').
 	p('Dubordel').	
 	p('<canvas id="pingGraph" class="graph" width="840px" height="100px" style="height:100px;"></canvas>').

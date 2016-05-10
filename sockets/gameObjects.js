@@ -8,18 +8,35 @@
 
 const util = require('./util');
 
+var mapSize = {'width':0,'height':0};
+var bounds = {'minX':0,'maxX':0,'minY':0,'maxY':0};
+var bonhommeSize = 10;
+
+module.exports.setBounds = function(size){
+	mapSize.width = size.width;
+	mapSize.height = size.height;
+	bounds.minX = bonhommeSize/2;
+	bounds.minY = bonhommeSize/2;
+	bounds.maxX = size.width - bonhommeSize/2;
+	bounds.maxY = size.height - bonhommeSize/2;
+};
+
 var Bonhomme = function(){
 	this.nom = null;
 	this.vitMax = 0.2;
-	this.size = 15;
+	this.size = bonhommeSize;
 	this.type = 'Bonhomme';
 	
 	// point
 	var P = new util.animOrientedPoint();
 	this.P = P;
 
-	// en rad
 	P.orientVectorSize = 20;
+	this.setSize = function(size){
+		this.size = size;
+		P.animPoint.size = size;
+	};
+	this.setSize(bonhommeSize);
 
 	// mouse tracking
 	this.mouseX = 0;
@@ -29,17 +46,23 @@ var Bonhomme = function(){
 		this.mouseY = y;
 	};
 
+	this.colide = function(){
+		// X
+		if(P.getPos().x < bounds.minX)
+			P.getPos().x = bounds.minX;
+		else if(P.getPos().x > bounds.maxX)
+			P.getPos().x = bounds.maxX;
+		// Y
+		if(P.getPos().y < bounds.minY)
+			P.getPos().y = bounds.minY;
+		else if(P.getPos().y > bounds.maxY)
+			P.getPos().y = bounds.maxY;
+	};
+
 	this.stepAnim = function(t){
 		P.stepAnim(t);
 
-		// TODO
-/*		var temp = this.size/2;
-		if(P.getPos().x <= temp) P.getPos().x = temp;
-		if(P.getPos().y <= temp) P.getPos().y = temp;
-		var temp2 = gameCanvas.width - temp;
-		if(P.getPos().x > temp2) P.getPos().x = temp2;
-		var temp3 = gameCanvas.height - temp;
-		if(P.getPos().y > temp3) P.getPos().y = temp3;*/
+		this.colide();
 	};
 
 	this.drawOn = function(ctx){
@@ -53,7 +76,7 @@ var Bonhomme = function(){
 	};
 
 	this.pack = function(){
-		return {'type':'Bonhomme','nom':this.nom,'data':this.P.pack()};
+		return {'type':'Bonhomme','nom':this.nom,'data':this.P.pack(),'size':this.size};
 	};
 
 	this.unpack = function(obj){
@@ -61,7 +84,10 @@ var Bonhomme = function(){
 			this.nom = obj.nom;
 		if(obj.data !== undefined)
 			this.P.unpack(obj.data);
+		if(obj.size !== undefined)
+			this.setSize(obj.size);
 	};
+
 
 	this.packP = function(){
 		return this.P.pack();

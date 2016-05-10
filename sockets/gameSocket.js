@@ -16,6 +16,9 @@ var dTUpdateCycle = 80;
 
 var gameSettings = {'mapSize':mapSize,'dTUpdateCycle':dTUpdateCycle};
 
+// Collisions
+gameObjects.setBounds(mapSize);
+
 
 // ---- ObjectPool ---- //
 // Limite maximale d'objets dans la pool : 1000
@@ -70,7 +73,7 @@ const gameSocketPool = new util.ObjectPool(10);
 		Informe de la déconnection d'un client
 
 	Client -> Serveur
-	- nouveauJoueur : bonhomme, cb(key/'erreur')
+	- nouveauJoueur : pseudo, cb(key/'erreur')
 		Informe le serveur de son entré en jeu
 	- fire
 		// TODO
@@ -111,26 +114,30 @@ var stopUpdateCycle = function(){
 	clearInterval(timerUpdateCycle);
 };
 
+// Socket
+
 var initSocket = function(){
 	gameIo.on('connection',	function(socket){
 		var clientIp = socket.request.connection.remoteAddress;
 		log.conLog('Game - connection from ' + clientIp);
 
-		socket.on('nouveauJoueur', function(bonhommeData, cb){
+		socket.on('nouveauJoueur', function(pseudo, cb){
 			// XSS safe
-			bonhommeData.nom = ent.encode(bonhommeData.nom);
+			pseudo = ent.encode(pseudo);
 
 			// Gestion des erreurs
-			if(bonhommeData.nom === undefined || bonhommeData.nom.length === 0){
+			if(pseudo === undefined || pseudo.length === 0){
 				cb('erreur');				
 				log.conLogWarning('nom Error');
 				return;
 			}
 
-			log.conLog('Game - nouveauJoueur : '+bonhommeData.nom);
+			log.conLog('Game - nouveauJoueur : '+pseudo);
 
 			var jaque = new gameObjects.Bonhomme();
-			jaque.unpack(bonhommeData);
+			jaque.nom = pseudo;
+			jaque.P.setPos(mapSize.width/2,mapSize.height/2);
+
 			// Ajout de l'objet à la pool
 			var key = gameObjectPool.add(jaque);
 			// Erreur
@@ -172,7 +179,7 @@ var initSocket = function(){
 			socket.emit('initGame', {'settings':gameSettings, 'pool':gameObjectPool.pack()}, function(){
 				log.conLog('Game - initGame effectué: '+socket.key);
 			});
-			socket.broadcast.emit('newObject', {'key':key, 'data':bonhommeData});
+			socket.broadcast.emit('newObject', {'key':key, 'data':jaque.pack()});
 
 //			// TEMPORAIRE
 //			socket.on('newObject', function(jaque,cb){

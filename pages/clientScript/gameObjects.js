@@ -1,15 +1,16 @@
 var Bonhomme = function(){
 	this.nom = null;
-	this.vitMax = 0.2;
-	this.size = 15;
 	this.type = 'Bonhomme';
 	
 	// point
 	var P = new animOrientedPoint();
 	this.P = P;
 
-	// en rad
 	P.orientVectorSize = 20;
+	this.setSize = function(size){
+		this.size = size;
+		P.animPoint.size = size;
+	};
 
 	// mouse tracking
 	this.lookTo = function(x,y){
@@ -24,13 +25,13 @@ var Bonhomme = function(){
 			lookDir.setFromVect(yourBonhomme.P.orientVector);
 		}
 
-		var temp = this.size/2;
+/*		var temp = this.size/2;
 		if(P.getPos().x <= temp) P.getPos().x = temp;
 		if(P.getPos().y <= temp) P.getPos().y = temp;
 		var temp2 = gameCanvas.width - temp;
 		if(P.getPos().x > temp2) P.getPos().x = temp2;
 		var temp3 = gameCanvas.height - temp;
-		if(P.getPos().y > temp3) P.getPos().y = temp3;
+		if(P.getPos().y > temp3) P.getPos().y = temp3;*/
 	};
 
 	this.drawOn = function(ctx){
@@ -44,7 +45,7 @@ var Bonhomme = function(){
 	};
 
 	this.pack = function(){
-		return {'type':'Bonhomme','nom':this.nom,'data':this.P.pack()};
+		return {'type':'Bonhomme','nom':this.nom,'data':this.P.pack(),'size':this.size};
 	};
 
 	this.unpack = function(obj){
@@ -52,6 +53,8 @@ var Bonhomme = function(){
 			this.nom = obj.nom;
 		if(obj.data !== undefined)
 			this.P.unpack(obj.data);
+		if(obj.size !== undefined)
+			this.setSize(obj.size);
 	};
 
 	this.packP = function(){

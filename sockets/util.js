@@ -120,6 +120,7 @@ var animPoint = function(){
 		this.pos.unpack(obj[0]);
 		this.vit.unpack(obj[1]);
 		this.acc.unpack(obj[2]);
+		return true;
 	};
 };
 
@@ -172,6 +173,7 @@ var animOrientedPoint = function(){
 			return new Error('obj undefined');
 		this.animPoint.unpack(obj[0]);
 		this.orientVector.unpack(obj[1]);
+		return true;
 	};
 };
 

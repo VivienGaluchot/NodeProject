@@ -11,8 +11,9 @@ var dTUpdateCycle = null;
 
 var setSettings = function(settings){
 	mapSize = settings.mapSize;
+	gameCanvas.setSize(mapSize);
 	dTUpdateCycle = settings.dTUpdateCycle;
-}
+};
 
 // ---- Display ---- //
 
@@ -74,7 +75,7 @@ var gameSocket = null;
 		Informe de la déconnection d'un client
 
 	Client -> Serveur
-	- nouveauJoueur : bonhomme, cb(key/'erreur')
+	- nouveauJoueur : pseudo, cb(key/'erreur')
 		Informe le serveur de son entré en jeu
 	- fire
 		// TODO
@@ -184,11 +185,7 @@ var setYourBonhomme = function(str){
 	if(pseudo === undefined)
 		return;
 
-	var jaque = new Bonhomme();
-	jaque.nom = pseudo;
-	jaque.P.setPos(100,100);
-
-	gameSocket.emit('nouveauJoueur', jaque.pack(), function(rep){
+	gameSocket.emit('nouveauJoueur', pseudo, function(rep){
 		if(rep === 'erreur'){
 			alert('Erreur');
 		}
