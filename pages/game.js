@@ -29,15 +29,15 @@ p.title = 'Jouer';
 
 p.header = { toString: function(){
 	var response = new encap().
-	h1('Jouer au jeu des familles');
+	h1('Jouer');
 	return response.content;
 }};
 
 p.section = { toString: function(){
 	var response = new encap().
-	h2('Espace de jeu').
-	raw('<p><b>Informations : </b><span id="gameInfo"> - </span></p>').
-	raw('<canvas id="gameCanvas" class="graph" width="100px" height="100px" style="height:300px;"></canvas>').
+	h2('C\'est ici qu\'est le jeu').
+	raw('<div class="gameContainer"><canvas id="gameCanvas" class="graph" width="100px" height="100px"></canvas></div>').
+	raw('<div class="gameInfo"><b>Informations : </b><div id="infoConnectedState"> - </div><div id="infoPlayerList"> - </div></div>').
 	h2('En construction').
 	p('Dubordel').	
 	p('<canvas id="pingGraph" class="graph" width="840px" height="100px" style="height:100px;"></canvas>').

@@ -12,7 +12,7 @@ const gameObjects = require('./gameObjects');
 // ---- Settings ---- //
 
 var mapSize = {'width': 512, 'height': 512};
-var dTUpdateCycle = 80;
+var dTUpdateCycle = 50;
 
 var gameSettings = {'mapSize':mapSize,'dTUpdateCycle':dTUpdateCycle};
 
@@ -93,9 +93,15 @@ var startUpdateCycle = function(){
 var updateCycle = function(){
 	// Maj des positions
 	gameObjectPool.forEach(function(object,key){
-		//log.conLog("tic "+object.P.getVit().x+","+object.P.getVit().y);
 		object.stepAnim(dTUpdateCycle);
-		object.P.getVit().set(0,0);
+
+		if(object.type === "Bonhomme")
+			object.P.getVit().set(0,0);
+
+		if(object.toDelete === true){
+			gameIo.emit('deleteObject', key);
+			gameObjectPool.remove(key);
+		}
 	});
 
 	// Envoi de la maj
@@ -136,6 +142,7 @@ var initSocket = function(){
 
 			var jaque = new gameObjects.Bonhomme();
 			jaque.nom = pseudo;
+			jaque.score = 10;
 			jaque.P.setPos(mapSize.width/2,mapSize.height/2);
 
 			// Ajout de l'objet à la pool
@@ -180,6 +187,13 @@ var initSocket = function(){
 				log.conLog('Game - initGame effectué: '+socket.key);
 			});
 			socket.broadcast.emit('newObject', {'key':key, 'data':jaque.pack()});
+
+			socket.on('fire', function(data,cb){
+				var balle = gameObjectPool.get(socket.key).fire();
+				var key = gameObjectPool.add(balle);
+				if(!(key instanceof Error))
+					gameIo.emit('newObject', {'key':key, 'data':balle.pack()});
+			});
 
 //			// TEMPORAIRE
 //			socket.on('newObject', function(jaque,cb){

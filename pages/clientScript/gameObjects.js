@@ -1,6 +1,7 @@
 var Bonhomme = function(){
 	this.nom = null;
 	this.type = 'Bonhomme';
+	this.score = 0;
 	
 	// point
 	var P = new animOrientedPoint();
@@ -24,14 +25,6 @@ var Bonhomme = function(){
 			yourBonhomme.lookTo(mouseX,mouseY);
 			lookDir.setFromVect(yourBonhomme.P.orientVector);
 		}
-
-/*		var temp = this.size/2;
-		if(P.getPos().x <= temp) P.getPos().x = temp;
-		if(P.getPos().y <= temp) P.getPos().y = temp;
-		var temp2 = gameCanvas.width - temp;
-		if(P.getPos().x > temp2) P.getPos().x = temp2;
-		var temp3 = gameCanvas.height - temp;
-		if(P.getPos().y > temp3) P.getPos().y = temp3;*/
 	};
 
 	this.drawOn = function(ctx){
@@ -45,7 +38,7 @@ var Bonhomme = function(){
 	};
 
 	this.pack = function(){
-		return {'type':'Bonhomme','nom':this.nom,'data':this.P.pack(),'size':this.size};
+		return {'type':'Bonhomme','nom':this.nom,'data':this.P.pack(),'size':this.size,'score':this.score};
 	};
 
 	this.unpack = function(obj){
@@ -55,7 +48,10 @@ var Bonhomme = function(){
 			this.P.unpack(obj.data);
 		if(obj.size !== undefined)
 			this.setSize(obj.size);
+		if(obj.score !== undefined)
+			this.score = obj.score;
 	};
+
 
 	this.packP = function(){
 		return this.P.pack();
@@ -86,18 +82,6 @@ var Balle = function(){
 		ctx.moveTo(P.getPos().x,P.getPos().y);
 		ctx.lineTo(P.getPos().x+this.trainee.x,P.getPos().y+this.trainee.y);
 		ctx.stroke();
-	};
-
-	this.colide = function(){
-		var temp = this.size/2;
-		if(P.getPos().x <= temp || P.getPos().y <= temp)
-			this.toDelete = true;
-		var temp2 = gameCanvas.width - temp;
-		if(P.getPos().x > temp2)
-			this.toDelete = true;
-		var temp3 = gameCanvas.height - temp;
-		if(P.getPos().y > temp3)
-			this.toDelete = true;
 	};
 
 	this.stepAnim = function(t){ // t en ms

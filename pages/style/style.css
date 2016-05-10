@@ -125,6 +125,10 @@ section a:hover{
 	text-decoration: underline;
 }
 
+section table{
+	color: rgb(39, 90, 125);
+}
+
 footer{
 	border-top: 5px solid rgb(4, 24, 38);
 	padding: 15px;
@@ -193,6 +197,19 @@ button:active{
 
 #gameCanvas{
 	border: 1px gray solid;
+	display: inline-block;
+}
+
+.gameContainer{
+	text-align: center;
+	display: inline-block;
+}
+
+.gameInfo{
+	text-align: left;
+	display: inline-block;
+	vertical-align: top;
+	padding-left: 10px;
 }
 
 /* Version mobile */

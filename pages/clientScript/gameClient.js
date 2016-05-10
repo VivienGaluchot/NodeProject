@@ -17,10 +17,35 @@ var setSettings = function(settings){
 
 // ---- Display ---- //
 
+// Informationss
+var infoConnectedState = null;
+var infoPlayerList = null;
+
+var updatePlayerList = function(){
+	var temp;
+	var n = 0;
+	var list = "";
+	for(var i=0;i<gameObjectPool.length;i++){
+		temp = gameObjectPool[i];
+		if(temp !== undefined && temp.type === 'Bonhomme'){
+			n++;
+			list += "<tr><td>"+temp.nom+"</td><td><b>"+temp.score+"</b></td></tr>";
+		}
+	}
+	infoPlayerList.innerHTML = "<br><b>" + n + "joueur";
+	if(n>1)	infoPlayerList.innerHTML += "s";
+	infoPlayerList.innerHTML += " :</b><table>"+list+"</table>";
+};
+
+// Canvas
 var gameCanvas = new canvasObj('gameCanvas');
+
 var lastDraw = null;
 
 addLoadEvent(function(){
+	infoConnectedState = document.getElementById('infoConnectedState');
+	infoPlayerList = document.getElementById('infoPlayerList');
+
 	gameCanvas.load();
 
 	initGameSocket();
@@ -84,11 +109,10 @@ var gameSocket = null;
 */
 
 var initGameSocket = function(){
-	var infoElement = document.getElementById('gameInfo');
 	gameSocket = io('/game');
 
 	gameSocket.on('connect',function(){
-		infoElement.innerHTML = 'Connecté au serveur';
+		infoConnectedState.innerHTML = 'Connecté au serveur';
 		
 		setYourBonhomme('Entrez votre pseudo');
 	});
@@ -104,7 +128,7 @@ var initGameSocket = function(){
 
 		for(var i=0;i<pool.length;i++){
 			var obj = pool[i];
-			if(obj !== undefined){
+			if(obj !== undefined && obj !== null){
 				if(obj.type === 'Bonhomme'){
 					var bonhomme = new Bonhomme();
 					bonhomme.unpack(obj);
@@ -124,6 +148,9 @@ var initGameSocket = function(){
 		// Debut du dessin
 		lastDraw = Date.now();
 		gameCanvas.startDraw();
+
+		// Update info
+		updatePlayerList();
 	});
 
 	gameSocket.on('newObject', function(objet) {
@@ -140,6 +167,9 @@ var initGameSocket = function(){
 		} /*else {
 			// TODO gestion d'erreur ?
 		}*/
+
+		// Update info
+		updatePlayerList();
 	});
 
 	var updateObject = function(obj) {
@@ -163,25 +193,34 @@ var initGameSocket = function(){
 	});
 
 	gameSocket.on('deleteObject', function(key){
+		console.log('deleteObject');
 		delete gameObjectPool[key];
 	});
 
 	gameSocket.on('departDuJoueur', function(key){
 		delete gameObjectPool[key];
+		// Update info
+		updatePlayerList();
 	});
 
 	gameSocket.on('disconnect',function(){
-		infoElement.innerHTML = 'Perte de la connexion au serveur';
+		infoConnectedState.innerHTML = 'Perte de la connexion au serveur';
 		var gameObjectPool = [];
 		var lastDraw = null;
 
 		var yourBonhomme = null;
 		var yourBonhommeKey = null;
+
+		// Update info
+		updatePlayerList();
 	});
 };
 
+var pseudo = null;
 var setYourBonhomme = function(str){
-	var pseudo = prompt(str);
+	if(pseudo === null)
+		pseudo = prompt(str);
+	
 	if(pseudo === undefined)
 		return;
 
@@ -278,10 +317,10 @@ var mouseEvent = function(event){
 };
 
 var clickEvent = function(event){
-/*	if(yourBonhomme === null)
-		return;
-	yourBonhomme.fire();*/
+	gameSocket.emit('fire');
 };
+
+// TODO : smooth binding
 
 var bindKey = function(up,right,down,left){
 	movDir.set(0,0);

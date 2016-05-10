@@ -9,16 +9,21 @@
 const util = require('./util');
 
 var mapSize = {'width':0,'height':0};
-var bounds = {'minX':0,'maxX':0,'minY':0,'maxY':0};
+var bonhommeBounds = {'minX':0,'maxX':0,'minY':0,'maxY':0};
+var balleBounds = {'minX':0,'maxX':0,'minY':0,'maxY':0};
 var bonhommeSize = 10;
 
 module.exports.setBounds = function(size){
 	mapSize.width = size.width;
 	mapSize.height = size.height;
-	bounds.minX = bonhommeSize/2;
-	bounds.minY = bonhommeSize/2;
-	bounds.maxX = size.width - bonhommeSize/2;
-	bounds.maxY = size.height - bonhommeSize/2;
+	bonhommeBounds.minX = bonhommeSize/2;
+	bonhommeBounds.minY = bonhommeSize/2;
+	bonhommeBounds.maxX = size.width - bonhommeSize/2;
+	bonhommeBounds.maxY = size.height - bonhommeSize/2;
+	balleBounds.minX = 0;
+	balleBounds.minY = 0;
+	balleBounds.maxX = size.width;
+	balleBounds.maxY = size.height;
 };
 
 var Bonhomme = function(){
@@ -26,6 +31,8 @@ var Bonhomme = function(){
 	this.vitMax = 0.2;
 	this.size = bonhommeSize;
 	this.type = 'Bonhomme';
+	this.score = 0;
+	this.toDelete = false;
 	
 	// point
 	var P = new util.animOrientedPoint();
@@ -48,15 +55,15 @@ var Bonhomme = function(){
 
 	this.colide = function(){
 		// X
-		if(P.getPos().x < bounds.minX)
-			P.getPos().x = bounds.minX;
-		else if(P.getPos().x > bounds.maxX)
-			P.getPos().x = bounds.maxX;
+		if(P.getPos().x < bonhommeBounds.minX)
+			P.getPos().x = bonhommeBounds.minX;
+		else if(P.getPos().x > bonhommeBounds.maxX)
+			P.getPos().x = bonhommeBounds.maxX;
 		// Y
-		if(P.getPos().y < bounds.minY)
-			P.getPos().y = bounds.minY;
-		else if(P.getPos().y > bounds.maxY)
-			P.getPos().y = bounds.maxY;
+		if(P.getPos().y < bonhommeBounds.minY)
+			P.getPos().y = bonhommeBounds.minY;
+		else if(P.getPos().y > bonhommeBounds.maxY)
+			P.getPos().y = bonhommeBounds.maxY;
 	};
 
 	this.stepAnim = function(t){
@@ -76,7 +83,7 @@ var Bonhomme = function(){
 	};
 
 	this.pack = function(){
-		return {'type':'Bonhomme','nom':this.nom,'data':this.P.pack(),'size':this.size};
+		return {'type':'Bonhomme','nom':this.nom,'data':this.P.pack(),'size':this.size,'score':this.score};
 	};
 
 	this.unpack = function(obj){
@@ -86,8 +93,9 @@ var Bonhomme = function(){
 			this.P.unpack(obj.data);
 		if(obj.size !== undefined)
 			this.setSize(obj.size);
+		if(obj.score !== undefined)
+			this.score = obj.score;
 	};
-
 
 	this.packP = function(){
 		return this.P.pack();
@@ -96,18 +104,28 @@ var Bonhomme = function(){
 	this.unpackP = function(obj){
 		this.P.unpack(obj);
 	};
+
+	this.fire = function(){
+		var balle = new Balle();
+		balle.P.getPos().x = P.getPos().x + P.orientVector.x;
+		balle.P.getPos().y = P.getPos().y + P.orientVector.y;
+		balle.P.getVit().setFromVect(P.orientVector);
+		balle.P.getVit().setRayonTo(balle.vitMax);
+		return balle;
+	};
 };
 
 var Balle = function(){
-	this.vitMax = 1;
+	this.vitMax = 0.5;
 	this.size = 6;
 	this.type = 'Balle';
+	this.toDelete = false;
 
 	// point
 	var P = new util.animPoint();
 	this.P = P;
 	/// affichage de la trace
-	this.trainee = new Vector2D();
+	this.trainee = new util.Vector2D();
 
 	this.drawOn = function(ctx){		
 		ctx.lineWidth = 3;
@@ -119,17 +137,25 @@ var Balle = function(){
 		ctx.stroke();
 	};
 
-	// TODO
-	this.colide = function(){/*
-		var temp = this.size/2;
-		if(P.getPos().x <= temp || P.getPos().y <= temp)
+	this.colide = function(){
+		// X
+		if(P.getPos().x < balleBounds.minX){
 			this.toDelete = true;
-		var temp2 = gameCanvas.width - temp;
-		if(P.getPos().x > temp2)
+			return;
+		}
+		else if(P.getPos().x > balleBounds.maxX){
 			this.toDelete = true;
-		var temp3 = gameCanvas.height - temp;
-		if(P.getPos().y > temp3)
-			this.toDelete = true;*/
+			return;
+		}
+		// Y
+		else if(P.getPos().y < balleBounds.minY){
+			this.toDelete = true;
+			return;
+		}
+		else if(P.getPos().y > balleBounds.maxY){
+			this.toDelete = true;
+			return;
+		}
 	};
 
 	this.stepAnim = function(t){ // t en ms
@@ -138,6 +164,8 @@ var Balle = function(){
 		this.trainee.setRayonTo(this.size);
 
 		P.stepAnim(t);
+
+		this.colide();
 	};
 
 	this.pack = function(){
