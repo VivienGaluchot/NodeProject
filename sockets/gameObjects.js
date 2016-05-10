@@ -111,15 +111,31 @@ var Bonhomme = function(){
 		balle.P.getPos().y = P.getPos().y + P.orientVector.y;
 		balle.P.getVit().setFromVect(P.orientVector);
 		balle.P.getVit().setRayonTo(balle.vitMax);
+		balle.dad = this;
 		return balle;
+	};
+
+	this.isHitBy = function(object){
+		var minX = P.getPos().x - this.size/2;
+		var minY = P.getPos().y - this.size/2;
+		var maxX = P.getPos().x + this.size/2;
+		var maxY = P.getPos().y + this.size/2;
+		var pos = object.P.getPos();
+		return pos.x > minX && pos.x < maxX && pos.y > minY && pos.y < maxY;
 	};
 };
 
+/*
+	tic = 10ms
+	largeur d'un péon : 10px
+	vitMax < 10px / 10ms = 1
+*/
 var Balle = function(){
 	this.vitMax = 0.5;
 	this.size = 6;
 	this.type = 'Balle';
 	this.toDelete = false;
+	this.dad = null;
 
 	// point
 	var P = new util.animPoint();

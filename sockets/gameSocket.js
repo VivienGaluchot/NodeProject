@@ -12,9 +12,12 @@ const gameObjects = require('./gameObjects');
 // ---- Settings ---- //
 
 var mapSize = {'width': 512, 'height': 512};
-var dTUpdateCycle = 50;
+// Cycles d'animation de 10ms
+var dTComputeCyle = 10;
+// Update tout les 5 cycles
+var periodUpdate = 5;
 
-var gameSettings = {'mapSize':mapSize,'dTUpdateCycle':dTUpdateCycle};
+var gameSettings = {'mapSize':mapSize,'dTUpdateCycle':dTComputeCyle*periodUpdate};
 
 // Collisions
 gameObjects.setBounds(mapSize);
@@ -87,33 +90,53 @@ var io;
 var timerUpdateCycle;
 
 var startUpdateCycle = function(){
-	timerUpdateCycle = setInterval(updateCycle, dTUpdateCycle);
+	timerUpdateCycle = setInterval(updateCycle, dTComputeCyle);
 };
 
+var nCycleCounter = 0;
 var updateCycle = function(){
+	nCycleCounter ++;
 	// Maj des positions
 	gameObjectPool.forEach(function(object,key){
-		object.stepAnim(dTUpdateCycle);
+		object.stepAnim(dTComputeCyle);
 
-		if(object.type === "Bonhomme")
+		// Arret du bonhomme avant l'envoi
+		if(nCycleCounter >= periodUpdate && object.type === "Bonhomme")
 			object.P.getVit().set(0,0);
 
+		// test hit
+		if(object.type === "Balle"){
+			gameObjectPool.forEach(function(object2,key2){
+				if(object2.type === "Bonhomme" && key !== key2 && object.toDelete === false && object2.isHitBy(object)){
+					// Hit !
+					object.toDelete = true;
+					object.dad.score++;
+				}
+			});
+		}
+	});
+
+	gameObjectPool.forEach(function(object,key){
 		if(object.toDelete === true){
 			gameIo.emit('deleteObject', key);
 			gameObjectPool.remove(key);
 		}
 	});
 
-	// Envoi de la maj
-	var array = gameObjectPool.packForUpdate();
-	gameSocketPool.forEach(function(socket,key){
-		if(socket.isMaj){	
-			socket.isMaj = false;
-			socket.updatePos(array);
-		}/* else {
-			log.conLogWarning('Game - updateCycle : drop du socket ' + key);
-		}*/
-	});
+	if(nCycleCounter >= periodUpdate){
+		// Envoi de la maj
+		var array = gameObjectPool.packForUpdate();
+		gameSocketPool.forEach(function(socket,key){
+			if(socket.isMaj){	
+				socket.isMaj = false;
+				socket.updatePos(array);
+			}/* else {
+				log.conLogWarning('Game - updateCycle : drop du socket ' + key);
+			}*/
+		});
+
+		nCycleCounter = 0
+	}
 };
 
 var stopUpdateCycle = function(){
@@ -188,6 +211,7 @@ var initSocket = function(){
 			});
 			socket.broadcast.emit('newObject', {'key':key, 'data':jaque.pack()});
 
+			// TODO : mettre ca dans le cycle d'update
 			socket.on('fire', function(data,cb){
 				var balle = gameObjectPool.get(socket.key).fire();
 				var key = gameObjectPool.add(balle);
