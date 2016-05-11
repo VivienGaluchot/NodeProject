@@ -175,10 +175,7 @@ var initGameSocket = function(){
 
 	var updateObject = function(obj) {
 		if(gameObjectPool[obj.key] !== undefined)
-			gameObjectPool[obj.key].unpack(obj.data);
-/*		if(gameObjectPool[key].type === 'Bonhomme'){
-			gameObjectPool[key].P.setBreak(dTUpdateCycle);
-		}*/
+			gameObjectPool[obj.key].smoothUnpack(obj.data,dTUpdateCycle);
 	};
 
 	gameSocket.on('reqUpdatePos', function(objs,cb) {

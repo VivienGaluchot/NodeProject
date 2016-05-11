@@ -115,51 +115,38 @@ var animPoint = function(){
 	this.updateVit = null;
 	this.updatePos = null;
 
-	// l'objet se stoppe en t ms
-	this.setBreak = function(t){
-		if(t >= 0) {
-			self.acc.x = -self.vit.x / t;
-			self.acc.y = -self.vit.y / t;
-			var breakingStart = new Vector2D(self.vit.x,self.vit.y);
-			self.updatePos = null;
-			self.updateVit = function(){
-				if((self.vit.x * breakingStart.x < 0) || (self.vit.y * breakingStart.y < 0)){
-					self.vit.set(0,0);
-					self.acc.set(0,0);
-					breakingStart = null;
-					self.updateVit = null;
-				} else {
-					self.vit.x += self.acc.x * t;
-					self.vit.y += self.acc.y * t;
-				}
-			};
-		} else { // Stop
-			self.vit.setFromRad(0,0);
-			self.acc.setFromRad(0,0);
-			self.updateVit = null;
-		}
-	};
-
-	// TODO
 	// l'objet se dirive vers Pf en T ms et arrive avec la vitesse Vf
 	this.goSmoothTo = function(T,Pf,Vf){
 		var traj = computeSmoothTraj(0,T,self.pos,Pf,self.vit,Vf);
-		self.updateVit = null;
+		var elapsed = 0;
 		self.updatePos = function(t){
+			elapsed += t;
+			if(elapsed < T){
+				var pos = traj(elapsed);
+				self.pos.x = pos.x;
+				self.pos.y = pos.y;
+			}
+			else {
+				self.pos.x = Pf.x;
+				self.pos.y = Pf.y;
+				self.vit.x = Vf.x;
+				self.vit.y = Vf.y;
+				self.updatePos = null;
+			}
 		};
 	};
 
 	this.stepAnim = function(t){
-		if(typeof this.updateVit === 'function')
-			this.updateVit(t);
-		else{
-			this.vit.x += this.acc.x * t;
-			this.vit.y += this.acc.y * t;
-		}
-
 		if(typeof this.updatePos === 'function')
-			this.updateVit(t);
+			this.updatePos(t);
 		else{
+			if(typeof this.updateVit === 'function')
+				this.updateVit(t);
+			else{
+				this.vit.x += this.acc.x * t;
+				this.vit.y += this.acc.y * t;
+			}
+
 			this.pos.x += this.vit.x * t;
 			this.pos.y += this.vit.y * t;
 		}
@@ -182,6 +169,18 @@ var animPoint = function(){
 		this.pos.unpack(obj[0]);
 		this.vit.unpack(obj[1]);
 		this.acc.unpack(obj[2]);
+		return true;
+	};
+
+	this.smoothUnpack = function(obj,T){
+		if(obj === undefined || obj[0] === undefined || obj[1] === undefined || T === undefined)
+			return new Error('obj undefined');
+
+		var newPos = new Vector2D(0,0);
+		var newVit = new Vector2D(0,0);
+		newPos.unpack(obj[0]);
+		newVit.unpack(obj[1]);
+		this.goSmoothTo(T,newPos,newVit);
 		return true;
 	};
 };
@@ -243,6 +242,14 @@ var animOrientedPoint = function(){
 		this.orientVector.unpack(obj[1]);
 		return true;
 	};
+
+	this.smoothUnpack = function(obj,T){
+		if(obj === undefined || obj[0] === undefined || obj[1] === undefined)
+			return new Error('obj undefined');
+		this.animPoint.smoothUnpack(obj[0],T);
+		this.orientVector.unpack(obj[1]);
+		return true;
+	};
 };
 
 
@@ -289,19 +296,5 @@ var computeSmoothTraj = function(To,Tf,Po,Pf,Vo,Vf){
 		return P;
 	};
 
-	var vit = function(time){
-		var t = time-To;
-		this.t2 = t*t;
-
-		this.A = {'x':A.x, 'y':A.y};
-		this.B = {'x':B.x, 'y':B.y};
-		this.C = {'x':C.x, 'y':C.y};
-
-		var V = {'x':0, 'y':0};
-		V.x = this.A.x*t2*3 + this.B.x*t*2+ this.C.x;
-		V.y = this.A.y*t2*3 + this.B.y*t*2+ this.C.y;
-		return V;
-	};
-
-	return {'pos':pos ,'vit':vit};
+	return pos;
 };

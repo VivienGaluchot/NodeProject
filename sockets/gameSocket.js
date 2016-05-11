@@ -12,12 +12,15 @@ const gameObjects = require('./gameObjects');
 // ---- Settings ---- //
 
 var mapSize = {'width': 512, 'height': 512};
+
 // Cycles d'animation de 10ms
 var dTComputeCyle = 10;
 // Update tout les 5 cycles
 var periodUpdate = 5;
+// Temps entre deux updates
+var dTUpdateCycle = dTComputeCyle*periodUpdate;
 
-var gameSettings = {'mapSize':mapSize,'dTUpdateCycle':dTComputeCyle*periodUpdate};
+var gameSettings = {'mapSize':mapSize,'dTUpdateCycle':dTUpdateCycle};
 
 // Collisions
 gameObjects.setBounds(mapSize);
@@ -206,11 +209,26 @@ var initSocket = function(){
 			socket.updatePos = function(objectsUpdated){
 				//data : {'mov':movDir.pack(),'look':lookDir.pack()}
 				socket.emit('reqUpdatePos', objectsUpdated, function(data){
-					var jaque = gameObjectPool.get(socket.key);
-					jaque.P.getVit().unpack(data.mov);
-					jaque.P.getVit().setRayonTo(jaque.vitMax);
-					jaque.P.orientVector.unpack(data.look);
 					socket.isMaj = true;
+					var jaque = gameObjectPool.get(socket.key);
+
+					// orient
+					jaque.P.orientVector.unpack(data.look);
+
+					// ou sera jaque la prochaine update ?
+					// nextPoint
+					var nextPoint = new util.animPoint();
+					// pos
+					nextPoint.pos.setFromVect(jaque.P.getPos());
+					// vit
+					nextPoint.vit.unpack(data.mov);
+					if(nextPoint.vit.getRayon() > jaque.vitMax)
+						nextPoint.vit.setRayonTo(jaque.vitMax);
+					// step
+					nextPoint.stepAnim(dTUpdateCycle);
+
+					// fait avencer jaque en suivant une trajectoire lisse
+					jaque.P.animPoint.goSmoothTo(dTUpdateCycle,nextPoint.pos,nextPoint.vit);
 				});
 			};
 

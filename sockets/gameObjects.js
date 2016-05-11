@@ -131,6 +131,23 @@ var Bonhomme = function(){
 			this.score = obj.score;
 	};
 
+	this.smoothUnpack = function(obj,T){
+		if(obj.type !== undefined && obj.type !== "Bonhomme")
+			return new Error("wrong unpack type : "+obj.type);
+		if(obj.data !== undefined)
+			this.P.smoothUnpack(obj.data,T);
+		if(obj.nom !== undefined)
+			this.nom = obj.nom;
+		if(obj.size !== undefined)
+			this.setSize(obj.size);
+		if(obj.vitMax !== undefined)
+			this.vitMax = obj.vitMax;
+		if(obj.score !== undefined){
+			this.score = obj.score;
+			updatePlayerList();
+		}
+	};
+
 	// Actions
 	this.fire = function(){
 		var balle = new Balle();
@@ -240,6 +257,17 @@ var Balle = function(){
 			return new Error("wrong unpack type : "+obj.type);
 		if(obj.data !== undefined)
 			this.P.unpack(obj.data);
+		if(obj.size !== undefined)
+			this.size = obj.size;
+		if(obj.vitMax !== undefined)
+			this.vitMax = obj.vitMax;
+	};
+
+	this.smoothUnpack = function(obj,T){
+		if(obj.type !== undefined && obj.type !== "Balle")
+			return new Error("wrong unpack type : "+obj.type);
+		if(obj.data !== undefined)
+			this.P.smoothUnpack(obj.data,T);
 		if(obj.size !== undefined)
 			this.size = obj.size;
 		if(obj.vitMax !== undefined)

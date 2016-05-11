@@ -73,7 +73,8 @@ var Vector2D = function(x,y){
 
 // Animable Object
 var animPoint = function(){
-	this.toDelete = false;
+	var self = this;
+	// Utilisé pour le dessin pas défaut
 	this.size = 10;
 
 	// pos en px
@@ -91,12 +92,45 @@ var animPoint = function(){
 	this.getAcc = function(){ return this.acc; };
 	this.setAcc = function(x,y){ this.acc.set(x,y);	};
 
-	this.stepAnim = function(t){
-		this.vit.x += this.acc.x * t;
-		this.vit.y += this.acc.y * t;
+	// fonctions d'animation
+	this.updateVit = null;
+	this.updatePos = null;
 
-		this.pos.x += this.vit.x * t;
-		this.pos.y += this.vit.y * t;
+	// l'objet se dirive vers Pf en T ms et arrive avec la vitesse Vf
+	this.goSmoothTo = function(T,Pf,Vf){
+		var traj = computeSmoothTraj(0,T,self.pos,Pf,self.vit,Vf);
+		var elapsed = 0;
+		self.updatePos = function(t){
+			elapsed += t;
+			if(elapsed < T){
+				var pos = traj(elapsed);
+				self.pos.x = pos.x;
+				self.pos.y = pos.y;
+			}
+			else {
+				self.pos.x = Pf.x;
+				self.pos.y = Pf.y;
+				self.vit.x = Vf.x;
+				self.vit.y = Vf.y;
+				self.updatePos = null;
+			}
+		};
+	};
+
+	this.stepAnim = function(t){
+		if(typeof this.updatePos === 'function')
+			this.updatePos(t);
+		else{
+			if(typeof this.updateVit === 'function')
+				this.updateVit(t);
+			else{
+				this.vit.x += this.acc.x * t;
+				this.vit.y += this.acc.y * t;
+			}
+
+			this.pos.x += this.vit.x * t;
+			this.pos.y += this.vit.y * t;
+		}
 	};
 
 	this.drawOn = function(ctx){
@@ -118,6 +152,18 @@ var animPoint = function(){
 		this.acc.unpack(obj[2]);
 		return true;
 	};
+
+	this.smoothUnpack = function(obj,T){
+		if(obj === undefined || obj[0] === undefined || obj[1] === undefined || T === undefined)
+			return new Error('obj undefined');
+
+		var newPos = new Vector2D(0,0);
+		var newVit = new Vector2D(0,0);
+		newPos.unpack(obj[0]);
+		newVit.unpack(obj[1]);
+		this.goSmoothTo(T,newPos,newVit);
+		return true;
+	};
 };
 
 // Orientable Animable Object
@@ -125,6 +171,8 @@ var animOrientedPoint = function(){
 	var self = this;
 	// point
 	this.animPoint = new animPoint();
+
+	this.setBreak = function(t,d){ this.animPoint.setBreak(t,d); };
 
 	this.getPos = function(){ return this.animPoint.getPos(); };
 	this.setPos = function(x,y){ this.animPoint.setPos(x,y); };
@@ -175,6 +223,60 @@ var animOrientedPoint = function(){
 		this.orientVector.unpack(obj[1]);
 		return true;
 	};
+
+	this.smoothUnpack = function(obj,T){
+		if(obj === undefined || obj[0] === undefined || obj[1] === undefined)
+			return new Error('obj undefined');
+		this.animPoint.smoothUnpack(obj[0],T);
+		this.orientVector.unpack(obj[1]);
+		return true;
+	};
+};
+
+// ---- Math ---- //
+
+var computeSmoothTraj = function(To,Tf,Po,Pf,Vo,Vf){
+/*	if(typeof To !== Number || typeof Tf !== Number ||
+		typeof Po.x !== Number || typeof Po.y !== Number ||
+		typeof Pf.x !== Number || typeof Pf.y !== Number ||
+		typeof Vo.x !== Number || typeof Vo.y !== Number ||
+		typeof Vf.x !== Number || typeof Vf.y !== Number)
+		return ;*/
+
+	var T = Tf - To;
+
+	var A = {'x':0, 'y':0};
+	var B = {'x':0, 'y':0};
+	var C = {'x':0, 'y':0};
+	var D = {'x':0, 'y':0};
+
+	D.x = Po.x;
+	C.x = Vo.x;
+	B.x = ( 3*(Pf.x - Po.x)/T - (Vf.x + 2*Vo.x) )/T;
+	A.x = (Vf.x - Vo.x - 2*B.x*T) / (3*T*T);
+
+	D.y = Po.y;
+	C.y = Vo.y;
+	B.y = ( 3*(Pf.y - Po.y)/T - (Vf.y + 2*Vo.y) )/T;
+	A.y = (Vf.y - Vo.y - 2*B.y*T) / (3*T*T);
+
+	var pos = function(time){
+		var t = time-To;
+		this.t3 = t*t*t;
+		this.t2 = t*t;
+
+		this.A = {'x':A.x, 'y':A.y};
+		this.B = {'x':B.x, 'y':B.y};
+		this.C = {'x':C.x, 'y':C.y};
+		this.D = {'x':D.x, 'y':D.y};
+
+		var P = {'x':0, 'y':0};
+		P.x = this.A.x*t3 + this.B.x*t2+ this.C.x*t + this.D.x;
+		P.y = this.A.y*t3 + this.B.y*t2+ this.C.y*t + this.D.y;
+		return P;
+	};
+
+	return pos;
 };
 
 // ---- ObjectPool ---- //
