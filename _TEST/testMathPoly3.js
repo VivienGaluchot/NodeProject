@@ -108,3 +108,7 @@ var test = function(){
 }
 
 test();
+
+
+var vectest = new Vector2D(-1,0);
+logCalc("angle : "+vectest.getAngle());

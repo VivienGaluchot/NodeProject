@@ -66,9 +66,9 @@ const gameSocketPool = new util.ObjectPool(10);
 		Envoi l'etat du jeu au client
 	- newObject : {'key':key, 'data':data}
 		Objet a ajouter a la pool 
-	- reqUpdatePos : null, cb({'mov':movDir.pack(),'look':lookDir.pack()})
+	- reqUpdatePos : objectsUpdated, cb({'mov':movDir,'look':lookDir})
 		Demande une mise a jour de la position
-	- updateObjects : [{'key':key, 'data':data},...]
+	- updateObjects : [{'key':key, 'data':data},...,{'key':key, 'toDelete':true},{'key':key, 'hit':true},...]
 		Informe de la mise a jour de plusieurs objets
 	- deleteObject : key
 		Informe de la suppression d'un objet 
@@ -110,16 +110,17 @@ var updateCycle = function(){
 				if(object2.type === "Bonhomme" && key !== key2 && object.toDelete === false && object2.isHitBy(object)){
 					// Hit !
 					object.toDelete = true;
+					// Maj score dad
 					object.dad.score++;
+					object.dad.toMaj.score = true;
+					// Emit
+					gameIo.emit('updateObjects', [
+						{'key': object.dad.key , 'data': object.dad.packMaj()},
+						{'key': key2, 'hit': true},
+						{'key': key, 'toDelete': true}
+					]);
 				}
 			});
-		}
-	});
-
-	gameObjectPool.forEach(function(object,key){
-		if(object.toDelete === true){
-			gameIo.emit('deleteObject', key);
-			gameObjectPool.remove(key);
 		}
 	});
 
@@ -137,6 +138,12 @@ var updateCycle = function(){
 
 		nCycleCounter = 0
 	}
+
+	gameObjectPool.forEach(function(object,key){
+		if(object.toDelete === true){
+			gameObjectPool.remove(key);
+		}
+	});
 };
 
 var stopUpdateCycle = function(){
@@ -170,6 +177,7 @@ var initSocket = function(){
 
 			// Ajout de l'objet à la pool
 			var key = gameObjectPool.add(jaque);
+			jaque.key = key;
 			// Erreur
 			if(key instanceof Error){
 				cb('erreur');
@@ -219,22 +227,6 @@ var initSocket = function(){
 					gameIo.emit('newObject', {'key':key, 'data':balle.pack()});
 			});
 
-//			// TEMPORAIRE
-//			socket.on('newObject', function(jaque,cb){
-//				var key = gameObjectPool.add(object);
-//				if(key instanceof Error){
-//					cb('erreur');
-//					return;
-//				}
-//				cb(key);
-//				socket.broadcast.emit('newObject',{'key':key, 'data':object});
-//			});
-
-//			// Ne pas faire passer la deletion, dangereux
-//			socket.on('deleteObject', function(key){
-//				gameObjectPool.remove(key);
-//				socket.broadcast.emit('deleteObject',key);
-//			}); 
 		});
 
 		socket.on('disconnect', function(){

@@ -43,6 +43,11 @@ var Vector2D = function(x,y){
 		this.y = y;
 	};
 
+	this.setFromVect = function(vect){
+		this.x = vect.x;
+		this.y = vect.y;
+	};
+
 	this.setFromRad = function(rayon, angle){
 		if(rayon === 0){
 			this.x = 0;
@@ -54,11 +59,7 @@ var Vector2D = function(x,y){
 	};
 
 	this.getAngle = function(){
-		if(this.y === 0 && this.x>0)
-			return 0;
-		if(this.y === 0 && this.x>0)
-			return Math.PI;
-		return Math.atan(this.x/this.y);
+		return Math.atan2(this.y, this.x);
 	};
 
 	this.getRayon = function(){
@@ -72,11 +73,6 @@ var Vector2D = function(x,y){
 		var h = rayon / this.getRayon();
 		this.x *= h;
 		this.y *= h;
-	};
-
-	this.setFromVect = function(vect){
-		this.x = vect.x;
-		this.y = vect.y;
 	};
 	
 	this.pack = function(){

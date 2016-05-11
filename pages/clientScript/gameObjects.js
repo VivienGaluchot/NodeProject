@@ -37,29 +37,28 @@ var Bonhomme = function(){
 			ctx.fillText(this.nom,P.getPos().x - (ctx.measureText(this.nom).width/2),P.getPos().y-this.size/2-4);
 	};
 
-	this.pack = function(){
-		return {'type':'Bonhomme','nom':this.nom,'data':this.P.pack(),'size':this.size,'score':this.score};
-	};
-
+	// Packing
 	this.unpack = function(obj){
-		if(obj.nom !== undefined)
-			this.nom = obj.nom;
+		if(obj.type !== undefined && obj.type !== "Bonhomme")
+			return new Error("wrong unpack type : "+obj.type);
 		if(obj.data !== undefined)
 			this.P.unpack(obj.data);
+		if(obj.nom !== undefined)
+			this.nom = obj.nom;
 		if(obj.size !== undefined)
 			this.setSize(obj.size);
-		if(obj.score !== undefined)
+		if(obj.vitMax !== undefined)
+			this.vitMax = obj.vitMax;
+		if(obj.score !== undefined){
 			this.score = obj.score;
+			updatePlayerList();
+		}
 	};
 
-
-	this.packP = function(){
-		return this.P.pack();
-	};
-
-	this.unpackP = function(obj){
-		this.P.unpack(obj);
-	};
+	// Action
+	this.hit = function(){
+		// TODO
+	}
 };
 
 
@@ -92,19 +91,15 @@ var Balle = function(){
 		P.stepAnim(t);
 	};
 
-	this.pack = function(){
-		return {'type':'Balle','data':this.P.pack()};
-	};
-
+	// Packing
 	this.unpack = function(obj){
-		this.P.unpack(obj.data);
-	};
-
-	this.packP = function(){		
-		return this.P.pack();
-	};
-
-	this.unpackP = function(obj){
-		this.P.unpack(obj);
+		if(obj.type !== undefined && obj.type !== "Balle")
+			return new Error("wrong unpack type : "+obj.type);
+		if(obj.data !== undefined)
+			this.P.unpack(obj.data);
+		if(obj.size !== undefined)
+			this.size = obj.size;
+		if(obj.vitMax !== undefined)
+			this.vitMax = obj.vitMax;
 	};
 };

@@ -27,11 +27,14 @@ module.exports.setBounds = function(size){
 };
 
 var Bonhomme = function(){
+	this.type = 'Bonhomme';
+
 	this.nom = null;
 	this.vitMax = 0.2;
 	this.size = bonhommeSize;
-	this.type = 'Bonhomme';
 	this.score = 0;
+	this.key = null;
+
 	this.toDelete = false;
 	
 	// point
@@ -82,29 +85,53 @@ var Bonhomme = function(){
 			ctx.fillText(this.nom,P.getPos().x - (ctx.measureText(this.nom).width/2),P.getPos().y-this.size/2-4);
 	};
 
+	// Packing
+	this.toMaj = {	'nom':false,
+					'size':false,
+					'vitMax':false,
+					'score':false};
+
 	this.pack = function(){
-		return {'type':'Bonhomme','nom':this.nom,'data':this.P.pack(),'size':this.size,'score':this.score};
+		return {'type':'Bonhomme','data':this.P.pack(),'nom':this.nom,'size':this.size,'vitMax':this.vitMax,'score':this.score};
+	};
+
+	this.packMaj = function(){
+		var package = {};
+		if(this.toMaj.nom)
+			package.nom = this.nom;
+		if(this.toMaj.size)
+			package.size = this.size;
+		if(this.toMaj.vitMax)
+			package.vitMax = this.vitMax;
+		if(this.toMaj.score)
+			package.score = this.score;
+		this.toMaj = {	'nom':false,
+						'size':false,
+						'vitMax':false,
+						'score':false};
+		return package;
+	};
+
+	this.packP = function(){
+		return {'data':this.P.pack()};
 	};
 
 	this.unpack = function(obj){
-		if(obj.nom !== undefined)
-			this.nom = obj.nom;
+		if(obj.type !== undefined && obj.type !== "Bonhomme")
+			return new Error("wrong unpack type : "+obj.type);
 		if(obj.data !== undefined)
 			this.P.unpack(obj.data);
+		if(obj.nom !== undefined)
+			this.nom = obj.nom;
 		if(obj.size !== undefined)
 			this.setSize(obj.size);
+		if(obj.vitMax !== undefined)
+			this.vitMax = obj.vitMax;
 		if(obj.score !== undefined)
 			this.score = obj.score;
 	};
 
-	this.packP = function(){
-		return this.P.pack();
-	};
-
-	this.unpackP = function(obj){
-		this.P.unpack(obj);
-	};
-
+	// Actions
 	this.fire = function(){
 		var balle = new Balle();
 		balle.P.getPos().x = P.getPos().x + P.orientVector.x;
@@ -131,9 +158,10 @@ var Bonhomme = function(){
 	vitMax < 10px / 10ms = 1
 */
 var Balle = function(){
+	this.type = 'Balle';
 	this.vitMax = 0.5;
 	this.size = 6;
-	this.type = 'Balle';
+
 	this.toDelete = false;
 	this.dad = null;
 
@@ -184,20 +212,38 @@ var Balle = function(){
 		this.colide();
 	};
 
+	// Packing
+	this.toMaj = {	'size':false,
+					'vitMax':false};
+
 	this.pack = function(){
 		return {'type':'Balle','data':this.P.pack()};
 	};
 
+	this.packMaj = function(){
+		var package = {};
+		if(this.toMaj.size)
+			package.size = this.size;
+		if(this.toMaj.vitMax)
+			package.vitMax = this.vitMax;
+		this.toMaj = {	'size':false,
+						'vitMax':false};
+		return package;
+	};
+
+	this.packP = function(){
+		return {'data':this.P.pack()};
+	};
+
 	this.unpack = function(obj){
-		this.P.unpack(obj.data);
-	};
-
-	this.packP = function(){		
-		return this.P.pack();
-	};
-
-	this.unpackP = function(obj){
-		this.P.unpack(obj);
+		if(obj.type !== undefined && obj.type !== "Balle")
+			return new Error("wrong unpack type : "+obj.type);
+		if(obj.data !== undefined)
+			this.P.unpack(obj.data);
+		if(obj.size !== undefined)
+			this.size = obj.size;
+		if(obj.vitMax !== undefined)
+			this.vitMax = obj.vitMax;
 	};
 };
 

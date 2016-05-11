@@ -90,9 +90,9 @@ var gameSocket = null;
 		Envoi l'etat du jeu au client
 	- newObject : {'key':key, 'data':data}
 		Objet a ajouter a la pool 
-	- reqUpdatePos : null, cb({'mov':movDir.pack(),'look':lookDir.pack()})
+	- reqUpdatePos : objectsUpdated, cb({'mov':movDir,'look':lookDir})
 		Demande une mise a jour de la position
-	- updateObjects : [{'key':key, 'data':data},...]
+	- updateObjects : [{'key':key, 'data':data},...,{'key':key, 'toDelete':true},{'key':key, 'hit':true},...]
 		Informe de la mise a jour de plusieurs objets
 	- deleteObject : key
 		Informe de la suppression d'un objet 
@@ -107,6 +107,7 @@ var gameSocket = null;
 	- disconnect
 		Deconnexion du client
 */
+
 
 var initGameSocket = function(){
 	gameSocket = io('/game');
@@ -173,11 +174,11 @@ var initGameSocket = function(){
 	});
 
 	var updateObject = function(obj) {
-		var key = obj.key;
-		gameObjectPool[key].unpackP(obj.data);
-		if(gameObjectPool[key].type === 'Bonhomme'){
+		if(gameObjectPool[obj.key] !== undefined)
+			gameObjectPool[obj.key].unpack(obj.data);
+/*		if(gameObjectPool[key].type === 'Bonhomme'){
 			gameObjectPool[key].P.setBreak(dTUpdateCycle);
-		}
+		}*/
 	};
 
 	gameSocket.on('reqUpdatePos', function(objs,cb) {
@@ -187,13 +188,19 @@ var initGameSocket = function(){
 		}
 	});
 
+	// updateObjects : [{'key':key, 'data':data},...,{'key':key, 'toDelete':true},{'key':key, 'hit':true},...]
 	gameSocket.on('updateObjects', function(objs){
-		for(var i=0;i<objs.length;i++)
-			updateObject(objs[i]);
+		for(var i=0;i<objs.length;i++){
+			if(objs[i].data !== undefined)
+				updateObject(objs[i]);
+			if(objs[i].hit === true)
+				gameObjectPool[objs[i].key].hit();
+			if(objs[i].toDelete === true)
+				delete gameObjectPool[objs[i].key];
+		}
 	});
 
 	gameSocket.on('deleteObject', function(key){
-		console.log('deleteObject');
 		delete gameObjectPool[key];
 	});
 

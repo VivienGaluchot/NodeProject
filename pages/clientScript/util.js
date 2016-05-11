@@ -59,11 +59,7 @@ var Vector2D = function(x,y){
 	};
 
 	this.getAngle = function(){
-		if(this.y === 0 && this.x>0)
-			return 0;
-		if(this.y === 0 && this.x>0)
-			return Math.PI;
-		return Math.atan(this.x/this.y);
+		return Math.atan2(this.y, this.x);
 	};
 
 	this.getRayon = function(){
@@ -192,6 +188,7 @@ var animPoint = function(){
 
 // Orientable Animable Object
 var animOrientedPoint = function(){
+	var self = this;
 	// point
 	this.animPoint = new animPoint();
 
@@ -206,8 +203,15 @@ var animOrientedPoint = function(){
 	this.getAcc = function(){ return this.animPoint.getAcc(); };
 	this.setAcc = function(x,y){ this.animPoint.setAcc(x,y); };
 
+	// Orientvector
 	this.orientVectorSize = 15;
-	this.orientVector = new Vector2D(this.orientVectorSize,0);
+	this.orientVector = new Vector2D(0,-this.orientVectorSize);
+	this.orientVector.pack = function(){
+		return self.orientVector.getAngle();
+	};
+	this.orientVector.unpack = function(angle){
+		self.orientVector.setFromRad(self.orientVectorSize,angle);
+	};
 
 	this.stepAnim = function(t){
 		this.animPoint.stepAnim(t);
@@ -220,10 +224,6 @@ var animOrientedPoint = function(){
 		ctx.moveTo(this.animPoint.pos.x,this.animPoint.pos.y);
 		ctx.lineTo(this.animPoint.pos.x+this.orientVector.x,this.animPoint.pos.y+this.orientVector.y);
 		ctx.stroke();
-	};
-
-	this.orient = function(angle){
-		this.orientVector.setFromRad(orientVectorSize,angle);
 	};
 
 	this.orientToThePoint = function(x,y){
