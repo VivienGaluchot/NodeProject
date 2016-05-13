@@ -127,8 +127,8 @@ var updateCycle = function(){
 		}
 	});
 
+	// Envoi de la maj aux clients
 	if(nCycleCounter >= periodUpdate){
-		// Envoi de la maj
 		var array = gameObjectPool.packForUpdate();
 		gameSocketPool.forEach(function(socket,key){
 			if(socket.isMaj){	
@@ -137,6 +137,19 @@ var updateCycle = function(){
 			}/* else {
 				log.conLogWarning('Game - updateCycle : drop du socket ' + key);
 			}*/
+
+			// Envois des fire à tout le monde
+			if(socket.fireOnUpdate === true){
+				socket.fireOnUpdate = false;
+				var balle = gameObjectPool.get(socket.key).fire();
+				var balleKey = gameObjectPool.add(balle);
+				if(!(balleKey instanceof Error))
+					gameIo.emit('newObject', {'key':balleKey, 'data':balle.pack()});
+			}
+
+			// faire avancer jaque en suivant une trajectoire lisse
+			var jaque = gameObjectPool.get(socket.key);
+			jaque.goSmoothToNextPoint(dTUpdateCycle);
 		});
 
 		nCycleCounter = 0
@@ -176,6 +189,8 @@ var initSocket = function(){
 			var jaque = new gameObjects.Bonhomme();
 			jaque.nom = pseudo;
 			jaque.score = 10;
+			//initpos
+			jaque.nextPoint.setPos(mapSize.width/2,mapSize.height/2);
 			jaque.P.setPos(mapSize.width/2,mapSize.height/2);
 
 			// Ajout de l'objet à la pool
@@ -211,24 +226,18 @@ var initSocket = function(){
 				socket.emit('reqUpdatePos', objectsUpdated, function(data){
 					socket.isMaj = true;
 					var jaque = gameObjectPool.get(socket.key);
-
 					// orient
 					jaque.P.orientVector.unpack(data.look);
 
 					// ou sera jaque la prochaine update ?
-					// nextPoint
-					var nextPoint = new util.animPoint();
 					// pos
-					nextPoint.pos.setFromVect(jaque.P.getPos());
+					jaque.nextPoint.getPos().setFromVect(jaque.P.getPos());
 					// vit
-					nextPoint.vit.unpack(data.mov);
-					if(nextPoint.vit.getRayon() > jaque.vitMax)
-						nextPoint.vit.setRayonTo(jaque.vitMax);
-					// step
-					nextPoint.stepAnim(dTUpdateCycle);
-
-					// fait avencer jaque en suivant une trajectoire lisse
-					jaque.P.animPoint.goSmoothTo(dTUpdateCycle,nextPoint.pos,nextPoint.vit);
+					jaque.nextPoint.getVit().unpack(data.mov);
+					if(jaque.nextPoint.getVit().getRayon() > jaque.vitMax)
+						jaque.nextPoint.getVit().setRayonTo(jaque.vitMax);
+					// 1 step
+					jaque.nextPoint.stepAnim(dTUpdateCycle);
 				});
 			};
 
@@ -237,12 +246,9 @@ var initSocket = function(){
 			});
 			socket.broadcast.emit('newObject', {'key':key, 'data':jaque.pack()});
 
-			// TODO : mettre ca dans le cycle d'update
+			socket.fireOnUpdate = false;
 			socket.on('fire', function(data,cb){
-				var balle = gameObjectPool.get(socket.key).fire();
-				var key = gameObjectPool.add(balle);
-				if(!(key instanceof Error))
-					gameIo.emit('newObject', {'key':key, 'data':balle.pack()});
+				socket.fireOnUpdate = true;
 			});
 
 		});

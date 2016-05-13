@@ -33,8 +33,13 @@ var Bonhomme = function(){
 	this.vitMax = 0.2;
 	this.size = bonhommeSize;
 	this.score = 0;
-	this.key = null;
 
+	// Spécial serveur
+	this.key = null;
+	this.nextPoint = new util.animOrientedPoint();
+	this.goSmoothToNextPoint = function(T){
+		P.animPoint.goSmoothTo(T,this.nextPoint.getPos(),this.nextPoint.getVit());
+	};
 	this.toDelete = false;
 	
 	// point
@@ -113,7 +118,8 @@ var Bonhomme = function(){
 	};
 
 	this.packP = function(){
-		return {'data':this.P.pack()};
+		// return {'data':this.P.pack()};
+		return {'data':this.nextPoint.pack()};
 	};
 
 	this.unpack = function(obj){
@@ -185,8 +191,8 @@ var Balle = function(){
 	// point
 	var P = new util.animPoint();
 	this.P = P;
-	/// affichage de la trace
-	this.trainee = new util.Vector2D();
+/*	/// affichage de la trace
+	this.trainee = new util.Vector2D();*/
 
 	this.drawOn = function(ctx){		
 		ctx.lineWidth = 3;
@@ -220,9 +226,9 @@ var Balle = function(){
 	};
 
 	this.stepAnim = function(t){ // t en ms
-		this.trainee.x = -P.getVit().x;
+/*		this.trainee.x = -P.getVit().x;
 		this.trainee.y = -P.getVit().y;
-		this.trainee.setRayonTo(this.size);
+		this.trainee.setRayonTo(this.size);*/
 
 		P.stepAnim(t);
 

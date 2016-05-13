@@ -308,6 +308,7 @@ var toucheUp = function(event){
 };
 
 var touchePress = function(event){
+	gameSocket.emit('fire');
 };
 
 var mouseEvent = function(event){

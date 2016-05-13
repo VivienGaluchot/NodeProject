@@ -121,11 +121,13 @@ var Balle = function(){
 			this.vitMax = obj.vitMax;
 	};
 
+	// TODO smoothUnpack
+	// pas de smoothUnpack fait, le décalage n'etant pas pris en compte
 	this.smoothUnpack = function(obj,T){
 		if(obj.type !== undefined && obj.type !== "Balle")
 			return new Error("wrong unpack type : "+obj.type);
 		if(obj.data !== undefined)
-			this.P.smoothUnpack(obj.data,T);
+			this.P.unpack(obj.data);
 		if(obj.size !== undefined)
 			this.size = obj.size;
 		if(obj.vitMax !== undefined)
