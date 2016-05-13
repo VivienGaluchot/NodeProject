@@ -35,11 +35,8 @@ var Bonhomme = function(){
 	this.score = 0;
 
 	// Spécial serveur
+	// TODO clientPos : position synchro avec celle envoyé aux clients
 	this.key = null;
-	this.nextPoint = new util.animOrientedPoint();
-	this.goSmoothToNextPoint = function(T){
-		P.animPoint.goSmoothTo(T,this.nextPoint.getPos(),this.nextPoint.getVit());
-	};
 	this.toDelete = false;
 	
 	// point
@@ -118,8 +115,7 @@ var Bonhomme = function(){
 	};
 
 	this.packP = function(){
-		// return {'data':this.P.pack()};
-		return {'data':this.nextPoint.pack()};
+		return {'data':this.P.pack()};
 	};
 
 	this.unpack = function(obj){
@@ -155,6 +151,7 @@ var Bonhomme = function(){
 	};
 
 	// Actions
+	// TODO use clientPos
 	this.fire = function(){
 		var balle = new Balle();
 		balle.P.getPos().x = P.getPos().x + P.orientVector.x;
@@ -165,6 +162,7 @@ var Bonhomme = function(){
 		return balle;
 	};
 
+	// TODO use clientPos
 	this.isHitBy = function(object){
 		var minX = P.getPos().x - this.size/2;
 		var minY = P.getPos().y - this.size/2;

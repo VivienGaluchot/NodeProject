@@ -127,8 +127,9 @@ var updateCycle = function(){
 		}
 	});
 
-	// Envoi de la maj aux clients
+	// Cycle d'envois
 	if(nCycleCounter >= periodUpdate){
+		// Envoi de la maj aux clients
 		var array = gameObjectPool.packForUpdate();
 		gameSocketPool.forEach(function(socket,key){
 			if(socket.isMaj){	
@@ -137,8 +138,10 @@ var updateCycle = function(){
 			}/* else {
 				log.conLogWarning('Game - updateCycle : drop du socket ' + key);
 			}*/
+		});
 
-			// Envois des fire à tout le monde
+		// Envois des fire à tout le monde
+		gameSocketPool.forEach(function(socket,key){
 			if(socket.fireOnUpdate === true){
 				socket.fireOnUpdate = false;
 				var balle = gameObjectPool.get(socket.key).fire();
@@ -146,15 +149,12 @@ var updateCycle = function(){
 				if(!(balleKey instanceof Error))
 					gameIo.emit('newObject', {'key':balleKey, 'data':balle.pack()});
 			}
-
-			// faire avancer jaque en suivant une trajectoire lisse
-			var jaque = gameObjectPool.get(socket.key);
-			jaque.goSmoothToNextPoint(dTUpdateCycle);
 		});
 
 		nCycleCounter = 0
 	}
 
+	// Netoyage
 	gameObjectPool.forEach(function(object,key){
 		if(object.toDelete === true){
 			gameObjectPool.remove(key);
@@ -190,7 +190,6 @@ var initSocket = function(){
 			jaque.nom = pseudo;
 			jaque.score = 10;
 			//initpos
-			jaque.nextPoint.setPos(mapSize.width/2,mapSize.height/2);
 			jaque.P.setPos(mapSize.width/2,mapSize.height/2);
 
 			// Ajout de l'objet à la pool
@@ -226,18 +225,13 @@ var initSocket = function(){
 				socket.emit('reqUpdatePos', objectsUpdated, function(data){
 					socket.isMaj = true;
 					var jaque = gameObjectPool.get(socket.key);
+		
 					// orient
 					jaque.P.orientVector.unpack(data.look);
-
-					// ou sera jaque la prochaine update ?
-					// pos
-					jaque.nextPoint.getPos().setFromVect(jaque.P.getPos());
 					// vit
-					jaque.nextPoint.getVit().unpack(data.mov);
-					if(jaque.nextPoint.getVit().getRayon() > jaque.vitMax)
-						jaque.nextPoint.getVit().setRayonTo(jaque.vitMax);
-					// 1 step
-					jaque.nextPoint.stepAnim(dTUpdateCycle);
+					jaque.P.getVit().unpack(data.mov);
+					if(jaque.P.getVit().getRayon() > jaque.vitMax)
+						jaque.P.getVit().setRayonTo(jaque.vitMax);
 				});
 			};
 
