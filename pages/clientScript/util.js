@@ -203,17 +203,26 @@ var animOrientedPoint = function(){
 	this.setAcc = function(x,y){ this.animPoint.setAcc(x,y); };
 
 	// Orientvector
-	this.orientVectorSize = 15;
-	this.orientVector = new Vector2D(0,-this.orientVectorSize);
+	this.orientVector = new animPoint();
+	this.orientVector.size = 15;
+	this.orientVector.pos.set(0,-this.orientVector.size);
 	this.orientVector.pack = function(){
-		return self.orientVector.getAngle();
+		return self.orientVector.pos.getAngle();
 	};
 	this.orientVector.unpack = function(angle){
-		self.orientVector.setFromRad(self.orientVectorSize,angle);
+		self.orientVector.pos.setFromRad(self.orientVector.size,angle);
+	};
+	this.orientVector.smoothUnpack = function(angle,T){
+		var newPos = new Vector2D(0,0);
+		newPos.setFromRad(self.orientVector.size,angle);
+		var newVit = new Vector2D(0,0);
+
+		self.orientVector.goSmoothTo(T,newPos,newVit);
 	};
 
 	this.stepAnim = function(t){
 		this.animPoint.stepAnim(t);
+		this.orientVector.stepAnim(t);
 	};
 
 	this.drawOn = function(ctx){
@@ -221,14 +230,8 @@ var animOrientedPoint = function(){
 
 		ctx.beginPath();
 		ctx.moveTo(this.animPoint.pos.x,this.animPoint.pos.y);
-		ctx.lineTo(this.animPoint.pos.x+this.orientVector.x,this.animPoint.pos.y+this.orientVector.y);
+		ctx.lineTo(this.animPoint.pos.x+this.orientVector.pos.x,this.animPoint.pos.y+this.orientVector.pos.y);
 		ctx.stroke();
-	};
-
-	this.orientToThePoint = function(x,y){
-		this.orientVector.x = x-this.animPoint.pos.x;
-		this.orientVector.y = y-this.animPoint.pos.y;
-		this.orientVector.setRayonTo(this.orientVectorSize);
 	};
 
 	this.pack = function(){
@@ -247,7 +250,7 @@ var animOrientedPoint = function(){
 		if(obj === undefined || obj[0] === undefined || obj[1] === undefined)
 			return new Error('obj undefined');
 		this.animPoint.smoothUnpack(obj[0],T);
-		this.orientVector.unpack(obj[1]);
+		this.orientVector.smoothUnpack(obj[1],T);
 		return true;
 	};
 };

@@ -36,6 +36,7 @@ var Bonhomme = function(){
 
 	// Spécial serveur
 	// TODO clientPos : position synchro avec celle envoyé aux clients
+	this.clientPos = new util.animOrientedPoint();
 	this.key = null;
 	this.toDelete = false;
 	
@@ -73,6 +74,7 @@ var Bonhomme = function(){
 
 	this.stepAnim = function(t){
 		P.stepAnim(t);
+		this.clientPos.stepAnim(t);
 
 		this.colide();
 	};
@@ -150,24 +152,27 @@ var Bonhomme = function(){
 		}
 	};
 
+	this.updateClientPos = function(T){
+		var obj = this.packP();
+		this.clientPos.smoothUnpack(obj.data,T);
+	};
+
 	// Actions
-	// TODO use clientPos
 	this.fire = function(){
 		var balle = new Balle();
-		balle.P.getPos().x = P.getPos().x + P.orientVector.x;
-		balle.P.getPos().y = P.getPos().y + P.orientVector.y;
-		balle.P.getVit().setFromVect(P.orientVector);
+		balle.P.getPos().x = this.clientPos.getPos().x + this.clientPos.orientVector.pos.x;
+		balle.P.getPos().y = this.clientPos.getPos().y + this.clientPos.orientVector.pos.y;
+		balle.P.getVit().setFromVect(this.clientPos.orientVector.pos);
 		balle.P.getVit().setRayonTo(balle.vitMax);
 		balle.dad = this;
 		return balle;
 	};
 
-	// TODO use clientPos
 	this.isHitBy = function(object){
-		var minX = P.getPos().x - this.size/2;
-		var minY = P.getPos().y - this.size/2;
-		var maxX = P.getPos().x + this.size/2;
-		var maxY = P.getPos().y + this.size/2;
+		var minX = this.clientPos.getPos().x - this.size/2;
+		var minY = this.clientPos.getPos().y - this.size/2;
+		var maxX = this.clientPos.getPos().x + this.size/2;
+		var maxY = this.clientPos.getPos().y + this.size/2;
 		var pos = object.P.getPos();
 		return pos.x > minX && pos.x < maxX && pos.y > minY && pos.y < maxY;
 	};

@@ -90,7 +90,7 @@ var gameSocket = null;
 		Envoi l'etat du jeu au client
 	- newObject : {'key':key, 'data':data}
 		Objet a ajouter a la pool 
-	- reqUpdatePos : objectsUpdated, cb({'mov':movDir,'look':lookDir})
+	- reqUpdatePos : objectsUpdated, cb({'mov':data,'look':angle})
 		Demande une mise a jour de la position
 	- updateObjects : [{'key':key, 'data':data},...,{'key':key, 'toDelete':true},{'key':key, 'hit':true},...]
 		Informe de la mise a jour de plusieurs objets
@@ -179,7 +179,12 @@ var initGameSocket = function(){
 	};
 
 	gameSocket.on('reqUpdatePos', function(objs,cb) {
-		cb({'mov':movDir.pack(),'look':yourBonhomme.P.orientVector.pack()});
+		var lookDir = new Vector2D(0,0);
+		lookDir.x = mouseX-yourBonhomme.P.getPos().x;
+		lookDir.y = mouseY-yourBonhomme.P.getPos().y;
+		lookDir.setRayonTo(1);
+
+		cb({'mov':movDir.pack(),'look':lookDir.getAngle()});
 		for(var i=0;i<objs.length;i++){
 			updateObject(objs[i]);
 		}
@@ -253,11 +258,6 @@ var keyRightDown = false;
 var keyDownDown = false;
 var keyLeftDown = false;
 
-var mouseX;
-var mouseY;
-var movDir = new Vector2D(0,0);
-var lookDir = new Vector2D(0,0);
-
 var toucheDown = function(event){
 	if(yourBonhomme === null)
 		return;
@@ -311,14 +311,14 @@ var touchePress = function(event){
 	gameSocket.emit('fire');
 };
 
+var mouseX = 0;
+var mouseY = 0;
 var mouseEvent = function(event){
 	if(yourBonhomme === null)
 		return;
 	var rect = gameCanvas.element.getBoundingClientRect();
 	mouseX = event.clientX - rect.left;
 	mouseY = event.clientY - rect.top;
-	yourBonhomme.lookTo(mouseX,mouseY);
-	lookDir.setFromVect(yourBonhomme.P.orientVector);
 };
 
 var clickEvent = function(event){
@@ -327,6 +327,7 @@ var clickEvent = function(event){
 
 // TODO : smooth binding
 
+var movDir = new Vector2D(0,0);
 var bindKey = function(up,right,down,left){
 	movDir.set(0,0);
 	if(up !== down){

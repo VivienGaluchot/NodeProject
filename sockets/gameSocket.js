@@ -69,7 +69,7 @@ const gameSocketPool = new util.ObjectPool(10);
 		Envoi l'etat du jeu au client
 	- newObject : {'key':key, 'data':data}
 		Objet a ajouter a la pool 
-	- reqUpdatePos : objectsUpdated, cb({'mov':movDir,'look':lookDir})
+	- reqUpdatePos : objectsUpdated, cb({'mov':data,'look':angle})
 		Demande une mise a jour de la position
 	- updateObjects : [{'key':key, 'data':data},...,{'key':key, 'toDelete':true},{'key':key, 'hit':true},...]
 		Informe de la mise a jour de plusieurs objets
@@ -191,6 +191,7 @@ var initSocket = function(){
 			jaque.score = 10;
 			//initpos
 			jaque.P.setPos(mapSize.width/2,mapSize.height/2);
+			jaque.clientPos.setPos(mapSize.width/2,mapSize.height/2);
 
 			// Ajout de l'objet à la pool
 			var key = gameObjectPool.add(jaque);
@@ -224,8 +225,6 @@ var initSocket = function(){
 				//data : {'mov':movDir.pack(),'look':lookDir.pack()}
 				socket.emit('reqUpdatePos', objectsUpdated, function(data){
 					socket.isMaj = true;
-					var jaque = gameObjectPool.get(socket.key);
-		
 					// orient
 					jaque.P.orientVector.unpack(data.look);
 					// vit
@@ -233,6 +232,8 @@ var initSocket = function(){
 					if(jaque.P.getVit().getRayon() > jaque.vitMax)
 						jaque.P.getVit().setRayonTo(jaque.vitMax);
 				});
+				// mise a jour de la position du client interne
+				jaque.updateClientPos(dTUpdateCycle);
 			};
 
 			socket.emit('initGame', {'settings':gameSettings, 'pool':gameObjectPool.pack()}, function(){

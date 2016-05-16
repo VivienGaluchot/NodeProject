@@ -8,24 +8,14 @@ var Bonhomme = function(){
 	var P = new animOrientedPoint();
 	this.P = P;
 
-	P.orientVectorSize = 20;
+	P.orientVector.size = 20;
 	this.setSize = function(size){
 		this.size = size;
 		P.animPoint.size = size;
 	};
 
-	// mouse tracking
-	this.lookTo = function(x,y){
-		P.orientToThePoint(x,y);
-	};
-
 	this.stepAnim = function(t){
 		P.stepAnim(t);
-
-		if(this===yourBonhomme){
-			yourBonhomme.lookTo(mouseX,mouseY);
-			lookDir.setFromVect(yourBonhomme.P.orientVector);
-		}
 	};
 
 	this.drawOn = function(ctx){
