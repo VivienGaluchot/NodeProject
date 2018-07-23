@@ -1,16 +1,14 @@
 # NodeJsProjet
 
-Projet de découverte de NodeJs.
-Heberge un site proposant un jeu multijoueur ainsi qu'un chat.
+Projet de découverte de NodeJs. Heberge un site proposant un jeu multijoueur ainsi qu'un chat.
 
-Permet de fournir du contenu statique et du contenu dynamique.
-La liste des différents contenus accéssbiles est configurable dans ```elements.json``` a la racine du dépot.
+Permet de fournir du contenu statique et du contenu dynamique. La liste des différents urls accéssibles est configurée par le fichier ```elements.json``` a la racine du dépot.
 
-# Utilisation
+## Utilisation
 
-Lancer ```start.bat```, une fois le serveur en marche le site est accéssible en local a l'adresse suivante ```localhost:8080```.
-Testé sous firfox.
+Lancer ```start.bat```, une fois le serveur en marche le site est accéssible en local a l'adresse suivante ```localhost:8080```.  Fonctionne au moins sous firfox.
 
+## Exemple de fonctionnement
 ```
 >start.bat
 >node serveur.js
@@ -38,3 +36,9 @@ LOG. Chargement de socketProcess
      Succes - /img/header.png
 ---- 6/23/2018 22:19:42 ----
 ```
+
+_Capture d'écran de la page de jeu_
+![capture](demo/screen_game.png)
+
+_Capture d'écran de la page de chat_
+![capture](demo/screen_chat.png)
